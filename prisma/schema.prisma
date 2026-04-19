@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             String    @id @default(uuid())
+  supabaseUserId String?   @unique @map("supabase_user_id")
+  email          String    @unique
+  name           String
+  phone          String?
+  chiosBoxId     String    @unique @map("chios_box_id")
+  address        String?
+  tosAccepted    Boolean   @default(false) @map("tos_accepted")
+  plan           String    @default("FREE")
+  planStatus     String    @default("inactive") @map("plan_status")
+  planStartedAt  DateTime? @map("plan_started_at")
+  planExpiresAt  DateTime? @map("plan_expires_at")
+  isAdmin        Boolean   @default(false) @map("is_admin")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  packages       Package[]
+  invoices       Invoice[]
+
+  @@map("users")
+}
+
+model Package {
+  id               String        @id @default(uuid())
+  userId           String        @map("user_id")
+  user             User          @relation(fields: [userId], references: [id])
+  trackingNo       String        @map("tracking_no")
+  carrier          String
+  content          String
+  status           PackageStatus @default(BEKLENIYOR)
+  warehousePhotoUrl String?      @map("warehouse_photo_url")
+  arrivedAt        DateTime?     @map("arrived_at")
+  storageDaysUsed  Int           @default(0) @map("storage_days_used")
+  freeDaysLeft     Int           @default(14) @map("free_days_left")
+  shelfLocation    String?       @map("shelf_location")
+  demurrageFee     Decimal       @default(0) @map("demurrage_fee")
+  masterBoxId      String?       @map("master_box_id")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  @@map("packages")
+}
+
+model Invoice {
+  id              String        @id @default(uuid())
+  userId          String        @map("user_id")
+  user            User          @relation(fields: [userId], references: [id])
+  acceptFee       Decimal       @map("accept_fee")
+  consolidationFee Decimal      @default(0) @map("consolidation_fee")
+  demurrageFee    Decimal       @default(0) @map("demurrage_fee")
+  total           Decimal
+  status          InvoiceStatus @default(PENDING)
+  qrCode          String?       @map("qr_code")
+  paidAt          DateTime?     @map("paid_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+
+  @@map("invoices")
+}
+
+enum PackageStatus {
+  BEKLENIYOR
+  YOLDA
+  DEPODA
+  BIRLESTIRILDI
+  TESLIM_EDILDI
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  CANCELLED
+}

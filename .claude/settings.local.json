@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rtk ls *)",
+      "Bash(npm --version)",
+      "Bash(rtk npx *)",
+      "Bash(npm init *)",
+      "Bash(npm install *)",
+      "Bash(rtk npm *)",
+      "Bash(rtk read *)",
+      "Bash(rtk curl *)",
+      "Bash(rtk prisma *)",
+      "Bash(./node_modules/.bin/prisma init *)",
+      "Bash(python3 \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"logistics shipping e-commerce animated vibrant modern\" --design-system -p \"ChiosBox\")",
+      "Bash(python3 \"C:/Users/MySir/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"logistics shipping e-commerce animated vibrant modern\" --design-system -p \"ChiosBox\")",
+      "Bash(python3 \"C:/Users/MySir/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"hero animated interactive scrollytelling\" --domain landing -n 8)",
+      "Bash(python3 \"C:/Users/MySir/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"animation scroll interactive motion\" --domain ux -n 6)",
+      "Bash(python3 \"C:/Users/MySir/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"nextjs layout responsive tailwind\" --stack nextjs)",
+      "mcp__plugin_supabase_supabase__list_projects",
+      "mcp__plugin_supabase_supabase__get_cost",
+      "mcp__plugin_supabase_supabase__confirm_cost",
+      "mcp__plugin_supabase_supabase__create_project",
+      "mcp__plugin_supabase_supabase__list_migrations",
+      "mcp__plugin_supabase_supabase__apply_migration",
+      "mcp__plugin_supabase_supabase__list_tables",
+      "mcp__plugin_supabase_supabase__get_project",
+      "mcp__plugin_supabase_supabase__get_publishable_keys",
+      "mcp__plugin_supabase_supabase__get_project_url",
+      "Bash(./node_modules/.bin/prisma --version)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "Bash(./node_modules/.bin/prisma generate *)",
+      "Bash(python *)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(rtk git *)",
+      "Bash(git init *)"
+    ]
+  }
+}
