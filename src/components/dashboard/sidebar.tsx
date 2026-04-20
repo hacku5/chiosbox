@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
@@ -182,30 +183,37 @@ export function Sidebar() {
       </aside>
 
       {/* Mobile Bottom Nav */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-deep-sea-teal/5 safe-area-pb">
-        <div className="flex items-center justify-around h-16 px-2">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-t border-deep-sea-teal/5 safe-area-pb">
+        <div className="flex items-center justify-around h-18 px-3 py-2">
           {staticNavItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-all duration-200 cursor-pointer relative ${
+                className={`flex flex-col items-center gap-1 py-2 px-2 rounded-2xl transition-all duration-300 cursor-pointer relative min-w-[52px] ${
                   isActive
                     ? "text-chios-purple"
-                    : "text-deep-sea-teal/40"
+                    : "text-deep-sea-teal/40 hover:text-deep-sea-teal/60"
                 }`}
               >
-                <span
-                  className={`transition-transform duration-200 ${
-                    isActive ? "scale-110" : ""
-                  }`}
-                >
+                {isActive && (
+                  <motion.div
+                    layoutId="customer-nav-pill"
+                    className="absolute inset-0 bg-chios-purple/10 rounded-2xl"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10">
                   {item.icon}
                 </span>
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <span className={`relative z-10 text-[10px] font-medium transition-all duration-300 ${
+                  isActive ? "font-semibold" : ""
+                }`}>
+                  {item.label}
+                </span>
                 {item.badge && pendingCount > 0 && (
-                  <span className="absolute -top-0.5 right-1 bg-danger-red text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  <span className="absolute -top-0.5 right-0 bg-danger-red text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center z-20">
                     {pendingCount}
                   </span>
                 )}

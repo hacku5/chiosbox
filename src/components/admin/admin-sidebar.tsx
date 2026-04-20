@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { useAdminUser } from "@/app/admin/admin-layout-client";
 import { hasPermission, isSuperAdmin } from "@/lib/permissions";
@@ -9,7 +11,7 @@ import { createClient } from "@/lib/supabase-browser";
 interface NavItem {
   label: string;
   href: string;
-  permission: string | null; // null = tüm adminler görebilir
+  permission: string | null;
   icon: React.ReactNode;
 }
 
@@ -115,15 +117,60 @@ const allNavItems: NavItem[] = [
   },
 ];
 
+function NavItemLink({
+  item,
+  isActive,
+  onClick,
+  variant,
+}: {
+  item: NavItem;
+  isActive: boolean;
+  onClick?: () => void;
+  variant: "desktop" | "mobile";
+}) {
+  if (variant === "desktop") {
+    return (
+      <Link
+        href={item.href}
+        className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl transition-all duration-200 cursor-pointer ${
+          isActive
+            ? "bg-white/15 text-white"
+            : "text-white/40 hover:bg-white/10 hover:text-white/70"
+        }`}
+      >
+        {item.icon}
+        <span className="text-[10px] font-medium">{item.label}</span>
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      href={item.href}
+      onClick={onClick}
+      className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer ${
+        isActive
+          ? "bg-white/15 text-white"
+          : "text-white/50 hover:bg-white/10 hover:text-white/80"
+      }`}
+    >
+      <span className={isActive ? "text-white" : "text-white/40"}>{item.icon}</span>
+      <span className={`text-sm ${isActive ? "font-semibold" : "font-medium"}`}>
+        {item.label}
+      </span>
+    </Link>
+  );
+}
+
 export function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const adminUser = useAdminUser();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Filter nav items based on permissions
   const navItems = allNavItems.filter((item) => {
-    if (item.permission === null) return true; // Dashboard visible to all admins
-    if (item.permission === "users") return isSuperAdmin(adminUser.permissions); // Users only for super admin
+    if (item.permission === null) return true;
+    if (item.permission === "users") return isSuperAdmin(adminUser.permissions);
     return hasPermission(adminUser.permissions, item.permission as never);
   });
 
@@ -132,6 +179,11 @@ export function AdminSidebar() {
     await supabase.auth.signOut();
     router.push("/login");
   };
+
+  const isActive = (href: string) =>
+    href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
+
+  const currentLabel = navItems.find((i) => isActive(i.href))?.label || "Panel";
 
   return (
     <>
@@ -147,25 +199,14 @@ export function AdminSidebar() {
         </div>
 
         <nav className="flex-1 px-2 py-6 flex flex-col gap-2">
-          {navItems.map((item) => {
-            const isActive = item.href === "/admin"
-              ? pathname === "/admin"
-              : pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl transition-all duration-200 cursor-pointer ${
-                  isActive
-                    ? "bg-white/15 text-white"
-                    : "text-white/40 hover:bg-white/10 hover:text-white/70"
-                }`}
-              >
-                {item.icon}
-                <span className="text-[10px] font-medium">{item.label}</span>
-              </Link>
-            );
-          })}
+          {navItems.map((item) => (
+            <NavItemLink
+              key={item.href}
+              item={item}
+              isActive={isActive(item.href)}
+              variant="desktop"
+            />
+          ))}
         </nav>
 
         <div className="p-3 mb-2 flex flex-col items-center gap-3">
@@ -183,28 +224,110 @@ export function AdminSidebar() {
         </div>
       </aside>
 
-      {/* Mobile Bottom Nav */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-deep-sea-teal border-t border-white/10 safe-area-pb">
-        <div className="flex items-center justify-around h-20 px-2">
-          {navItems.map((item) => {
-            const isActive = item.href === "/admin"
-              ? pathname === "/admin"
-              : pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex flex-col items-center gap-1.5 py-2 px-4 rounded-2xl transition-all duration-200 cursor-pointer min-w-[64px] min-h-[56px] ${
-                  isActive ? "text-white" : "text-white/40"
-                }`}
-              >
-                {item.icon}
-                <span className="text-[10px] font-medium">{item.label}</span>
-              </Link>
-            );
-          })}
+      {/* Mobile Header Bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-deep-sea-teal/95 backdrop-blur-xl border-b border-white/10 safe-area-pt">
+        <div className="flex items-center justify-between h-14 px-4">
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+
+          <span className="text-sm font-semibold text-white">{currentLabel}</span>
+
+          <button
+            onClick={handleLogout}
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-white/40 hover:text-danger-red/80 hover:bg-white/10 transition-all cursor-pointer"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </button>
         </div>
-      </nav>
+      </div>
+
+      {/* Mobile Slide-In Menu */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="lg:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+              onClick={() => setMobileOpen(false)}
+            />
+
+            {/* Panel */}
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="lg:hidden fixed left-0 top-0 bottom-0 z-50 w-72 bg-deep-sea-teal flex flex-col shadow-2xl"
+            >
+              {/* Menu header */}
+              <div className="flex items-center justify-between p-5 border-b border-white/10">
+                <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2">
+                  <svg width="28" height="28" viewBox="0 0 32 32" fill="none" className="text-white">
+                    <rect width="32" height="32" rx="8" fill="currentColor" opacity="0.2" />
+                    <path d="M8 12L16 8L24 12V20L16 24L8 20V12Z" stroke="white" strokeWidth="2" strokeLinejoin="round" />
+                  </svg>
+                  <span className="font-display text-lg font-semibold text-white">ChiosBox</span>
+                </Link>
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Nav items */}
+              <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+                {navItems.map((item) => (
+                  <NavItemLink
+                    key={item.href}
+                    item={item}
+                    isActive={isActive(item.href)}
+                    onClick={() => setMobileOpen(false)}
+                    variant="mobile"
+                  />
+                ))}
+              </nav>
+
+              {/* User info at bottom */}
+              <div className="p-4 border-t border-white/10">
+                <div className="flex items-center gap-3 px-2">
+                  <div className="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center">
+                    <span className="text-sm font-semibold text-white">
+                      {(adminUser.name || "?")[0]}
+                    </span>
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium text-white truncate">
+                      {adminUser.name}
+                    </div>
+                    <div className="text-xs text-white/40">Admin</div>
+                  </div>
+                </div>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }

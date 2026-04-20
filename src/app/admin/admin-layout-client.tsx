@@ -31,7 +31,7 @@ export function AdminLayoutClient({
     <AdminUserContext.Provider value={adminUser}>
       <div className="min-h-screen bg-gray-100">
         <AdminSidebar />
-        <main className="lg:ml-20 pb-24 lg:pb-0">
+        <main className="lg:ml-20 pt-14 lg:pt-0">
           {children}
         </main>
       </div>

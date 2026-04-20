@@ -57,7 +57,7 @@ export default function DemurragePage() {
   };
 
   return (
-    <div className="p-4 lg:p-6">
+    <div className="p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="font-display text-2xl font-bold text-deep-sea-teal">

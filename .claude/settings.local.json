@@ -45,7 +45,8 @@
       "Bash(node -e ' *)",
       "Bash(rtk find *)",
       "mcp__web-reader__webReader",
-      "WebSearch"
+      "WebSearch",
+      "Bash(node *)"
     ]
   }
 }

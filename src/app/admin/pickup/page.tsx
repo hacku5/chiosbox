@@ -115,7 +115,7 @@ export default function PickupPage() {
   };
 
   return (
-    <div className="p-4 lg:p-6">
+    <div className="p-4 sm:p-6 lg:p-8">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="font-display text-2xl font-bold text-deep-sea-teal">

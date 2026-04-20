@@ -63,7 +63,7 @@ export default function AdminCustomerDetailPage() {
 
   if (loading) {
     return (
-      <div className="p-6 lg:p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         <div className="max-w-4xl mx-auto animate-pulse space-y-4">
           <div className="h-32 bg-deep-sea-teal/5 rounded-2xl" />
           <div className="h-64 bg-deep-sea-teal/5 rounded-2xl" />
@@ -77,7 +77,7 @@ export default function AdminCustomerDetailPage() {
   const { user, packages, invoices, totalSpent, pendingTotal } = data;
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Back */}
         <button
