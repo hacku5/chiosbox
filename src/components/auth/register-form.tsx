@@ -1,16 +1,120 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/stores/auth-store";
 import { PlanSelector } from "./plan-selector";
 import { useSearchParams, useRouter } from "next/navigation";
+
+type Step = "info" | "email-verify" | "phone-verify" | "payment" | "success";
+
+const PLAN_PRICES: Record<string, { name: string; price: string }> = {
+  TEMEL: { name: "Temel", price: "€9.99" },
+  PREMIUM: { name: "Premium", price: "€24.99" },
+};
+
+function CodeInput({ length = 6, onComplete, loading }: { length?: number; onComplete: (code: string) => void; loading?: boolean }) {
+  const [digits, setDigits] = useState<string[]>(Array(length).fill(""));
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const handleChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    const newDigits = [...digits];
+    newDigits[index] = value.slice(-1);
+    setDigits(newDigits);
+
+    if (value && index < length - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+
+    const code = newDigits.join("");
+    if (code.length === length) {
+      onComplete(code);
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !digits[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, length);
+    const newDigits = [...digits];
+    for (let i = 0; i < pasted.length; i++) {
+      newDigits[i] = pasted[i];
+    }
+    setDigits(newDigits);
+    if (pasted.length === length) {
+      onComplete(pasted);
+    } else {
+      inputRefs.current[Math.min(pasted.length, length - 1)]?.focus();
+    }
+  };
+
+  return (
+    <div className="flex gap-2 justify-center">
+      {digits.map((d, i) => (
+        <input
+          key={i}
+          ref={(el) => { inputRefs.current[i] = el; }}
+          type="text"
+          inputMode="numeric"
+          maxLength={1}
+          value={d}
+          onChange={(e) => handleChange(i, e.target.value)}
+          onKeyDown={(e) => handleKeyDown(i, e)}
+          onPaste={i === 0 ? handlePaste : undefined}
+          disabled={loading}
+          className="w-11 h-13 text-center text-xl font-mono font-bold rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200 disabled:opacity-50"
+        />
+      ))}
+    </div>
+  );
+}
+
+function StepIndicator({ step }: { step: Step }) {
+  const steps = [
+    { key: "info", label: "Bilgiler", num: 1 },
+    { key: "email-verify", label: "E-posta", num: 2 },
+    { key: "phone-verify", label: "Telefon", num: 3 },
+    { key: "payment", label: "Ödeme", num: 4 },
+  ];
+
+  const currentIndex = steps.findIndex((s) => s.key === step);
+  if (step === "success") return null;
+
+  return (
+    <div className="flex items-center gap-1 mb-6">
+      {steps.map((s, i) => (
+        <div key={s.key} className="flex items-center gap-1 flex-1">
+          <div className={`flex items-center gap-1.5 text-[11px] font-medium whitespace-nowrap ${
+            i < currentIndex ? "text-success-green" : i === currentIndex ? "text-chios-purple" : "text-deep-sea-teal/25"
+          }`}>
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0 ${
+              i < currentIndex ? "bg-success-green text-white" : i === currentIndex ? "bg-chios-purple text-white" : "bg-deep-sea-teal/10 text-deep-sea-teal/25"
+            }`}>
+              {i < currentIndex ? "✓" : s.num}
+            </div>
+            <span className="hidden sm:inline">{s.label}</span>
+          </div>
+          {i < steps.length - 1 && (
+            <div className={`flex-1 h-px min-w-4 ${i < currentIndex ? "bg-success-green/30" : "bg-deep-sea-teal/10"}`} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function RegisterForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const preselectedPlan = searchParams.get("plan")?.toUpperCase() || "TEMEL";
 
+  const [step, setStep] = useState<Step>("info");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,11 +124,27 @@ export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+
+  // Phone
+  const [phone, setPhone] = useState("");
+
+  // Payment fields (mock)
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvc, setCardCvc] = useState("");
+
+  // Resend timer
+  const [resendCountdown, setResendCountdown] = useState(0);
 
   const register = useAuthStore((s) => s.register);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (resendCountdown <= 0) return;
+    const t = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendCountdown]);
+
+  const handleInfoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -37,7 +157,41 @@ export function RegisterForm() {
       return;
     }
 
+    setStep("email-verify");
+    setResendCountdown(60);
+  };
+
+  const handleEmailCode = async (code: string) => {
+    setError("");
     setLoading(true);
+    // Mock: accept any 6-digit code
+    await new Promise((r) => setTimeout(r, 800));
+    setLoading(false);
+    setStep("phone-verify");
+  };
+
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setResendCountdown(60);
+    // Just show the code input
+  };
+
+  const handlePhoneCode = async (code: string) => {
+    setError("");
+    setLoading(true);
+    await new Promise((r) => setTimeout(r, 800));
+    setLoading(false);
+    setStep("payment");
+  };
+
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    await new Promise((r) => setTimeout(r, 1500));
+
     const result = await register(name, email, password, plan);
     setLoading(false);
 
@@ -46,8 +200,32 @@ export function RegisterForm() {
       return;
     }
 
-    setSuccess(true);
-    setTimeout(() => router.push("/dashboard"), 1500);
+    setStep("success");
+    setTimeout(() => router.push("/dashboard"), 2000);
+  };
+
+  const formatCardNumber = (v: string) => {
+    const digits = v.replace(/\D/g, "").slice(0, 16);
+    return digits.replace(/(\d{4})/g, "$1 ").trim();
+  };
+
+  const formatExpiry = (v: string) => {
+    const digits = v.replace(/\D/g, "").slice(0, 4);
+    if (digits.length > 2) return digits.slice(0, 2) + "/" + digits.slice(2);
+    return digits;
+  };
+
+  const formatPhone = (v: string) => {
+    const digits = v.replace(/\D/g, "").slice(0, 11);
+    if (digits.length > 0) {
+      let result = "+" + digits[0];
+      if (digits.length > 1) result += " (" + digits.slice(1, 4);
+      if (digits.length > 4) result += ") " + digits.slice(4, 7);
+      if (digits.length > 7) result += " " + digits.slice(7, 9);
+      if (digits.length > 9) result += " " + digits.slice(9, 11);
+      return result;
+    }
+    return "";
   };
 
   const container = {
@@ -59,195 +237,343 @@ export function RegisterForm() {
     show: { opacity: 1, y: 0, transition: { duration: 0.35 } },
   };
 
+  const selectedPlanInfo = PLAN_PRICES[plan] || PLAN_PRICES.TEMEL;
+
   return (
-    <AnimatePresence mode="wait">
-      {success ? (
-        <motion.div
-          key="success"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center text-center py-12"
-        >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-            className="w-16 h-16 rounded-full bg-success-green/10 flex items-center justify-center mb-4"
+    <div>
+      <StepIndicator step={step} />
+
+      <AnimatePresence mode="wait">
+        {/* STEP 1: Info + Plan */}
+        {step === "info" && (
+          <motion.form
+            key="info"
+            variants={container}
+            initial="hidden"
+            animate="show"
+            exit={{ opacity: 0, x: -20 }}
+            onSubmit={handleInfoSubmit}
+            className="space-y-4"
           >
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round">
-              <motion.path
-                d="M20 6L9 17l-5-5"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-              />
-            </svg>
-          </motion.div>
-          <h3 className="font-display text-lg font-semibold text-deep-sea-teal">
-            Kayıt Başarılı!
-          </h3>
-          <p className="text-sm text-deep-sea-teal/50 mt-1">
-            Yönlendiriliyorsunuz...
-          </p>
-        </motion.div>
-      ) : (
-        <motion.form
-          key="form"
-          variants={container}
-          initial="hidden"
-          animate="show"
-          onSubmit={handleSubmit}
-          className="space-y-4"
-        >
-          {/* Error */}
-          <AnimatePresence>
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="rounded-xl bg-danger-red/10 px-4 py-3 text-sm text-danger-red"
-              >
-                {error}
-              </motion.div>
+            <AnimatePresence>
+              {error && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="rounded-xl bg-danger-red/10 px-4 py-3 text-sm text-danger-red">
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <motion.div variants={item}>
+              <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">Ad Soyad</label>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Adınız Soyadınız" className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200" />
+            </motion.div>
+
+            <motion.div variants={item}>
+              <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">E-posta</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="ornek@email.com" className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200" />
+            </motion.div>
+
+            <motion.div variants={item}>
+              <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">Şifre</label>
+              <div className="relative">
+                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••" className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-deep-sea-teal/30 hover:text-deep-sea-teal/60 transition-colors cursor-pointer">
+                  {showPassword ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+
+            <motion.div variants={item}>
+              <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">Şifre Tekrar</label>
+              <input type={showPassword ? "text" : "password"} value={passwordConfirm} onChange={(e) => setPasswordConfirm(e.target.value)} required minLength={6} placeholder="••••••••" className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200" />
+            </motion.div>
+
+            <motion.div variants={item}>
+              <label className="block text-sm font-medium text-deep-sea-teal mb-2">Plan Seçin</label>
+              <PlanSelector selected={plan} onSelect={setPlan} />
+            </motion.div>
+
+            <motion.div variants={item} className="flex items-start gap-2.5">
+              <input type="checkbox" id="tos" checked={tosAccepted} onChange={(e) => setTosAccepted(e.target.checked)} className="mt-0.5 w-4 h-4 rounded border-deep-sea-teal/20 text-chios-purple focus:ring-chios-purple/20 cursor-pointer" />
+              <label htmlFor="tos" className="text-xs text-deep-sea-teal/50 leading-relaxed cursor-pointer">Kullanım koşullarını ve gizlilik politikasını okudum, kabul ediyorum.</label>
+            </motion.div>
+
+            <motion.div variants={item}>
+              <motion.button type="submit" whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} className="w-full py-3.5 bg-chios-purple text-white font-display font-semibold rounded-xl hover:bg-chios-purple-dark transition-all duration-200 cursor-pointer shadow-lg shadow-chios-purple/20">
+                Devam Et
+              </motion.button>
+            </motion.div>
+
+            <motion.p variants={item} className="text-center text-sm text-deep-sea-teal/40">
+              Zaten hesabınız var mı?{" "}
+              <a href="/login" className="text-chios-purple font-medium hover:text-chios-purple-dark transition-colors cursor-pointer">Giriş Yapın</a>
+            </motion.p>
+          </motion.form>
+        )}
+
+        {/* STEP 2: Email Verification */}
+        {step === "email-verify" && (
+          <motion.div
+            key="email-verify"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.4 }}
+            className="space-y-5"
+          >
+            <div className="text-center mb-2">
+              <div className="w-14 h-14 rounded-full bg-chios-purple/10 flex items-center justify-center mx-auto mb-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-chios-purple">
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <path d="M22 7l-10 6L2 7" />
+                </svg>
+              </div>
+              <h3 className="font-display text-lg font-semibold text-deep-sea-teal">E-postanızı Doğrulayın</h3>
+              <p className="text-sm text-deep-sea-teal/50 mt-1">
+                <span className="font-medium text-chios-purple">{email}</span> adresine gönderilen 6 haneli kodu girin.
+              </p>
+            </div>
+
+            <AnimatePresence>
+              {error && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="rounded-xl bg-danger-red/10 px-4 py-3 text-sm text-danger-red text-center">
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <CodeInput onComplete={handleEmailCode} loading={loading} />
+
+            {loading && (
+              <p className="text-center text-sm text-deep-sea-teal/40">Doğrulanıyor...</p>
             )}
-          </AnimatePresence>
 
-          {/* Name */}
-          <motion.div variants={item}>
-            <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">
-              Ad Soyad
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              placeholder="Adınız Soyadınız"
-              className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200"
-            />
+            <div className="text-center">
+              {resendCountdown > 0 ? (
+                <p className="text-xs text-deep-sea-teal/30">Kod gelmedi mi? {resendCountdown}s sonra tekrar gönderin</p>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setResendCountdown(60)}
+                  className="text-xs text-chios-purple font-medium hover:text-chios-purple-dark transition-colors cursor-pointer"
+                >
+                  Kodu Tekrar Gönder
+                </button>
+              )}
+            </div>
+
+            <button type="button" onClick={() => setStep("info")} className="w-full py-2.5 text-sm text-deep-sea-teal/50 hover:text-deep-sea-teal transition-colors cursor-pointer">
+              ← Bilgilere Dön
+            </button>
           </motion.div>
+        )}
 
-          {/* Email */}
-          <motion.div variants={item}>
-            <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">
-              E-posta
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="ornek@email.com"
-              className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200"
-            />
-          </motion.div>
+        {/* STEP 3: Phone Verification */}
+        {step === "phone-verify" && (
+          <motion.div
+            key="phone-verify"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.4 }}
+            className="space-y-5"
+          >
+            {!resendCountdown || resendCountdown === 0 || phone === "" ? null : null}
 
-          {/* Password */}
-          <motion.div variants={item}>
-            <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">
-              Şifre
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-deep-sea-teal/30 hover:text-deep-sea-teal/60 transition-colors cursor-pointer"
-              >
-                {showPassword ? (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
-                    <line x1="1" y1="1" x2="23" y2="23" />
-                  </svg>
-                ) : (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
+            {phone && resendCountdown > 0 ? (
+              <>
+                <div className="text-center mb-2">
+                  <div className="w-14 h-14 rounded-full bg-chios-purple/10 flex items-center justify-center mx-auto mb-4">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-chios-purple">
+                      <rect x="5" y="2" width="14" height="20" rx="2" />
+                      <line x1="12" y1="18" x2="12" y2="18" strokeWidth="2.5" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <h3 className="font-display text-lg font-semibold text-deep-sea-teal">Telefonunuzu Doğrulayın</h3>
+                  <p className="text-sm text-deep-sea-teal/50 mt-1">
+                    <span className="font-medium text-chios-purple">{formatPhone(phone)}</span> numarasına gönderilen 6 haneli kodu girin.
+                  </p>
+                </div>
+
+                <AnimatePresence>
+                  {error && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="rounded-xl bg-danger-red/10 px-4 py-3 text-sm text-danger-red text-center">
+                      {error}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <CodeInput onComplete={handlePhoneCode} loading={loading} />
+
+                {loading && (
+                  <p className="text-center text-sm text-deep-sea-teal/40">Doğrulanıyor...</p>
                 )}
+
+                <div className="text-center">
+                  {resendCountdown > 0 ? (
+                    <p className="text-xs text-deep-sea-teal/30">SMS gelmedi mi? {resendCountdown}s sonra tekrar gönderin</p>
+                  ) : (
+                    <button type="button" onClick={() => setResendCountdown(60)} className="text-xs text-chios-purple font-medium hover:text-chios-purple-dark transition-colors cursor-pointer">
+                      Kodu Tekrar Gönder
+                    </button>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-center mb-2">
+                  <div className="w-14 h-14 rounded-full bg-chios-purple/10 flex items-center justify-center mx-auto mb-4">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-chios-purple">
+                      <rect x="5" y="2" width="14" height="20" rx="2" />
+                      <line x1="12" y1="18" x2="12" y2="18" strokeWidth="2.5" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <h3 className="font-display text-lg font-semibold text-deep-sea-teal">Telefon Numaranız</h3>
+                  <p className="text-sm text-deep-sea-teal/50 mt-1">
+                    Teslimat bildirimleri için telefon numaranızı girin.
+                  </p>
+                </div>
+
+                <form onSubmit={handlePhoneSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">Telefon Numarası</label>
+                    <input
+                      type="tel"
+                      value={formatPhone(phone)}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                      placeholder="+90 (5xx) xxx xx xx"
+                      className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200"
+                    />
+                  </div>
+                  <motion.button
+                    type="submit"
+                    onClick={() => { setResendCountdown(60); }}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full py-3.5 bg-chios-purple text-white font-display font-semibold rounded-xl hover:bg-chios-purple-dark transition-all duration-200 cursor-pointer shadow-lg shadow-chios-purple/20"
+                  >
+                    SMS Kodu Gönder
+                  </motion.button>
+                </form>
+              </>
+            )}
+
+            <button type="button" onClick={() => { setStep("email-verify"); setResendCountdown(0); setPhone(""); }} className="w-full py-2.5 text-sm text-deep-sea-teal/50 hover:text-deep-sea-teal transition-colors cursor-pointer">
+              ← E-posta Adımına Dön
+            </button>
+          </motion.div>
+        )}
+
+        {/* STEP 4: Payment (Mock) */}
+        {step === "payment" && (
+          <motion.form
+            key="payment"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.4 }}
+            onSubmit={handlePaymentSubmit}
+            className="space-y-4"
+          >
+            <AnimatePresence>
+              {error && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="rounded-xl bg-danger-red/10 px-4 py-3 text-sm text-danger-red">
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="bg-chios-purple/5 rounded-2xl p-5 border border-chios-purple/10">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-deep-sea-teal/60">{selectedPlanInfo.name} Plan</span>
+                <span className="text-sm font-semibold text-deep-sea-teal">{selectedPlanInfo.price}/ay</span>
+              </div>
+              <div className="flex items-center justify-between text-xs text-deep-sea-teal/40">
+                <span>İlk 7 gün ücretsiz</span>
+                <span className="text-success-green font-medium">Deneme</span>
+              </div>
+              <div className="border-t border-deep-sea-teal/5 mt-3 pt-3 flex items-center justify-between">
+                <span className="text-sm font-semibold text-deep-sea-teal">Bugün ödenecek</span>
+                <span className="text-lg font-display font-bold text-chios-purple">€0.00</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">Kart Numarası</label>
+              <div className="relative">
+                <input type="text" value={cardNumber} onChange={(e) => setCardNumber(formatCardNumber(e.target.value))} required placeholder="4242 4242 4242 4242" className="w-full px-4 py-3 pr-16 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200 font-mono" />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
+                  <svg width="24" height="16" viewBox="0 0 28 18" fill="none"><rect width="28" height="18" rx="3" fill="#1A1F71" opacity="0.8" /><text x="14" y="12" textAnchor="middle" fontSize="7" fill="white" fontWeight="bold" fontFamily="sans-serif">VISA</text></svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">Son Kullanma</label>
+                <input type="text" value={cardExpiry} onChange={(e) => setCardExpiry(formatExpiry(e.target.value))} required placeholder="AA/YY" className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200 font-mono" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">CVC</label>
+                <input type="text" value={cardCvc} onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, "").slice(0, 3))} required placeholder="123" className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200 font-mono" />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button type="button" onClick={() => { setStep("phone-verify"); setResendCountdown(0); }} className="px-5 py-3 rounded-xl border border-deep-sea-teal/10 text-deep-sea-teal/60 text-sm font-medium hover:bg-deep-sea-teal/5 transition-colors cursor-pointer">
+                Geri
               </button>
+              <motion.button type="submit" disabled={loading} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} className="flex-1 py-3.5 bg-chios-purple text-white font-display font-semibold rounded-xl hover:bg-chios-purple-dark disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer shadow-lg shadow-chios-purple/20">
+                {loading ? (
+                  <span className="inline-flex items-center gap-2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin"><circle cx="12" cy="12" r="10" strokeOpacity="0.3" /><path d="M12 2a10 10 0 019.95 9" strokeLinecap="round" /></svg>
+                    İşleniyor...
+                  </span>
+                ) : (
+                  "Ödemeyi Onayla — €0.00"
+                )}
+              </motion.button>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 text-xs text-deep-sea-teal/30 pt-1">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+              Stripe güvenli ödeme ile korunmaktadır
+            </div>
+          </motion.form>
+        )}
+
+        {/* STEP 5: Success */}
+        {step === "success" && (
+          <motion.div
+            key="success"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center text-center py-12"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+              className="w-20 h-20 rounded-full bg-success-green/10 flex items-center justify-center mb-5"
+            >
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round">
+                <motion.path d="M20 6L9 17l-5-5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.3, duration: 0.5 }} />
+              </svg>
+            </motion.div>
+            <h3 className="font-display text-xl font-bold text-deep-sea-teal">Hoş Geldiniz!</h3>
+            <p className="text-sm text-deep-sea-teal/50 mt-1 mb-2">Hesabınız ve aboneliğiniz aktif edildi.</p>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="w-2 h-2 rounded-full bg-chios-purple animate-pulse" />
+              <p className="text-xs text-deep-sea-teal/30">Yönlendiriliyorsunuz...</p>
             </div>
           </motion.div>
-
-          {/* Password Confirm */}
-          <motion.div variants={item}>
-            <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">
-              Şifre Tekrar
-            </label>
-            <input
-              type={showPassword ? "text" : "password"}
-              value={passwordConfirm}
-              onChange={(e) => setPasswordConfirm(e.target.value)}
-              required
-              minLength={6}
-              placeholder="••••••••"
-              className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200"
-            />
-          </motion.div>
-
-          {/* Plan Selection */}
-          <motion.div variants={item}>
-            <label className="block text-sm font-medium text-deep-sea-teal mb-2">
-              Plan Seçin
-            </label>
-            <PlanSelector selected={plan} onSelect={setPlan} />
-          </motion.div>
-
-          {/* ToS Checkbox */}
-          <motion.div variants={item} className="flex items-start gap-2.5">
-            <input
-              type="checkbox"
-              id="tos"
-              checked={tosAccepted}
-              onChange={(e) => setTosAccepted(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded border-deep-sea-teal/20 text-chios-purple focus:ring-chios-purple/20 cursor-pointer"
-            />
-            <label htmlFor="tos" className="text-xs text-deep-sea-teal/50 leading-relaxed cursor-pointer">
-              Kullanım koşullarını ve gizlilik politikasını okudum, kabul ediyorum.
-            </label>
-          </motion.div>
-
-          {/* Submit */}
-          <motion.div variants={item}>
-            <motion.button
-              type="submit"
-              disabled={loading}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full py-3.5 bg-chios-purple text-white font-display font-semibold rounded-xl hover:bg-chios-purple-dark disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer shadow-lg shadow-chios-purple/20"
-            >
-              {loading ? (
-                <span className="inline-flex items-center gap-2">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin">
-                    <circle cx="12" cy="12" r="10" strokeOpacity="0.3" />
-                    <path d="M12 2a10 10 0 019.95 9" strokeLinecap="round" />
-                  </svg>
-                  Kayıt Yapılıyor...
-                </span>
-              ) : (
-                "Kayıt Ol"
-              )}
-            </motion.button>
-          </motion.div>
-
-          {/* Login link */}
-          <motion.p variants={item} className="text-center text-sm text-deep-sea-teal/40">
-            Zaten hesabınız var mı?{" "}
-            <a href="/login" className="text-chios-purple font-medium hover:text-chios-purple-dark transition-colors cursor-pointer">
-              Giriş Yapın
-            </a>
-          </motion.p>
-        </motion.form>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

@@ -53,6 +53,30 @@ export async function POST(request: Request) {
 
   const body = await request.json();
 
+  if (!body.trackingNo || typeof body.trackingNo !== "string" || body.trackingNo.trim().length === 0) {
+    return NextResponse.json({ error: "Takip numarası gerekli" }, { status: 400 });
+  }
+
+  if (!body.carrier || typeof body.carrier !== "string" || body.carrier.trim().length === 0) {
+    return NextResponse.json({ error: "Kargo şirketi gerekli" }, { status: 400 });
+  }
+
+  if (body.trackingNo.length > 100) {
+    return NextResponse.json({ error: "Takip numarası çok uzun" }, { status: 400 });
+  }
+
+  // Check for duplicate tracking number for this user
+  const { data: existing } = await supabase
+    .from("packages")
+    .select("id")
+    .eq("user_id", appUser.id)
+    .eq("tracking_no", body.trackingNo)
+    .single();
+
+  if (existing) {
+    return NextResponse.json({ error: "Bu takip numarası ile daha önce paket bildirdiniz" }, { status: 409 });
+  }
+
   const { data, error } = await supabase
     .from("packages")
     .insert({
@@ -60,6 +84,9 @@ export async function POST(request: Request) {
       tracking_no: body.trackingNo,
       carrier: body.carrier,
       content: body.content,
+      weight_kg: body.weightKg || null,
+      dimensions: body.dimensions || null,
+      notes: body.notes || null,
       status: "BEKLENIYOR",
     })
     .select()

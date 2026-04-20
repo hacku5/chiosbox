@@ -1,0 +1,6 @@
+export const FEES = {
+  ACCEPT: 4.0,
+  CONSOLIDATION: 8.0,
+  DAILY_DEMURRAGE: 1.5,
+  FREE_STORAGE_DAYS: 14,
+};

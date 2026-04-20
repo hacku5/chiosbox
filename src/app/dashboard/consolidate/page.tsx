@@ -3,8 +3,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePackageStore } from "@/stores/package-store";
+import { FEES } from "@/lib/fees";
+import { useRouter } from "next/navigation";
 
 export default function ConsolidatePage() {
+  const router = useRouter();
   const packages = usePackageStore((s) => s.packages);
   const fetchPackages = usePackageStore((s) => s.fetchPackages);
   const eligible = packages.filter((p) => p.status === "depoda");
@@ -14,16 +17,18 @@ export default function ConsolidatePage() {
   }, [fetchPackages]);
 
   const [masterBox, setMasterBox] = useState<typeof eligible>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
   const available = eligible.filter(
     (p) => !masterBox.find((m) => m.id === p.id)
   );
 
-  const BASE_FEE = 4;
-  const CONSOLIDATION_FEE = 8;
-  const totalAcceptFee = masterBox.length * BASE_FEE;
-  const totalWithConsolidation = totalAcceptFee + CONSOLIDATION_FEE;
+  const totalAcceptFee = masterBox.length * FEES.ACCEPT;
+  const totalWithConsolidation = totalAcceptFee + FEES.CONSOLIDATION;
+  const separateTotal = masterBox.length * (FEES.ACCEPT + 2);
   const savings =
-    masterBox.length > 1 ? totalAcceptFee - totalWithConsolidation : 0;
+    masterBox.length > 1 ? separateTotal - totalWithConsolidation : 0;
 
   const addToBox = (pkg: (typeof eligible)[0]) => {
     setMasterBox((prev) => [...prev, pkg]);
@@ -31,6 +36,33 @@ export default function ConsolidatePage() {
 
   const removeFromBox = (id: string) => {
     setMasterBox((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const handleConsolidate = async () => {
+    if (masterBox.length < 2) return;
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/consolidate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ package_ids: masterBox.map((p) => p.id) }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        // Refresh packages and redirect to checkout
+        await fetchPackages();
+        router.push("/dashboard/checkout");
+      } else {
+        const data = await res.json();
+        setError(data.error || "Konsolidasyon başarısız");
+      }
+    } catch {
+      setError("Bir hata oluştu");
+    }
+    setSubmitting(false);
   };
 
   return (
@@ -44,6 +76,12 @@ export default function ConsolidatePage() {
             Paketlerinizi birleştirerek kargo maliyetinden tasarruf edin
           </p>
         </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-danger-red/10 border border-danger-red/20 rounded-xl text-danger-red text-sm">
+            {error}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Left: Available packages */}
@@ -175,7 +213,7 @@ export default function ConsolidatePage() {
                       </span>
                       <button
                         onClick={() => removeFromBox(pkg.id)}
-                        className="opacity-0 group-hover:opacity-100 p-1 text-danger-red hover:bg-danger-red/10 rounded-lg transition-all cursor-pointer"
+                        className="sm:opacity-0 sm:group-hover:opacity-100 opacity-100 p-1 text-danger-red hover:bg-danger-red/10 rounded-lg transition-all cursor-pointer"
                       >
                         <svg
                           width="14"
@@ -225,7 +263,7 @@ export default function ConsolidatePage() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-deep-sea-teal/50">
-                      Kabul Ücreti ({masterBox.length} × €{BASE_FEE})
+                      Kabul Ücreti ({masterBox.length} × €{FEES.ACCEPT.toFixed(2)})
                     </span>
                     <span className="font-medium">
                       €{totalAcceptFee.toFixed(2)}
@@ -236,7 +274,7 @@ export default function ConsolidatePage() {
                       Konsolidasyon Ücreti
                     </span>
                     <span className="font-medium">
-                      €{CONSOLIDATION_FEE.toFixed(2)}
+                      €{FEES.CONSOLIDATION.toFixed(2)}
                     </span>
                   </div>
                   <div className="border-t border-deep-sea-teal/5 pt-2 flex justify-between font-semibold">
@@ -269,10 +307,11 @@ export default function ConsolidatePage() {
                 )}
 
                 <button
-                  disabled={masterBox.length < 2}
+                  disabled={masterBox.length < 2 || submitting}
+                  onClick={handleConsolidate}
                   className="mt-4 w-full py-3 bg-chios-purple text-white font-semibold rounded-xl hover:bg-chios-purple-dark disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
                 >
-                  Birleştir
+                  {submitting ? "Birleştiriliyor..." : "Birleştir"}
                 </button>
               </motion.div>
             )}

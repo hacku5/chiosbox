@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
+import { randomInt } from "crypto";
+
+const VALID_PLANS = ["TEMEL", "PRO", "PREMIUM"];
 
 // Generate a ChiosBox ID like "CBX-1234"
 function generateChiosBoxId(): string {
-  const num = Math.floor(1000 + Math.random() * 9000);
+  const num = randomInt(1000, 9999);
   return `CBX-${num}`;
 }
 
@@ -12,21 +15,27 @@ export async function POST(request: Request) {
   const { supabaseUserId, name, email, plan } = body;
 
   if (!supabaseUserId || !name || !email) {
-    return NextResponse.json(
-      { error: "Eksik bilgi" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Eksik bilgi" }, { status: 400 });
   }
+
+  // Validate plan against allowlist
+  const selectedPlan = VALID_PLANS.includes(plan) ? plan : "TEMEL";
+
+  // Direct Supabase client with anon key — bypasses cookie auth
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   // Check if user already exists by supabase_user_id
   const { data: existing } = await supabase
     .from("users")
-    .select("*")
+    .select("id")
     .eq("supabase_user_id", supabaseUserId)
     .single();
 
   if (existing) {
-    return NextResponse.json(existing);
+    return NextResponse.json({ error: "Bu hesap zaten kayıtlı" }, { status: 409 });
   }
 
   // Check if email already taken
@@ -37,10 +46,7 @@ export async function POST(request: Request) {
     .single();
 
   if (emailExists) {
-    return NextResponse.json(
-      { error: "Bu e-posta adresi zaten kayıtlı" },
-      { status: 409 }
-    );
+    return NextResponse.json({ error: "Bu e-posta adresi zaten kayıtlı" }, { status: 409 });
   }
 
   const chiosBoxId = generateChiosBoxId();
@@ -61,19 +67,16 @@ export async function POST(request: Request) {
       chios_box_id: chiosBoxId,
       address,
       tos_accepted: true,
-      plan: plan || "TEMEL",
+      plan: selectedPlan,
       plan_status: "active",
       plan_started_at: now.toISOString(),
       plan_expires_at: expiresAt.toISOString(),
     })
-    .select()
+    .select("id, name, email, chios_box_id, address, plan, plan_status")
     .single();
 
   if (error) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Kayıt oluşturulamadı" }, { status: 500 });
   }
 
   return NextResponse.json(data, { status: 201 });

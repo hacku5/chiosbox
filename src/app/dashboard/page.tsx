@@ -1,11 +1,36 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { motion, useSpring, useMotionValue } from "framer-motion";
 import { useAuthStore } from "@/stores/auth-store";
 import { usePackageStore } from "@/stores/package-store";
 import { StorageCountdown } from "@/components/dashboard/storage-scountdown";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import Link from "next/link";
+
+function AnimatedCounter({ value }: { value: number }) {
+  const motionValue = useMotionValue(0);
+  const springValue = useSpring(motionValue, { stiffness: 80, damping: 20 });
+  const [display, setDisplay] = useState(0);
+  const prevValue = useRef(0);
+
+  useEffect(() => {
+    motionValue.set(value);
+  }, [value, motionValue]);
+
+  useEffect(() => {
+    const unsubscribe = springValue.on("change", (v) => {
+      const rounded = Math.round(v);
+      if (rounded !== prevValue.current) {
+        prevValue.current = rounded;
+        setDisplay(rounded);
+      }
+    });
+    return unsubscribe;
+  }, [springValue]);
+
+  return <>{display}</>;
+}
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
@@ -14,17 +39,31 @@ export default function DashboardPage() {
   const fetchPackages = usePackageStore((s) => s.fetchPackages);
   const loading = usePackageStore((s) => s.loading);
   const [copied, setCopied] = useState(false);
+  const [pendingTotal, setPendingTotal] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
     fetchUser();
     fetchPackages();
   }, [fetchUser, fetchPackages]);
 
+  useEffect(() => {
+    fetch("/api/invoices")
+      .then((r) => r.ok ? r.json() : [])
+      .then((invoices: { status: string; total: number }[]) => {
+        const pending = invoices.filter((i) => i.status === "PENDING");
+        setPendingCount(pending.length);
+        setPendingTotal(pending.reduce((sum, i) => sum + Number(i.total), 0));
+      })
+      .catch(() => {});
+  }, []);
+
   const depodaCount = packages.filter((p) => p.status === "depoda").length;
   const yoldaCount = packages.filter((p) => p.status === "yolda").length;
-  const minFreeDays = Math.min(
-    ...packages.filter((p) => p.status === "depoda").map((p) => p.free_days_left)
-  );
+  const depodaPackages = packages.filter((p) => p.status === "depoda");
+  const minFreeDays = depodaPackages.length > 0
+    ? Math.min(...depodaPackages.map((p) => p.free_days_left))
+    : 0;
 
   const copyAddress = async () => {
     if (!user?.address) return;
@@ -41,6 +80,8 @@ export default function DashboardPage() {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
   };
+
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <div className="p-6 lg:p-8">
@@ -68,6 +109,12 @@ export default function DashboardPage() {
                   {user?.chios_box_id}
                 </code>
               </div>
+              <div className="mt-1.5">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-success-green/10 text-success-green text-xs font-semibold rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-success-green" />
+                  {user?.plan || "Temel Plan"} — Aktif
+                </span>
+              </div>
             </div>
             <button
               onClick={copyAddress}
@@ -93,6 +140,39 @@ export default function DashboardPage() {
           </div>
         </motion.div>
 
+        {/* Pending Invoice Banner */}
+        {pendingCount > 0 && (
+          <motion.div
+            variants={item}
+            className="bg-gradient-to-r from-chios-purple to-chios-purple-dark rounded-2xl p-5 shadow-lg shadow-chios-purple/20 mb-6"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" />
+                    <line x1="1" y1="10" x2="23" y2="10" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-white font-semibold">
+                    {pendingCount} bekleyen fatura
+                  </div>
+                  <div className="text-white/60 text-sm">
+                    Toplam: €{pendingTotal.toFixed(2)}
+                  </div>
+                </div>
+              </div>
+              <Link
+                href="/dashboard/checkout"
+                className="px-4 py-2 bg-white text-chios-purple text-sm font-semibold rounded-xl hover:bg-white/90 transition-colors cursor-pointer"
+              >
+                Ödeme Yap
+              </Link>
+            </div>
+          </motion.div>
+        )}
+
         {/* Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Active Packages Card */}
@@ -113,35 +193,48 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-3">
-              {packages.slice(0, 4).map((pkg) => (
-                <div
-                  key={pkg.id}
-                  className="flex items-center gap-4 p-3 rounded-xl bg-deep-sea-teal/[0.02] hover:bg-deep-sea-teal/[0.04] transition-colors duration-200"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-chios-purple/10 flex items-center justify-center flex-shrink-0">
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      className="text-chios-purple"
-                    >
-                      <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-                    </svg>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm font-medium text-deep-sea-teal truncate">
-                      {pkg.content}
-                    </div>
-                    <div className="text-xs text-deep-sea-teal/40">
-                      {pkg.carrier} · {pkg.tracking_no.slice(0, 12)}...
-                    </div>
-                  </div>
-                  <StatusBadge status={pkg.status} />
+              {packages.length === 0 ? (
+                <div className="text-center py-8 text-deep-sea-teal/30">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mx-auto mb-3">
+                    <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                  </svg>
+                  <p className="text-sm">Henüz paket bildirmediniz</p>
+                  <Link href="/dashboard/actions" className="inline-block mt-3 text-sm text-chios-purple font-medium hover:underline cursor-pointer">
+                    İlk paketinizi bildirin →
+                  </Link>
                 </div>
-              ))}
+              ) : (
+                packages.slice(0, 4).map((pkg) => (
+                  <Link
+                    key={pkg.id}
+                    href="/dashboard/packages"
+                    className="flex items-center gap-4 p-3 rounded-xl bg-deep-sea-teal/[0.02] hover:bg-deep-sea-teal/[0.04] transition-colors duration-200 cursor-pointer"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-chios-purple/10 flex items-center justify-center flex-shrink-0">
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        className="text-chios-purple"
+                      >
+                        <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium text-deep-sea-teal truncate">
+                        {pkg.content}
+                      </div>
+                      <div className="text-xs text-deep-sea-teal/40">
+                        {pkg.carrier} · {pkg.tracking_no.slice(0, 12)}...
+                      </div>
+                    </div>
+                    <StatusBadge status={pkg.status} />
+                  </Link>
+                ))
+              )}
             </div>
           </motion.div>
 
@@ -175,9 +268,9 @@ export default function DashboardPage() {
             variants={item}
             className="bg-chios-purple rounded-2xl p-6 text-white shadow-lg shadow-chios-purple/20"
           >
-            <div className="text-3xl font-display font-bold">{depodaCount}</div>
+            <div className="text-3xl font-display font-bold"><AnimatedCounter value={depodaCount} /></div>
             <div className="text-sm text-white/70 mt-1">Depoda bekleyen</div>
-            <div className="mt-4 text-3xl font-display font-bold">{yoldaCount}</div>
+            <div className="mt-4 text-3xl font-display font-bold"><AnimatedCounter value={yoldaCount} /></div>
             <div className="text-sm text-white/70 mt-1">Yolda olan</div>
           </motion.div>
 
@@ -213,7 +306,7 @@ export default function DashboardPage() {
                 <span className="text-xs font-medium text-deep-sea-teal">Birleştir</span>
               </Link>
               <Link
-                href="/dashboard/actions"
+                href="/dashboard/checkout"
                 className="flex flex-col items-center gap-2 p-4 rounded-xl bg-deep-sea-teal/[0.03] hover:bg-chios-purple/10 transition-colors duration-200 cursor-pointer"
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-chios-purple">
@@ -244,7 +337,7 @@ function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { bg: string; text: string; label: string }> = {
     depoda: { bg: "bg-chios-purple/10", text: "text-chios-purple", label: "Depoda" },
     yolda: { bg: "bg-accent-orange/10", text: "text-accent-orange", label: "Yolda" },
-    bekleniyor: { bg: "bg-deep-sea-teal/5", text: "text-deep-sea-teal/50", label: "Bekleniyor" },
+    bekleniyor: { bg: "bg-deep-sea-teal/5", text: "text-deep-sea-teal/50", label: "Ödeme Bekleniyor" },
     teslim_edildi: { bg: "bg-success-green/10", text: "text-success-green", label: "Teslim Edildi" },
   };
   const c = config[status] || config.bekleniyor;

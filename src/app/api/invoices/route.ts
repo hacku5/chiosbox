@@ -29,7 +29,35 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  // Fetch invoice items with package info
+  const invoiceIds = (data || []).map((inv) => inv.id);
+  let itemsMap: Record<string, Array<{ fee_type: string; amount: number; packages: { tracking_no: string; content: string } | null }>> = {};
+
+  if (invoiceIds.length > 0) {
+    const { data: items } = await supabase
+      .from("invoice_items")
+      .select("invoice_id, fee_type, amount, packages(tracking_no, content)")
+      .in("invoice_id", invoiceIds);
+
+    if (items) {
+      for (const item of items) {
+        if (!itemsMap[item.invoice_id]) itemsMap[item.invoice_id] = [];
+        const pkg = Array.isArray(item.packages) ? item.packages[0] : item.packages;
+        itemsMap[item.invoice_id].push({
+          fee_type: item.fee_type,
+          amount: Number(item.amount),
+          packages: pkg ? { tracking_no: pkg.tracking_no, content: pkg.content } : null,
+        });
+      }
+    }
+  }
+
+  const enriched = (data || []).map((inv) => ({
+    ...inv,
+    items: itemsMap[inv.id] || [],
+  }));
+
+  return NextResponse.json(enriched);
 }
 
 export async function PATCH(request: Request) {
@@ -51,6 +79,25 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json();
+
+  // Only allow paying PENDING invoices
+  const { data: existing, error: fetchErr } = await supabase
+    .from("invoices")
+    .select("id, status")
+    .eq("id", body.id)
+    .eq("user_id", appUser.id)
+    .single();
+
+  if (fetchErr || !existing) {
+    return NextResponse.json({ error: "Fatura bulunamadı" }, { status: 404 });
+  }
+
+  if (existing.status !== "PENDING") {
+    return NextResponse.json(
+      { error: "Bu fatura zaten ödenmiş veya iptal edilmiş" },
+      { status: 400 }
+    );
+  }
 
   const { data, error } = await supabase
     .from("invoices")

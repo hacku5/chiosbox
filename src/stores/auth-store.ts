@@ -5,6 +5,7 @@ interface User {
   id: string;
   name: string;
   email: string;
+  phone: string | null;
   chios_box_id: string;
   address: string | null;
   plan: string;
@@ -53,7 +54,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { error: error.message };
 
-    // Fetch user data after successful login
     const res = await fetch("/api/user");
     if (res.ok) {
       const data = await res.json();
@@ -63,30 +63,28 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   register: async (name, email, password, plan) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) return { error: error.message };
-    if (!data.user) return { error: "Kayıt başarısız" };
+    // Everything goes through our API route — server handles signUp + user insert
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, plan }),
+      });
 
-    // Create user row in database
-    const res = await fetch("/api/auth/callback", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        supabaseUserId: data.user.id,
-        name,
-        email,
-        plan,
-      }),
-    });
+      const data = await res.json();
+      if (!res.ok) {
+        return { error: data.error || "Kayıt başarısız" };
+      }
 
-    if (!res.ok) {
-      const err = await res.json();
-      return { error: err.error || "Kullanıcı oluşturulamadı" };
+      // Now sign in on the client side to get the session
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) return { error: signInError.message };
+
+      set({ user: data.user, isAuthenticated: true });
+      return {};
+    } catch {
+      return { error: "Bir hata oluştu" };
     }
-
-    const userData = await res.json();
-    set({ user: userData, isAuthenticated: true });
-    return {};
   },
 
   logout: async () => {

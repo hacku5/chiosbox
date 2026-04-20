@@ -15,15 +15,22 @@ export interface Package {
   shelf_location?: string | null;
   demurrage_fee: number;
   master_box_id?: string | null;
+  weight_kg?: number | null;
+  dimensions?: string | null;
+  notes?: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface PackageState {
   packages: Package[];
   selectedIds: string[];
   loading: boolean;
+  error: string | null;
   fetchPackages: () => Promise<void>;
   toggleSelect: (id: string) => void;
   clearSelection: () => void;
+  deletePackage: (id: string) => Promise<{ error?: string }>;
 }
 
 function mapStatus(dbStatus: string): PackageStatus {
@@ -37,23 +44,25 @@ function mapStatus(dbStatus: string): PackageStatus {
   return map[dbStatus] || "bekleniyor";
 }
 
-export const usePackageStore = create<PackageState>((set) => ({
+export const usePackageStore = create<PackageState>((set, get) => ({
   packages: [],
   selectedIds: [],
   loading: false,
+  error: null,
 
   fetchPackages: async () => {
-    set({ loading: true });
+    set({ loading: true, error: null });
     try {
       const res = await fetch("/api/packages");
+      if (!res.ok) throw new Error("Paketler yüklenemedi");
       const data = await res.json();
       const packages: Package[] = data.map((p: Record<string, unknown>) => ({
         ...p,
         status: mapStatus(p.status as string),
       }));
       set({ packages, loading: false });
-    } catch {
-      set({ loading: false });
+    } catch (err) {
+      set({ loading: false, error: err instanceof Error ? err.message : "Bir hata oluştu" });
     }
   },
 
@@ -64,4 +73,19 @@ export const usePackageStore = create<PackageState>((set) => ({
         : [...state.selectedIds, id],
     })),
   clearSelection: () => set({ selectedIds: [] }),
+
+  deletePackage: async (id) => {
+    try {
+      const res = await fetch(`/api/packages/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error || "Silme başarısız" };
+      }
+      // Refresh from server to ensure consistency
+      await get().fetchPackages();
+      return {};
+    } catch {
+      return { error: "Bir hata oluştu" };
+    }
+  },
 }));

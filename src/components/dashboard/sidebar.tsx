@@ -1,10 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 
-const navItems = [
+const staticNavItems = [
   {
     label: "Ana Sayfa",
     href: "/dashboard",
@@ -51,6 +52,7 @@ const navItems = [
   {
     label: "Ödeme",
     href: "/dashboard/checkout",
+    badge: true,
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
         <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
@@ -72,7 +74,24 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/invoices")
+      .then((r) => r.ok ? r.json() : [])
+      .then((invoices: { status: string }[]) => {
+        setPendingCount(invoices.filter((i) => i.status === "PENDING").length);
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
 
   return (
     <>
@@ -102,13 +121,13 @@ export function Sidebar() {
         </div>
 
         <nav className="flex-1 px-3 py-6 space-y-1">
-          {navItems.map((item) => {
+          {staticNavItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer relative ${
                   isActive
                     ? "bg-chios-purple/10 text-chios-purple"
                     : "text-deep-sea-teal/60 hover:bg-deep-sea-teal/[0.03] hover:text-deep-sea-teal"
@@ -118,28 +137,46 @@ export function Sidebar() {
                   {item.icon}
                 </span>
                 {item.label}
+                {item.badge && pendingCount > 0 && (
+                  <span className="ml-auto bg-danger-red text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {pendingCount}
+                  </span>
+                )}
               </Link>
             );
           })}
         </nav>
 
         {user && (
-          <div className="p-4 mx-3 mb-4 bg-deep-sea-teal/[0.03] rounded-xl">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-chios-purple/10 flex items-center justify-center">
-                <span className="text-sm font-semibold text-chios-purple">
-                  {user.name[0]}
-                </span>
-              </div>
-              <div className="min-w-0">
-                <div className="text-sm font-semibold text-deep-sea-teal truncate">
-                  {user.name}
+          <div className="p-4 mx-3 mb-4">
+            <div className="bg-deep-sea-teal/[0.03] rounded-xl p-3 mb-2">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-chios-purple/10 flex items-center justify-center">
+                  <span className="text-sm font-semibold text-chios-purple">
+                    {(user?.name || "?")[0]}
+                  </span>
                 </div>
-                <div className="text-xs text-deep-sea-teal/40 font-mono">
-                  {user.chios_box_id}
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-deep-sea-teal truncate">
+                    {user.name}
+                  </div>
+                  <div className="text-xs text-deep-sea-teal/40 font-mono">
+                    {user.chios_box_id}
+                  </div>
                 </div>
               </div>
             </div>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-deep-sea-teal/50 hover:text-danger-red hover:bg-danger-red/5 rounded-xl transition-all duration-200 cursor-pointer"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              Çıkış Yap
+            </button>
           </div>
         )}
       </aside>
@@ -147,13 +184,13 @@ export function Sidebar() {
       {/* Mobile Bottom Nav */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-deep-sea-teal/5 safe-area-pb">
         <div className="flex items-center justify-around h-16 px-2">
-          {navItems.map((item) => {
+          {staticNavItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-all duration-200 cursor-pointer ${
+                className={`flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-all duration-200 cursor-pointer relative ${
                   isActive
                     ? "text-chios-purple"
                     : "text-deep-sea-teal/40"
@@ -167,6 +204,11 @@ export function Sidebar() {
                   {item.icon}
                 </span>
                 <span className="text-[10px] font-medium">{item.label}</span>
+                {item.badge && pendingCount > 0 && (
+                  <span className="absolute -top-0.5 right-1 bg-danger-red text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    {pendingCount}
+                  </span>
+                )}
               </Link>
             );
           })}

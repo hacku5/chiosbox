@@ -19,6 +19,15 @@ export const metadata: Metadata = {
   title: "ChiosBox - Avrupa Teslimat Adresiniz Hazır",
   description:
     "Türkiye'den AB'ye e-ticaret alışverişi yapanlar için Sakız Adası merkezli paket konsolidasyon yönetimi.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "ChiosBox",
+  },
+  other: {
+    "theme-color": "#5D3FD3",
+  },
 };
 
 export default function RootLayout({

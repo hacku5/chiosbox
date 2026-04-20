@@ -33,7 +33,19 @@
       "Bash(python *)",
       "Bash(taskkill //F //IM node.exe)",
       "Bash(rtk git *)",
-      "Bash(git init *)"
+      "Bash(git init *)",
+      "Bash(git checkout *)",
+      "Bash(npm uninstall *)",
+      "mcp__plugin_supabase_supabase__get_advisors",
+      "mcp__plugin_supabase_supabase__execute_sql",
+      "Bash(mkdir -p \"C:/Users/MySir/OneDrive/Desktop/chico/src/app/api/admin/customers/[id]\")",
+      "Bash(mkdir -p \"C:/Users/MySir/OneDrive/Desktop/chico/src/app/admin/customers/[id]\")",
+      "Bash(npm run *)",
+      "Bash(node -e \"const webpush = require\\('web-push'\\); const keys = webpush.generateVAPIDKeys\\(\\); console.log\\(JSON.stringify\\(keys\\)\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(rtk find *)",
+      "mcp__web-reader__webReader",
+      "WebSearch"
     ]
   }
 }

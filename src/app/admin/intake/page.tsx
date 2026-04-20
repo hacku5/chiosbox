@@ -2,12 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const demoCustomers: Record<string, { name: string; id: string }> = {
-  "1Z999AA10123456784": { name: "Dany", id: "CBX-1045" },
-  "7489274892": { name: "Ayşe K.", id: "CBX-1092" },
-  "TBA300000012345": { name: "Mehmet B.", id: "CBX-1156" },
-};
+import { useAdminStore, AdminPackage } from "@/stores/admin-store";
 
 const shelfOptions = [
   "A-1", "A-2", "A-3", "A-4", "A-5",
@@ -17,27 +12,85 @@ const shelfOptions = [
 
 export default function IntakePage() {
   const [barcode, setBarcode] = useState("");
-  const [customer, setCustomer] = useState<{ name: string; id: string } | null>(null);
-  const [photoTaken, setPhotoTaken] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [foundPkg, setFoundPkg] = useState<AdminPackage | null>(null);
+  const [notFound, setNotFound] = useState(false);
   const [selectedShelf, setSelectedShelf] = useState("");
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleBarcodeSubmit = () => {
-    const found = demoCustomers[barcode.trim()];
-    if (found) {
-      setCustomer(found);
-      setPhotoTaken(false);
-      setSelectedShelf("");
-      setSaved(false);
+  const fetchPackages = useAdminStore((s) => s.fetchPackages);
+
+  const handleBarcodeSubmit = async () => {
+    const trimmed = barcode.trim();
+    if (!trimmed) return;
+
+    setSearching(true);
+    setNotFound(false);
+    setFoundPkg(null);
+    setError("");
+
+    try {
+      const res = await fetch(`/api/admin/packages?tracking=${encodeURIComponent(trimmed)}`);
+      if (!res.ok) throw new Error("Arama başarısız");
+      const json = await res.json();
+      const packages = json.data || json;
+
+      if (Array.isArray(packages) && packages.length > 0) {
+        setFoundPkg(packages[0]);
+      } else {
+        setNotFound(true);
+      }
+    } catch {
+      setError("Paket aranırken hata oluştu");
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!foundPkg || !selectedShelf) return;
+    setSaving(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/admin/intake", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          trackingNo: foundPkg.tracking_no,
+          shelfLocation: selectedShelf,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || "Kayıt başarısız");
+        return;
+      }
+
+      const result = await res.json();
+      if (result._warning) {
+        setError(result._warning);
+      }
+
+      setSaved(true);
+      fetchPackages();
+    } catch {
+      setError("Bir hata oluştu");
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleReset = () => {
     setBarcode("");
-    setCustomer(null);
-    setPhotoTaken(false);
+    setFoundPkg(null);
+    setNotFound(false);
     setSelectedShelf("");
     setSaved(false);
+    setError("");
   };
 
   return (
@@ -48,19 +101,30 @@ export default function IntakePage() {
           <h1 className="font-display text-2xl font-bold text-deep-sea-teal">
             Paket Kabul
           </h1>
-          {customer && (
+          {(foundPkg || notFound) && (
             <button
               onClick={handleReset}
               className="text-sm text-deep-sea-teal/50 hover:text-chios-purple transition-colors cursor-pointer"
-              >
+            >
               Yeni Kabul
             </button>
           )}
         </div>
 
+        {/* Error banner */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 p-4 bg-danger-red/10 border border-danger-red/20 rounded-xl text-danger-red text-sm font-medium"
+          >
+            {error}
+          </motion.div>
+        )}
+
         <AnimatePresence mode="wait">
           {/* Step 1: Barcode */}
-          {!customer && (
+          {!foundPkg && !saved && (
             <motion.div
               key="barcode"
               initial={{ opacity: 0, y: 20 }}
@@ -98,20 +162,37 @@ export default function IntakePage() {
                   />
                   <button
                     onClick={handleBarcodeSubmit}
-                    disabled={!barcode.trim()}
+                    disabled={!barcode.trim() || searching}
                     className="px-6 bg-chios-purple text-white font-semibold rounded-2xl hover:bg-chios-purple-dark disabled:opacity-30 transition-all cursor-pointer min-w-[48px]"
                   >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mx-auto">
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
+                    {searching ? (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin mx-auto">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                      </svg>
+                    ) : (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mx-auto">
+                        <polyline points="9 18 15 12 9 6" />
+                      </svg>
+                    )}
                   </button>
                 </div>
+
+                {/* Not found message */}
+                {notFound && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mt-3 text-sm text-danger-red text-center"
+                  >
+                    Bu takip numarasına ait paket bulunamadı
+                  </motion.p>
+                )}
               </div>
             </motion.div>
           )}
 
-          {/* Step 2: Customer found + Photo */}
-          {customer && !saved && (
+          {/* Step 2: Package found + Shelf */}
+          {foundPkg && !saved && (
             <motion.div
               key="process"
               initial={{ opacity: 0, y: 20 }}
@@ -120,84 +201,76 @@ export default function IntakePage() {
               transition={{ duration: 0.3 }}
               className="space-y-4"
             >
-              {/* Customer info */}
+              {/* Package info */}
               <motion.div
                 initial={{ scale: 0.95 }}
                 animate={{ scale: 1 }}
                 className="bg-chios-purple rounded-2xl p-5 text-white"
               >
                 <div className="text-sm text-white/60 mb-1">Müşteri</div>
-                <div className="font-display text-2xl font-bold">{customer.name}</div>
-                <div className="text-sm text-white/60 mt-1 font-mono">{customer.id}</div>
+                <div className="font-display text-2xl font-bold">
+                  {foundPkg.users?.name || "Bilinmeyen"}
+                </div>
+                <div className="text-sm text-white/60 mt-1 font-mono">
+                  {foundPkg.users?.chios_box_id}
+                </div>
+                <div className="mt-3 pt-3 border-t border-white/10">
+                  <div className="text-sm text-white/60">İçerik</div>
+                  <div className="font-medium">{foundPkg.content}</div>
+                  <div className="text-xs text-white/40 mt-1 font-mono">
+                    {foundPkg.carrier} — {foundPkg.tracking_no}
+                  </div>
+                  {(foundPkg.weight_kg || foundPkg.dimensions) && (
+                    <div className="flex gap-3 mt-2 text-xs text-white/50">
+                      {foundPkg.weight_kg && <span>{foundPkg.weight_kg} kg</span>}
+                      {foundPkg.dimensions && <span>{foundPkg.dimensions}</span>}
+                    </div>
+                  )}
+                  {foundPkg.notes && (
+                    <div className="mt-2 text-xs text-white/40 italic">
+                      Not: {foundPkg.notes}
+                    </div>
+                  )}
+                </div>
               </motion.div>
 
-              {/* Photo button */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-deep-sea-teal/5 flex flex-col items-center">
-                {!photoTaken ? (
-                  <button
-                    onClick={() => setPhotoTaken(true)}
-                    className="w-full py-8 bg-chios-purple text-white font-display text-2xl font-bold rounded-2xl hover:bg-chios-purple-dark active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-chios-purple/30 min-h-[64px]"
-                  >
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mx-auto mb-2">
-                      <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
-                      <circle cx="12" cy="13" r="4" />
-                    </svg>
-                    FOTOĞRAF ÇEK
-                  </button>
-                ) : (
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="w-full text-center"
-                  >
-                    <div className="w-16 h-16 rounded-full bg-success-green/10 flex items-center justify-center mx-auto mb-3">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    </div>
-                    <p className="font-semibold text-success-green">Fotoğraf çekildi</p>
-                  </motion.div>
-                )}
-              </div>
-
               {/* Shelf assignment */}
-              {photoTaken && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-white rounded-2xl p-5 shadow-sm border border-deep-sea-teal/5"
-                >
-                  <label className="block text-sm font-medium text-deep-sea-teal mb-3">
-                    Raf Atama
-                  </label>
-                  <div className="grid grid-cols-5 gap-2">
-                    {shelfOptions.map((shelf) => (
-                      <button
-                        key={shelf}
-                        onClick={() => setSelectedShelf(shelf)}
-                        className={`py-3 rounded-xl text-sm font-bold transition-all cursor-pointer min-h-[48px] ${
-                          selectedShelf === shelf
-                            ? "bg-chios-purple text-white shadow-md"
-                            : "bg-deep-sea-teal/5 text-deep-sea-teal/60 hover:bg-deep-sea-teal/10"
-                        }`}
-                      >
-                        {shelf}
-                      </button>
-                    ))}
-                  </div>
-
-                  {selectedShelf && (
-                    <motion.button
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      onClick={() => setSaved(true)}
-                      className="mt-4 w-full py-4 bg-success-green text-white font-display font-bold text-lg rounded-2xl hover:bg-green-600 active:scale-[0.98] transition-all cursor-pointer shadow-lg min-h-[48px]"
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-2xl p-5 shadow-sm border border-deep-sea-teal/5"
+              >
+                <label className="block text-sm font-medium text-deep-sea-teal mb-3">
+                  Raf Atama
+                </label>
+                <div className="grid grid-cols-5 gap-2">
+                  {shelfOptions.map((shelf) => (
+                    <button
+                      key={shelf}
+                      onClick={() => setSelectedShelf(shelf)}
+                      className={`py-3 rounded-xl text-sm font-bold transition-all cursor-pointer min-h-[48px] ${
+                        selectedShelf === shelf
+                          ? "bg-chios-purple text-white shadow-md"
+                          : "bg-deep-sea-teal/5 text-deep-sea-teal/60 hover:bg-deep-sea-teal/10"
+                      }`}
                     >
-                      KAYDET
-                    </motion.button>
-                  )}
-                </motion.div>
-              )}
+                      {shelf}
+                    </button>
+                  ))}
+                </div>
+
+                {selectedShelf && (
+                  <motion.button
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="mt-4 w-full py-4 bg-success-green text-white font-display font-bold text-lg rounded-2xl hover:bg-green-600 active:scale-[0.98] transition-all cursor-pointer shadow-lg disabled:opacity-50 min-h-[48px]"
+                  >
+                    {saving ? "Kaydediliyor..." : "KAYDET"}
+                  </motion.button>
+                )}
+              </motion.div>
             </motion.div>
           )}
 
@@ -229,7 +302,7 @@ export default function IntakePage() {
                 Kaydedildi!
               </h2>
               <p className="text-deep-sea-teal/50 text-center mb-2">
-                {customer?.name} — {customer?.id}
+                {foundPkg?.users?.name} — {foundPkg?.users?.chios_box_id}
               </p>
               <div className="font-display text-3xl font-bold text-chios-purple">
                 Raf: {selectedShelf}

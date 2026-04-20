@@ -1,123 +1,117 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const demoQRCodes: Record<string, { name: string; id: string; shelf: string; pkg: string }> = {
-  "QR-CBX-1045": { name: "Dany", id: "CBX-1045", shelf: "A-3", pkg: "Nike Air Max 90" },
-  "QR-CBX-1092": { name: "Ayşe K.", id: "CBX-1092", shelf: "B-1", pkg: "Elektronik kulaklık" },
-  "QR-CBX-1156": { name: "Mehmet B.", id: "CBX-1156", shelf: "A-5", pkg: "Kitap seti (3 adet)" },
-};
-
-function SignatureCanvas({ onSave }: { onSave: (data: string) => void }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    canvas.width = canvas.offsetWidth * 2;
-    canvas.height = canvas.offsetHeight * 2;
-    ctx.scale(2, 2);
-    ctx.strokeStyle = "#004953";
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-  }, []);
-
-  const getPos = (e: React.MouseEvent | React.TouchEvent) => {
-    const canvas = canvasRef.current!;
-    const rect = canvas.getBoundingClientRect();
-    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
-    return { x: clientX - rect.left, y: clientY - rect.top };
-  };
-
-  const startDraw = (e: React.MouseEvent | React.TouchEvent) => {
-    const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx) return;
-    const pos = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(pos.x, pos.y);
-    setIsDrawing(true);
-  };
-
-  const draw = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDrawing) return;
-    const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx) return;
-    const pos = getPos(e);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-  };
-
-  const endDraw = () => setIsDrawing(false);
-
-  const handleSave = () => {
-    const canvas = canvasRef.current;
-    if (canvas) onSave(canvas.toDataURL());
-  };
-
-  const handleClear = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  };
-
-  return (
-    <div className="space-y-3">
-      <canvas
-        ref={canvasRef}
-        onMouseDown={startDraw}
-        onMouseMove={draw}
-        onMouseUp={endDraw}
-        onMouseLeave={endDraw}
-        onTouchStart={startDraw}
-        onTouchMove={draw}
-        onTouchEnd={endDraw}
-        className="w-full h-40 bg-white rounded-2xl border-2 border-deep-sea-teal/10 touch-none cursor-crosshair"
-      />
-      <div className="flex gap-3">
-        <button
-          onClick={handleClear}
-          className="flex-1 py-3 border-2 border-deep-sea-teal/10 text-deep-sea-teal/60 font-semibold rounded-xl hover:bg-deep-sea-teal/5 transition-colors cursor-pointer min-h-[48px]"
-        >
-          Temizle
-        </button>
-        <button
-          onClick={handleSave}
-          className="flex-1 py-3 bg-success-green text-white font-semibold rounded-xl hover:bg-green-600 transition-colors cursor-pointer min-h-[48px]"
-        >
-          İmzayı Onayla
-        </button>
-      </div>
-    </div>
-  );
-}
+import { AdminPackage } from "@/stores/admin-store";
 
 export default function PickupPage() {
   const [qrInput, setQrInput] = useState("");
-  const [customer, setCustomer] = useState<(typeof demoQRCodes)["QR-CBX-1045"] | null>(null);
-  const [signed, setSigned] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [foundPkg, setFoundPkg] = useState<AdminPackage | null>(null);
+  const [notFound, setNotFound] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleScan = () => {
-    const found = demoQRCodes[qrInput.trim()];
-    if (found) {
-      setCustomer(found);
-      setSigned(false);
-      setCompleted(false);
+  // Code verification states
+  const [sendingCode, setSendingCode] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [enteredCode, setEnteredCode] = useState("");
+  const [delivering, setDelivering] = useState(false);
+  const [codeError, setCodeError] = useState("");
+
+  const handleScan = async () => {
+    const trimmed = qrInput.trim();
+    if (!trimmed) return;
+
+    setSearching(true);
+    setNotFound(false);
+    setFoundPkg(null);
+    setError("");
+
+    try {
+      const res = await fetch(`/api/admin/packages?tracking=${encodeURIComponent(trimmed)}`);
+      if (!res.ok) throw new Error("Arama başarısız");
+      const json = await res.json();
+      const packages = json.data || json;
+
+      if (Array.isArray(packages) && packages.length > 0) {
+        setFoundPkg(packages[0]);
+      } else {
+        setNotFound(true);
+      }
+    } catch {
+      setError("Paket aranırken hata oluştu");
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleSendCode = async () => {
+    if (!foundPkg) return;
+    setSendingCode(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/admin/pickup/generate-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ packageId: foundPkg.id }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Kod üretilemedi");
+        return;
+      }
+
+      setVerificationCode(data.code);
+      setCodeSent(true);
+    } catch {
+      setError("Bir hata oluştu");
+    } finally {
+      setSendingCode(false);
+    }
+  };
+
+  const handleDeliver = async () => {
+    if (!foundPkg || !enteredCode.trim()) return;
+    setDelivering(true);
+    setCodeError("");
+    setError("");
+
+    try {
+      const res = await fetch("/api/admin/pickup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ packageId: foundPkg.id, code: enteredCode.trim() }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setCodeError(data.error || "Teslimat başarısız");
+        return;
+      }
+
+      setCompleted(true);
+    } catch {
+      setCodeError("Bir hata oluştu");
+    } finally {
+      setDelivering(false);
     }
   };
 
   const handleReset = () => {
     setQrInput("");
-    setCustomer(null);
-    setSigned(false);
+    setFoundPkg(null);
+    setNotFound(false);
     setCompleted(false);
+    setError("");
+    setSendingCode(false);
+    setCodeSent(false);
+    setVerificationCode("");
+    setEnteredCode("");
+    setCodeError("");
   };
 
   return (
@@ -127,7 +121,7 @@ export default function PickupPage() {
           <h1 className="font-display text-2xl font-bold text-deep-sea-teal">
             Teslimat
           </h1>
-          {customer && (
+          {foundPkg && (
             <button
               onClick={handleReset}
               className="text-sm text-deep-sea-teal/50 hover:text-chios-purple transition-colors cursor-pointer"
@@ -137,9 +131,20 @@ export default function PickupPage() {
           )}
         </div>
 
+        {/* Error banner */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 p-4 bg-danger-red/10 border border-danger-red/20 rounded-xl text-danger-red text-sm font-medium"
+          >
+            {error}
+          </motion.div>
+        )}
+
         <AnimatePresence mode="wait">
           {/* Step 1: QR Scan */}
-          {!customer && (
+          {!foundPkg && !completed && (
             <motion.div
               key="scan"
               initial={{ opacity: 0, y: 20 }}
@@ -154,33 +159,47 @@ export default function PickupPage() {
                       value={qrInput}
                       onChange={(e) => setQrInput(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleScan()}
-                      placeholder="QR kodu okutun (Örn: QR-CBX-1045)"
+                      placeholder="Takip no veya CBX ID girin"
                       className="w-full px-5 py-4 rounded-2xl border-2 border-deep-sea-teal/10 bg-white text-deep-sea-teal text-lg font-mono placeholder:text-deep-sea-teal/20 focus:outline-none focus:border-chios-purple/50 transition-all"
                       autoFocus
                     />
                   </div>
                   <button
                     onClick={handleScan}
-                    disabled={!qrInput.trim()}
+                    disabled={!qrInput.trim() || searching}
                     className="h-[60px] w-[60px] bg-chios-purple text-white font-semibold rounded-2xl hover:bg-chios-purple-dark disabled:opacity-30 transition-all cursor-pointer flex items-center justify-center"
                   >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="3" width="18" height="18" rx="2" />
-                      <rect x="7" y="7" width="3" height="3" />
-                      <rect x="14" y="7" width="3" height="3" />
-                      <rect x="7" y="14" width="3" height="3" />
-                    </svg>
+                    {searching ? (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                      </svg>
+                    ) : (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <rect x="7" y="7" width="3" height="3" />
+                        <rect x="14" y="7" width="3" height="3" />
+                        <rect x="7" y="14" width="3" height="3" />
+                      </svg>
+                    )}
                   </button>
                 </div>
-                <p className="text-sm text-deep-sea-teal/30 text-center">
-                  Demo: QR-CBX-1045, QR-CBX-1092, QR-CBX-1156
-                </p>
+
+                {/* Not found */}
+                {notFound && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-sm text-danger-red text-center"
+                  >
+                    Bu koda ait paket bulunamadı
+                  </motion.p>
+                )}
               </div>
             </motion.div>
           )}
 
-          {/* Step 2: Customer info + Signature */}
-          {customer && !completed && (
+          {/* Step 2: Package info + Code verification */}
+          {foundPkg && !completed && (
             <motion.div
               key="deliver"
               initial={{ opacity: 0, y: 20 }}
@@ -198,43 +217,79 @@ export default function PickupPage() {
                   Teslim Edilecek
                 </div>
                 <div className="font-display text-4xl font-bold mb-2">
-                  {customer.name}
+                  {foundPkg.users?.name || "Bilinmeyen"}
                 </div>
                 <div className="font-display text-5xl font-bold text-chios-purple">
-                  {customer.shelf}
+                  {foundPkg.shelf_location || "—"}
                 </div>
                 <div className="mt-3 text-sm text-white/50">
-                  {customer.pkg} · {customer.id}
+                  {foundPkg.content} · {foundPkg.users?.chios_box_id}
                 </div>
               </motion.div>
 
-              {/* Signature */}
-              {!signed ? (
+              {/* Code verification */}
+              {!codeSent ? (
                 <div className="bg-white rounded-2xl p-5 shadow-sm border border-deep-sea-teal/5">
                   <h3 className="font-display text-lg font-semibold text-deep-sea-teal mb-3">
-                    Müşteri İmzası
+                    Doğrulama Kodu
                   </h3>
-                  <SignatureCanvas onSave={() => setSigned(true)} />
+                  <p className="text-sm text-deep-sea-teal/50 mb-4">
+                    Müşteriye tek kullanımlık kod gönderin
+                  </p>
+                  <button
+                    onClick={handleSendCode}
+                    disabled={sendingCode}
+                    className="w-full py-4 bg-chios-purple text-white font-semibold rounded-xl hover:bg-chios-purple-dark transition-colors cursor-pointer disabled:opacity-50 min-h-[48px]"
+                  >
+                    {sendingCode ? "Gönderiliyor..." : "Kod Gönder"}
+                  </button>
                 </div>
               ) : (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="bg-white rounded-2xl p-5 shadow-sm border border-deep-sea-teal/5 text-center"
-                >
-                  <div className="w-12 h-12 rounded-full bg-success-green/10 flex items-center justify-center mx-auto mb-3">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
+                <div className="bg-white rounded-2xl p-5 shadow-sm border border-deep-sea-teal/5 space-y-4">
+                  {/* Mock: show the code */}
+                  <div className="p-4 bg-chios-purple/5 rounded-xl text-center">
+                    <div className="text-xs text-deep-sea-teal/40 uppercase tracking-wider mb-1">
+                      Doğrulama Kodu (Mock)
+                    </div>
+                    <div className="font-mono text-3xl font-bold text-chios-purple tracking-[0.3em]">
+                      {verificationCode}
+                    </div>
+                    <div className="text-xs text-deep-sea-teal/30 mt-1">
+                      Gerçek SMS ile müşteriye gönderilecek
+                    </div>
                   </div>
-                  <p className="font-semibold text-success-green mb-4">İmza alındı</p>
+
+                  {/* Code input */}
+                  <div>
+                    <label className="text-xs font-medium text-deep-sea-teal/40 uppercase tracking-wider">
+                      Müşterinin Kodu
+                    </label>
+                    <input
+                      type="text"
+                      value={enteredCode}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+                        setEnteredCode(val);
+                        setCodeError("");
+                      }}
+                      maxLength={6}
+                      placeholder="6 haneli kod"
+                      className="mt-1 w-full px-5 py-4 rounded-xl border-2 border-deep-sea-teal/10 bg-white text-deep-sea-teal text-2xl font-mono text-center tracking-[0.3em] placeholder:text-deep-sea-teal/15 focus:outline-none focus:border-chios-purple/50 transition-all"
+                      autoFocus
+                    />
+                    {codeError && (
+                      <p className="mt-2 text-sm text-danger-red text-center">{codeError}</p>
+                    )}
+                  </div>
+
                   <button
-                    onClick={() => setCompleted(true)}
-                    className="w-full py-4 bg-success-green text-white font-display font-bold text-lg rounded-2xl hover:bg-green-600 active:scale-[0.98] transition-all cursor-pointer shadow-lg min-h-[48px]"
+                    onClick={handleDeliver}
+                    disabled={enteredCode.length !== 6 || delivering}
+                    className="w-full py-4 bg-success-green text-white font-display font-bold text-lg rounded-xl hover:bg-green-600 active:scale-[0.98] transition-all cursor-pointer shadow-lg disabled:opacity-40 disabled:cursor-not-allowed min-h-[48px]"
                   >
-                    TESLİM ET
+                    {delivering ? "Teslim Ediliyor..." : "TESLİM ET"}
                   </button>
-                </motion.div>
+                </div>
               )}
             </motion.div>
           )}
@@ -275,7 +330,7 @@ export default function PickupPage() {
                 Teslim Edildi!
               </h2>
               <p className="text-deep-sea-teal/50 mb-4">
-                {customer?.name} — {customer?.pkg}
+                {foundPkg?.users?.name} — {foundPkg?.content}
               </p>
 
               <button
