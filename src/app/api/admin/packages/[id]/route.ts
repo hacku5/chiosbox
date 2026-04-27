@@ -20,7 +20,7 @@ export async function GET(
     .single();
 
   if (queryError || !data) {
-    return NextResponse.json({ error: "Paket bulunamadı" }, { status: 404 });
+    return NextResponse.json({ error: "Package not found" }, { status: 404 });
   }
 
   return NextResponse.json(data);
@@ -46,12 +46,12 @@ export async function PATCH(
       .single();
 
     if (fetchErr || !pkg) {
-      return NextResponse.json({ error: "Paket bulunamadı" }, { status: 404 });
+      return NextResponse.json({ error: "Package not found" }, { status: 404 });
     }
 
     const overdueDays = Math.max(0, (pkg.storage_days_used || 0) - FEES.FREE_STORAGE_DAYS);
     if (overdueDays <= 0) {
-      return NextResponse.json({ error: "Gecikme ücreti uygulanacak gün yok" }, { status: 400 });
+      return NextResponse.json({ error: "No days for demurrage fee" }, { status: 400 });
     }
 
     const demurrageAmount = overdueDays * FEES.DAILY_DEMURRAGE;
@@ -68,7 +68,7 @@ export async function PATCH(
     );
 
     if (hasActiveDemurrage) {
-      return NextResponse.json({ error: "Bu paket için zaten bekleyen bir gecikme faturası var" }, { status: 409 });
+      return NextResponse.json({ error: "A pending demurrage invoice already exists for this package" }, { status: 409 });
     }
 
     const { data, error: updateErr } = await supabase
@@ -119,7 +119,7 @@ export async function PATCH(
   if (updateData.status) {
     const allowedStatuses = ["BEKLENIYOR", "YOLDA", "DEPODA", "HAZIR", "BIRLESTIRILDI", "TESLIM_EDILDI", "IPTAL"];
     if (!allowedStatuses.includes(updateData.status as string)) {
-      return NextResponse.json({ error: "Geçersiz durum" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
     const { data: currentPkg } = await supabase
@@ -141,7 +141,7 @@ export async function PATCH(
       const allowed = validTransitions[currentPkg.status] || [];
       if (!allowed.includes(updateData.status as string)) {
         return NextResponse.json(
-          { error: `${currentPkg.status} durumundan ${updateData.status} durumuna geçiş yapılamaz` },
+          { error: `Cannot transition from ${currentPkg.status} to ${updateData.status}` },
           { status: 400 }
         );
       }

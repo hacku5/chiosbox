@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePackageStore } from "@/stores/package-store";
+import { useTranslation } from "@/hooks/use-translation";
 import Link from "next/link";
 
 function detectCarrier(trackingNo: string): string {
@@ -13,20 +14,7 @@ function detectCarrier(trackingNo: string): string {
   return "";
 }
 
-const CARRIERS = ["DHL", "UPS", "FedEx", "USPS", "Amazon", "Hermes", "DPD", "GLS", "Diğer"];
-
-const WEIGHT_PRESETS = [
-  { label: "Hafif", sub: "< 0.5 kg", value: 0.3, color: "bg-success-green" },
-  { label: "Orta", sub: "0.5 – 2 kg", value: 1, color: "bg-chios-purple" },
-  { label: "Ağır", sub: "2 – 5 kg", value: 3, color: "bg-accent-orange" },
-  { label: "Çok Ağır", sub: "5+ kg", value: 7, color: "bg-danger-red" },
-];
-
-const DIMENSION_PRESETS = [
-  { label: "Küçük", sub: "Küçük kutu", value: "20x15x10 cm", icon: "S" },
-  { label: "Orta", sub: "Standart kutu", value: "40x30x20 cm", icon: "M" },
-  { label: "Büyük", sub: "Büyük kutu", value: "60x40x30 cm", icon: "L" },
-];
+const CARRIER_OPTIONS = ["DHL", "UPS", "FedEx", "USPS", "Amazon", "Hermes", "DPD", "GLS"];
 
 export default function ActionsPage() {
   const [trackingNo, setTrackingNo] = useState("");
@@ -43,9 +31,27 @@ export default function ActionsPage() {
   const [error, setError] = useState("");
   const fetchPackages = usePackageStore((s) => s.fetchPackages);
   const detectedCarrier = detectCarrier(trackingNo);
+  const { t } = useTranslation();
 
-  const resolvedCarrier = carrier === "Diğer"
-    ? (customCarrier.trim() || "Diğer")
+  const CARRIERS = [...CARRIER_OPTIONS, t("actions.carrier.other")];
+
+  const WEIGHT_PRESETS = [
+    { label: t("actions.weight.light"), sub: "< 0.5 kg", value: 0.3, color: "bg-success-green" },
+    { label: t("actions.weight.medium"), sub: "0.5 – 2 kg", value: 1, color: "bg-chios-purple" },
+    { label: t("actions.weight.heavy"), sub: "2 – 5 kg", value: 3, color: "bg-accent-orange" },
+    { label: t("actions.weight.veryHeavy"), sub: "5+ kg", value: 7, color: "bg-danger-red" },
+  ];
+
+  const DIMENSION_PRESETS = [
+    { label: t("actions.dimension.small"), sub: t("actions.dimension.smallBox"), value: "20x15x10 cm", icon: "S" },
+    { label: t("actions.dimension.medium"), sub: t("actions.dimension.mediumBox"), value: "40x30x20 cm", icon: "M" },
+    { label: t("actions.dimension.large"), sub: t("actions.dimension.largeBox"), value: "60x40x30 cm", icon: "L" },
+  ];
+
+  const otherLabel = t("actions.carrier.other");
+
+  const resolvedCarrier = carrier === otherLabel
+    ? (customCarrier.trim() || otherLabel)
     : (carrier || detectedCarrier || "");
 
   const resolvedWeight = customWeight ? parseFloat(customWeight) : weightPreset;
@@ -61,7 +67,7 @@ export default function ActionsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           trackingNo,
-          carrier: resolvedCarrier || "Diğer",
+          carrier: resolvedCarrier || otherLabel,
           content,
           weightKg: resolvedWeight || null,
           dimensions: resolvedDim || null,
@@ -71,14 +77,14 @@ export default function ActionsPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "Bildirim başarısız");
+        setError(data.error || t("actions.submitFailed"));
         return;
       }
 
       setSubmitted(true);
       fetchPackages();
     } catch {
-      setError("Bağlantı hatası — lütfen tekrar deneyin");
+      setError(t("actions.connectionError"));
     } finally {
       setSubmitting(false);
     }
@@ -125,11 +131,11 @@ export default function ActionsPage() {
               </motion.div>
 
               <h2 className="font-display text-2xl font-bold text-deep-sea-teal mb-2">
-                Paket Bildirildi!
+                {t("actions.success.title")}
               </h2>
               <p className="text-sm text-deep-sea-teal/50 mb-2">{content}</p>
               <p className="text-xs text-deep-sea-teal/40 font-mono mb-8">
-                {resolvedCarrier || "Kargo"} — {trackingNo}
+                {resolvedCarrier || t("packages.carrier")} — {trackingNo}
               </p>
 
               <motion.div
@@ -146,12 +152,12 @@ export default function ActionsPage() {
                     </svg>
                   </div>
                   <div className="text-left">
-                    <div className="text-sm font-semibold text-deep-sea-teal">Kabul Ücreti</div>
-                    <div className="text-xs text-deep-sea-teal/50">Paket depoya ulaştığında ödenecek</div>
+                    <div className="text-sm font-semibold text-deep-sea-teal">{t("actions.feeLabel")}</div>
+                    <div className="text-xs text-deep-sea-teal/50">{t("actions.feeDescription")}</div>
                   </div>
                 </div>
                 <div className="text-left text-xs text-deep-sea-teal/40">
-                  Paketiniz ChiosBox deposuna ulaştığında fatura oluşturulacak ve ödeme yapmanız istenecektir.
+                  {t("actions.feeExplanation")}
                 </div>
               </motion.div>
 
@@ -165,19 +171,19 @@ export default function ActionsPage() {
                   href="/dashboard/checkout"
                   className="w-full py-3.5 inline-flex items-center justify-center gap-2 bg-chios-purple text-white font-display font-semibold rounded-xl hover:bg-chios-purple-dark transition-all duration-200 shadow-lg shadow-chios-purple/20 cursor-pointer"
                 >
-                  Ödemeye Git
+                  {t("actions.goToPayment")}
                 </Link>
                 <Link
                   href="/dashboard/packages"
                   className="w-full py-3.5 inline-flex items-center justify-center gap-2 bg-white text-deep-sea-teal font-semibold rounded-xl border border-deep-sea-teal/10 hover:bg-deep-sea-teal/5 transition-all duration-200 cursor-pointer"
                 >
-                  Paketlerimi Gör
+                  {t("actions.viewPackages")}
                 </Link>
                 <button
                   onClick={resetForm}
                   className="w-full py-3 text-sm text-deep-sea-teal/40 hover:text-chios-purple transition-colors cursor-pointer"
                 >
-                  Yeni Paket Bildir
+                  {t("actions.newReport")}
                 </button>
               </motion.div>
             </motion.div>
@@ -189,10 +195,10 @@ export default function ActionsPage() {
               exit={{ opacity: 0, y: -20 }}
             >
               <h1 className="font-display text-2xl font-bold text-deep-sea-teal mb-2">
-                Yeni Paket Bildir
+                {t("actions.newReport")}
               </h1>
               <p className="text-sm text-deep-sea-teal/50 mb-8">
-                Alışveriş yaptığınız paketin bilgilerini girin
+                {t("actions.formDescription")}
               </p>
 
               {error && (
@@ -210,14 +216,14 @@ export default function ActionsPage() {
                   {/* 1. Takip Numarası */}
                   <div>
                     <label className="block text-sm font-medium text-deep-sea-teal mb-2">
-                      Takip Numarası
+                      {t("actions.trackingLabel")}
                     </label>
                     <div className="relative">
                       <input
                         type="text"
                         value={trackingNo}
                         onChange={(e) => setTrackingNo(e.target.value)}
-                        placeholder="Örn: 1Z999AA10123456784"
+                        placeholder={t("actions.trackingPlaceholder")}
                         className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-deep-sea-teal/[0.02] text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200"
                       />
                       {detectedCarrier && !carrier && (
@@ -235,7 +241,7 @@ export default function ActionsPage() {
                   {/* 2. Kargo Firması */}
                   <div>
                     <label className="block text-sm font-medium text-deep-sea-teal mb-2">
-                      Kargo Firması
+                      {t("actions.carrierLabel")}
                     </label>
                     <div className="flex flex-wrap gap-2">
                       {CARRIERS.map((c) => (
@@ -243,7 +249,7 @@ export default function ActionsPage() {
                           key={c}
                           onClick={() => {
                             setCarrier(c === carrier ? "" : c);
-                            if (c !== "Diğer") setCustomCarrier("");
+                            if (c !== otherLabel) setCustomCarrier("");
                           }}
                           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                             (carrier === c || (!carrier && detectedCarrier === c))
@@ -257,7 +263,7 @@ export default function ActionsPage() {
                     </div>
 
                     <AnimatePresence>
-                      {carrier === "Diğer" && (
+                      {carrier === otherLabel && (
                         <motion.div
                           initial={{ opacity: 0, height: 0, marginTop: 0 }}
                           animate={{ opacity: 1, height: "auto", marginTop: 12 }}
@@ -269,7 +275,7 @@ export default function ActionsPage() {
                             type="text"
                             value={customCarrier}
                             onChange={(e) => setCustomCarrier(e.target.value)}
-                            placeholder="Kargo firması adı yazın"
+                            placeholder={t("actions.carrierPlaceholder")}
                             className="w-full px-4 py-3 rounded-xl border border-chios-purple/30 bg-chios-purple/[0.02] text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200"
                             autoFocus
                           />
@@ -281,13 +287,13 @@ export default function ActionsPage() {
                   {/* 3. Paket İçeriği */}
                   <div>
                     <label className="block text-sm font-medium text-deep-sea-teal mb-2">
-                      Paket İçeriği
+                      {t("actions.contentLabel")}
                     </label>
                     <input
                       type="text"
                       value={content}
                       onChange={(e) => setContent(e.target.value)}
-                      placeholder="Örn: Nike Air Max 90"
+                      placeholder={t("actions.contentPlaceholder")}
                       className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-deep-sea-teal/[0.02] text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200"
                     />
                   </div>
@@ -295,7 +301,7 @@ export default function ActionsPage() {
                   {/* 4. Ağırlık — interactive presets */}
                   <div>
                     <label className="block text-sm font-medium text-deep-sea-teal mb-2">
-                      Ağırlık <span className="text-deep-sea-teal/30 font-normal">(opsiyonel)</span>
+                      {t("actions.weightLabel")} <span className="text-deep-sea-teal/30 font-normal">{t("actions.optional")}</span>
                     </label>
                     <div className="grid grid-cols-4 gap-2 mb-3">
                       {WEIGHT_PRESETS.map((wp) => (
@@ -333,10 +339,10 @@ export default function ActionsPage() {
                           setCustomWeight(e.target.value);
                           setWeightPreset(null);
                         }}
-                        placeholder="veya manuel girin"
+                        placeholder={t("actions.weightManualPlaceholder")}
                         className="w-full px-4 py-2.5 pr-10 rounded-xl border border-deep-sea-teal/10 bg-deep-sea-teal/[0.02] text-sm text-deep-sea-teal placeholder:text-deep-sea-teal/25 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200"
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-deep-sea-teal/30">kg</span>
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-deep-sea-teal/30">{t("actions.weightUnit")}</span>
                     </div>
                     {/* Visual bar */}
                     <div className="mt-2 h-1.5 rounded-full bg-deep-sea-teal/5 overflow-hidden">
@@ -352,7 +358,7 @@ export default function ActionsPage() {
                   {/* 5. Boyut — interactive presets */}
                   <div>
                     <label className="block text-sm font-medium text-deep-sea-teal mb-2">
-                      Boyut <span className="text-deep-sea-teal/30 font-normal">(opsiyonel)</span>
+                      {t("actions.sizeLabel")} <span className="text-deep-sea-teal/30 font-normal">{t("actions.optional")}</span>
                     </label>
                     <div className="grid grid-cols-3 gap-2 mb-3">
                       {DIMENSION_PRESETS.map((dp) => (
@@ -387,7 +393,7 @@ export default function ActionsPage() {
                         setCustomDim(e.target.value);
                         setDimPreset("");
                       }}
-                      placeholder="veya manuel: 30x20x15 cm"
+                      placeholder={t("actions.sizeManualPlaceholder")}
                       className="w-full px-4 py-2.5 rounded-xl border border-deep-sea-teal/10 bg-deep-sea-teal/[0.02] text-sm text-deep-sea-teal placeholder:text-deep-sea-teal/25 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200"
                     />
                   </div>
@@ -395,12 +401,12 @@ export default function ActionsPage() {
                   {/* 6. Not */}
                   <div>
                     <label className="block text-sm font-medium text-deep-sea-teal mb-2">
-                      Not <span className="text-deep-sea-teal/30 font-normal">(opsiyonel)</span>
+                      {t("actions.noteLabel")} <span className="text-deep-sea-teal/30 font-normal">{t("actions.optional")}</span>
                     </label>
                     <textarea
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      placeholder="Kırılabilir, hediye paketi vb."
+                      placeholder={t("actions.notePlaceholder")}
                       rows={2}
                       className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-deep-sea-teal/[0.02] text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200 resize-none"
                     />
@@ -412,7 +418,7 @@ export default function ActionsPage() {
                     disabled={!trackingNo || !content || submitting}
                     className="w-full py-3.5 bg-chios-purple text-white font-display font-semibold rounded-xl hover:bg-chios-purple-dark disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
                   >
-                    {submitting ? "Gönderiliyor..." : "Bildir"}
+                    {submitting ? t("actions.submitting") : t("actions.submit")}
                   </button>
                 </div>
               </div>

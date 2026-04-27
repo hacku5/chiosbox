@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Rubik, Nunito_Sans } from "next/font/google";
 import { ClientLayoutWrapper } from "@/components/client-layout-wrapper";
 import "./globals.css";
@@ -30,13 +31,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("lang")?.value || "en";
+
   return (
-    <html lang="tr" className={`${rubik.variable} ${nunitoSans.variable}`}>
+    <html lang={lang} className={`${rubik.variable} ${nunitoSans.variable}`}>
       <body className="antialiased font-sans">
         <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
       </body>

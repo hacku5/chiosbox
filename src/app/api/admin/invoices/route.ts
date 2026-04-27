@@ -82,7 +82,7 @@ export async function POST(request: Request) {
   const body = await request.json();
 
   if (!body.user_id) {
-    return NextResponse.json({ error: "Müşteri seçilmeli" }, { status: 400 });
+    return NextResponse.json({ error: "A customer must be selected" }, { status: 400 });
   }
 
   // Verify user exists
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     .single();
 
   if (!targetUser) {
-    return NextResponse.json({ error: "Müşteri bulunamadı" }, { status: 404 });
+    return NextResponse.json({ error: "Customer not found" }, { status: 404 });
   }
 
   // Mode 1: Package-based invoice (new flow)
@@ -106,7 +106,7 @@ export async function POST(request: Request) {
       .eq("user_id", body.user_id);
 
     if (fetchErr || !packages || packages.length === 0) {
-      return NextResponse.json({ error: "Seçilen paketler bulunamadı" }, { status: 400 });
+      return NextResponse.json({ error: "Selected packages not found" }, { status: 400 });
     }
 
     // Check which packages are already invoiced
@@ -119,7 +119,7 @@ export async function POST(request: Request) {
     const uninvoicedPackages = packages.filter((p) => !alreadyInvoiced.has(p.id));
 
     if (uninvoicedPackages.length === 0) {
-      return NextResponse.json({ error: "Seçilen paketler zaten faturalanmış" }, { status: 400 });
+      return NextResponse.json({ error: "Selected packages already invoiced" }, { status: 400 });
     }
 
     // Calculate fees per package
@@ -181,8 +181,8 @@ export async function POST(request: Request) {
 
     // Push notification
     sendPushToUser(body.user_id, {
-      title: "Yeni Fatura",
-      body: `€${total.toFixed(2)} tutarında faturanız var`,
+      title: "New Invoice",
+      body: `€${total.toFixed(2)} you have an invoice`,
       url: "/dashboard/checkout",
     }).catch(() => {});
 
@@ -196,12 +196,12 @@ export async function POST(request: Request) {
   const total = acceptFee + consolidationFee + demurrageFee;
 
   if (total <= 0) {
-    return NextResponse.json({ error: "Toplam tutar sıfırdan büyük olmalı" }, { status: 400 });
+    return NextResponse.json({ error: "Total amount must be greater than zero" }, { status: 400 });
   }
 
   // Reasonable upper bound: €5000 per invoice
   if (total > 5000) {
-    return NextResponse.json({ error: "Toplam tutar çok yüksek" }, { status: 400 });
+    return NextResponse.json({ error: "Total amount too high" }, { status: 400 });
   }
 
   const { data, error: insertError } = await supabase
@@ -223,8 +223,8 @@ export async function POST(request: Request) {
 
   // Push notification
   sendPushToUser(body.user_id, {
-    title: "Yeni Fatura",
-    body: `€${total.toFixed(2)} tutarında faturanız var`,
+    title: "New Invoice",
+    body: `€${total.toFixed(2)} you have an invoice`,
     url: "/dashboard/checkout",
   }).catch(() => {});
 

@@ -4,31 +4,16 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePackageStore, type PackageStatus, type Package } from "@/stores/package-store";
 import { PackageListSkeleton } from "@/components/dashboard/dashboard-skeleton";
+import { useTranslation } from "@/hooks/use-translation";
 import Link from "next/link";
 
-const statusConfig: Record<PackageStatus, { bg: string; text: string; label: string }> = {
-  depoda: { bg: "bg-chios-purple/10", text: "text-chios-purple", label: "Depoda" },
-  yolda: { bg: "bg-accent-orange/10", text: "text-accent-orange", label: "Yolda" },
-  bekleniyor: { bg: "bg-deep-sea-teal/5", text: "text-deep-sea-teal/50", label: "Ödeme Bekleniyor" },
-  birlestirildi: { bg: "bg-success-green/10", text: "text-success-green", label: "Birleştirildi" },
-  teslim_edildi: { bg: "bg-success-green/10", text: "text-success-green", label: "Teslim Edildi" },
-};
-
-interface Message {
-  id: string;
-  message: string;
-  is_admin: boolean;
-  created_at: string;
-  users?: { name: string };
-}
-
-function StatusStepper({ status }: { status: PackageStatus }) {
+function StatusStepper({ status, t }: { status: PackageStatus; t: (key: string) => string }) {
   const isBirlestirildi = status === "birlestirildi";
   const steps = [
-    { key: "bekleniyor", label: "Bildirildi" },
-    { key: "depoda", label: "Depoda" },
-    ...(isBirlestirildi ? [{ key: "birlestirildi", label: "Birleştirildi" }] : []),
-    { key: "teslim_edildi", label: "Teslim Edildi" },
+    { key: "bekleniyor", label: t("packages.stepper.reported") },
+    { key: "depoda", label: t("packages.stepper.inWarehouse") },
+    ...(isBirlestirildi ? [{ key: "birlestirildi", label: t("packages.stepper.consolidated") }] : []),
+    { key: "teslim_edildi", label: t("packages.stepper.delivered") },
   ];
   const order: Record<string, number> = { bekleniyor: 0, yolda: 0, depoda: 1, birlestirildi: 2, teslim_edildi: 3 };
   const currentLevel = order[status] ?? 0;
@@ -72,8 +57,20 @@ function StatusStepper({ status }: { status: PackageStatus }) {
   );
 }
 
-function PackageDetailModal({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
-  const sc = statusConfig[pkg.status];
+function PackageDetailModal({ pkg, onClose, t }: { pkg: Package; onClose: () => void; t: (key: string) => string }) {
+  const sc = (() => {
+    const configs: Record<PackageStatus, { bg: string; text: string; key: string }> = {
+      depoda: { bg: "bg-chios-purple/10", text: "text-chios-purple", key: "packages.status.depoda" },
+      yolda: { bg: "bg-accent-orange/10", text: "text-accent-orange", key: "packages.status.yolda" },
+      bekleniyor: { bg: "bg-deep-sea-teal/5", text: "text-deep-sea-teal/50", key: "packages.status.bekleniyor" },
+      hazir: { bg: "bg-success-green/10", text: "text-success-green", key: "packages.status.hazir" },
+      birlestirildi: { bg: "bg-success-green/10", text: "text-success-green", key: "packages.status.birlestirildi" },
+      teslim_edildi: { bg: "bg-success-green/10", text: "text-success-green", key: "packages.status.teslim_edildi" },
+      iptal: { bg: "bg-danger-red/10", text: "text-danger-red", key: "packages.status.iptal" },
+    };
+    const c = configs[pkg.status];
+    return { bg: c.bg, text: c.text, label: t(c.key) };
+  })();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMsg, setNewMsg] = useState("");
   const [sending, setSending] = useState(false);
@@ -171,7 +168,7 @@ function PackageDetailModal({ pkg, onClose }: { pkg: Package; onClose: () => voi
 
           {/* Stepper in header */}
           <div className="px-5 pb-4">
-            <StatusStepper status={pkg.status} />
+            <StatusStepper status={pkg.status} t={t} />
           </div>
         </div>
 
@@ -184,44 +181,44 @@ function PackageDetailModal({ pkg, onClose }: { pkg: Package; onClose: () => voi
                 {/* Warehouse photo */}
                 {pkg.warehouse_photo_url && (
                   <div className="rounded-xl overflow-hidden mb-4">
-                    <img src={pkg.warehouse_photo_url} alt="Depo" className="w-full h-36 object-cover" />
+                    <img src={pkg.warehouse_photo_url} alt={t("packages.detail.warehouse")} className="w-full h-36 object-cover" />
                   </div>
                 )}
 
                 {/* Info rows — clean list style, no grid boxes */}
                 <div className="space-y-0 divide-y divide-deep-sea-teal/5">
-                  <InfoRow label="Kargo" value={pkg.carrier} />
-                  <InfoRow label="Takip No" value={pkg.tracking_no} mono />
+                  <InfoRow label={t("packages.carrier")} value={pkg.carrier} />
+                  <InfoRow label={t("packages.trackingNo")} value={pkg.tracking_no} mono />
                   {pkg.shelf_location && <InfoRow label="Raf" value={pkg.shelf_location} />}
-                  {pkg.master_box_id && <InfoRow label="Master Kutu" value={pkg.master_box_id} mono />}
+                  {pkg.master_box_id && <InfoRow label={t("packages.detail.masterBox")} value={pkg.master_box_id} mono />}
                   {pkg.arrived_at && (
-                    <InfoRow label="Depo Varış" value={new Date(pkg.arrived_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })} />
+                    <InfoRow label={t("packages.detail.warehouseArrival")} value={new Date(pkg.arrived_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })} />
                   )}
                   {pkg.created_at && (
-                    <InfoRow label="Bildirim" value={new Date(pkg.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })} />
+                    <InfoRow label={t("packages.notification")} value={new Date(pkg.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })} />
                   )}
                   {pkg.storage_days_used > 0 && (
-                    <InfoRow label="Depoda" value={`${pkg.storage_days_used} gün`} />
+                    <InfoRow label={t("packages.status.depoda")} value={t("packages.daysAgo").replace("{n}", String(pkg.storage_days_used))} />
                   )}
                   {pkg.status === "depoda" && (
                     <InfoRow
-                      label="Kalan Ücretsiz"
-                      value={`${pkg.free_days_left} gün`}
+                      label={t("packages.detail.freeDaysLeft")}
+                      value={t("packages.daysAgo").replace("{n}", String(pkg.free_days_left))}
                       highlight={pkg.free_days_left <= 5}
                     />
                   )}
                   {Number(pkg.demurrage_fee) > 0 && (
-                    <InfoRow label="Gecikme Ücreti" value={`€${Number(pkg.demurrage_fee).toFixed(2)}`} highlight />
+                    <InfoRow label={t("packages.demurrageFee")} value={`€${Number(pkg.demurrage_fee).toFixed(2)}`} highlight />
                   )}
                   {pkg.weight_kg != null && Number(pkg.weight_kg) > 0 && (
-                    <InfoRow label="Ağırlık" value={`${Number(pkg.weight_kg)} kg`} />
+                    <InfoRow label={t("packages.weight")} value={`${Number(pkg.weight_kg)} kg`} />
                   )}
                   {pkg.dimensions && (
-                    <InfoRow label="Boyut" value={pkg.dimensions} />
+                    <InfoRow label={t("packages.dimensions")} value={pkg.dimensions} />
                   )}
                   {pkg.notes && (
                     <div className="py-3">
-                      <div className="text-[10px] text-deep-sea-teal/40 uppercase tracking-wider mb-1">Not</div>
+                      <div className="text-[10px] text-deep-sea-teal/40 uppercase tracking-wider mb-1">{t("packages.note")}</div>
                       <div className="text-sm text-deep-sea-teal">{pkg.notes}</div>
                     </div>
                   )}
@@ -235,7 +232,7 @@ function PackageDetailModal({ pkg, onClose }: { pkg: Package; onClose: () => voi
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
                   </svg>
-                  Sohbete Git
+                  {t("packages.detail.chat")}
                 </button>
               </motion.div>
             ) : (
@@ -248,7 +245,7 @@ function PackageDetailModal({ pkg, onClose }: { pkg: Package; onClose: () => voi
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polyline points="15 18 9 12 15 6" />
                   </svg>
-                  Detaylara Dön
+                  {t("packages.previous")}
                 </button>
 
                 {loadingMsgs ? (
@@ -262,8 +259,8 @@ function PackageDetailModal({ pkg, onClose }: { pkg: Package; onClose: () => voi
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mx-auto mb-3">
                       <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
                     </svg>
-                    <p className="text-sm">Henüz mesaj yok</p>
-                    <p className="text-xs mt-1">Paketinizle ilgili sorularınızı buradan sorabilirsiniz</p>
+                    <p className="text-sm">{t("packages.noMessagesYet")}</p>
+                    <p className="text-xs mt-1">{t("packages.chatHint")}</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -276,7 +273,7 @@ function PackageDetailModal({ pkg, onClose }: { pkg: Package; onClose: () => voi
                         }`}>
                           {msg.is_admin && (
                             <div className="text-[10px] font-medium text-chios-purple mb-1">
-                              {msg.users?.name || "Destek"}
+                              {msg.users?.name || t("packages.detail.chat")}
                             </div>
                           )}
                           <div className="text-sm">{msg.message}</div>
@@ -297,7 +294,7 @@ function PackageDetailModal({ pkg, onClose }: { pkg: Package; onClose: () => voi
                     value={newMsg}
                     onChange={(e) => setNewMsg(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                    placeholder="Mesajınızı yazın..."
+                    placeholder={t("packages.detail.messagePlaceholder")}
                     className="flex-1 px-4 py-2.5 rounded-xl border border-deep-sea-teal/10 bg-deep-sea-teal/[0.02] text-sm text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 transition-all"
                   />
                   <button
@@ -330,7 +327,7 @@ function PackageDetailModal({ pkg, onClose }: { pkg: Package; onClose: () => voi
                       <polyline points="3 6 5 6 21 6" />
                       <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
                     </svg>
-                    Paketi Sil
+                    {t("packages.deletePackage")}
                   </button>
                 ) : (
                   <motion.div
@@ -342,14 +339,14 @@ function PackageDetailModal({ pkg, onClose }: { pkg: Package; onClose: () => voi
                       onClick={() => setConfirmDelete(false)}
                       className="flex-1 py-3 text-deep-sea-teal/50 text-sm font-medium rounded-xl border border-deep-sea-teal/10 hover:bg-deep-sea-teal/5 transition-colors cursor-pointer"
                     >
-                      Vazgeç
+                      {t("packages.giveUp")}
                     </button>
                     <button
                       onClick={handleDelete}
                       disabled={deleting}
                       className="flex-1 py-3 bg-danger-red text-white text-sm font-semibold rounded-xl hover:bg-red-600 transition-colors cursor-pointer disabled:opacity-50"
                     >
-                      {deleting ? "Siliniyor..." : "Evet, Sil"}
+                      {deleting ? t("packages.deleting") : t("packages.confirmDelete")}
                     </button>
                   </motion.div>
                 )}
@@ -359,13 +356,21 @@ function PackageDetailModal({ pkg, onClose }: { pkg: Package; onClose: () => voi
               onClick={onClose}
               className="w-full py-3 bg-deep-sea-teal/5 text-deep-sea-teal font-semibold rounded-xl hover:bg-deep-sea-teal/10 transition-colors cursor-pointer"
             >
-              Kapat
+              {t("packages.close")}
             </button>
           </div>
         )}
       </motion.div>
     </motion.div>
   );
+}
+
+interface Message {
+  id: string;
+  message: string;
+  is_admin: boolean;
+  created_at: string;
+  users?: { name: string };
 }
 
 function InfoRow({ label, value, mono, highlight }: { label: string; value: string; mono?: boolean; highlight?: boolean }) {
@@ -380,6 +385,7 @@ function InfoRow({ label, value, mono, highlight }: { label: string; value: stri
 }
 
 export default function PackagesPage() {
+  const { t } = useTranslation();
   const packages = usePackageStore((s) => s.packages);
   const fetchPackages = usePackageStore((s) => s.fetchPackages);
   const loading = usePackageStore((s) => s.loading);
@@ -405,16 +411,35 @@ export default function PackagesPage() {
     );
   }
 
+  const filterTabs = [
+    { key: "all", label: t("packages.filter.all") },
+    { key: "depoda", label: t("packages.filter.depoda") },
+    { key: "yolda", label: t("packages.filter.yolda") },
+    { key: "bekleniyor", label: t("packages.filter.bekleniyor") },
+    { key: "birlestirildi", label: t("packages.filter.birlestirildi") },
+    { key: "teslim_edildi", label: t("packages.filter.teslim_edildi") },
+  ];
+
+  const statusConfigMap: Record<PackageStatus, { bg: string; text: string; key: string }> = {
+    depoda: { bg: "bg-chios-purple/10", text: "text-chios-purple", key: "packages.status.depoda" },
+    yolda: { bg: "bg-accent-orange/10", text: "text-accent-orange", key: "packages.status.yolda" },
+    bekleniyor: { bg: "bg-deep-sea-teal/5", text: "text-deep-sea-teal/50", key: "packages.status.bekleniyor" },
+    hazir: { bg: "bg-success-green/10", text: "text-success-green", key: "packages.status.hazir" },
+    birlestirildi: { bg: "bg-success-green/10", text: "text-success-green", key: "packages.status.birlestirildi" },
+    teslim_edildi: { bg: "bg-success-green/10", text: "text-success-green", key: "packages.status.teslim_edildi" },
+    iptal: { bg: "bg-danger-red/10", text: "text-danger-red", key: "packages.status.iptal" },
+  };
+
   return (
     <div className="p-6 lg:p-8">
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="font-display text-2xl font-bold text-deep-sea-teal">
-              Paketlerim
+              {t("packages.title")}
             </h1>
             <p className="text-sm text-deep-sea-teal/50 mt-1">
-              Tüm paketlerinizi buradan takip edin
+              {t("packages.count").replace("{total}", String(packages.length))}
             </p>
           </div>
 
@@ -423,7 +448,7 @@ export default function PackagesPage() {
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
-            Yeni Bildir
+            {t("packages.notifyNew")}
           </Link>
         </div>
 
@@ -437,21 +462,14 @@ export default function PackagesPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Takip no, içerik veya kargo ile ara..."
+            placeholder={t("packages.searchPlaceholder2")}
             className="w-full pl-11 pr-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal text-sm placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all"
           />
         </div>
 
         {/* Filter tabs */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          {[
-            { key: "all", label: "Tümü" },
-            { key: "depoda", label: "Depoda" },
-            { key: "yolda", label: "Yolda" },
-            { key: "bekleniyor", label: "Ödeme Bekleniyor" },
-            { key: "birlestirildi", label: "Birleştirildi" },
-            { key: "teslim_edildi", label: "Teslim Edildi" },
-          ].map((tab) => (
+          {filterTabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setFilter(tab.key as typeof filter)}
@@ -474,18 +492,18 @@ export default function PackagesPage() {
                 <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
               </svg>
               <p className="text-sm">
-                {search.trim() ? "Aramanıza uygun paket bulunamadı" : "Bu kategoride paket bulunmuyor"}
+                {search.trim() ? t("packages.noSearchResults") : t("packages.noCategoryPackages")}
               </p>
               {!search.trim() && (
                 <Link href="/dashboard/actions" className="inline-block mt-3 text-sm text-chios-purple font-medium hover:underline cursor-pointer">
-                  Yeni paket bildirin →
+                  {t("packages.notFound")}
                 </Link>
               )}
             </div>
           )}
           <AnimatePresence mode="popLayout">
             {filtered.map((pkg) => {
-              const sc = statusConfig[pkg.status];
+              const cfg = statusConfigMap[pkg.status];
               return (
                 <motion.div
                   key={pkg.id}
@@ -509,8 +527,8 @@ export default function PackagesPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-medium text-deep-sea-teal">{pkg.content}</h3>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${sc.bg} ${sc.text}`}>
-                          {sc.label}
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${cfg.bg} ${cfg.text}`}>
+                          {t(cfg.key)}
                         </span>
                       </div>
                       <div className="text-xs text-deep-sea-teal/40 font-mono mb-2">
@@ -544,12 +562,12 @@ export default function PackagesPage() {
                               ? "text-accent-orange bg-sunset-gold/10"
                               : "text-deep-sea-teal/50 bg-deep-sea-teal/[0.03]"
                           }`}>
-                            {pkg.free_days_left} gün ücretsiz
+                            {t("packages.daysFree").replace("{n}", String(pkg.free_days_left))}
                           </span>
                         )}
                         {Number(pkg.demurrage_fee) > 0 && (
                           <span className="inline-flex items-center gap-1 text-[10px] text-accent-orange bg-sunset-gold/10 px-2 py-0.5 rounded-md">
-                            €{Number(pkg.demurrage_fee).toFixed(2)} gecikme
+                            €{Number(pkg.demurrage_fee).toFixed(2)} {t("packages.demurrageShort")}
                           </span>
                         )}
                       </div>
@@ -564,7 +582,7 @@ export default function PackagesPage() {
         {/* Detail + Chat Modal */}
         <AnimatePresence>
           {selectedPkg && (
-            <PackageDetailModal pkg={selectedPkg} onClose={() => setSelectedPkg(null)} />
+            <PackageDetailModal pkg={selectedPkg} onClose={() => setSelectedPkg(null)} t={t} />
           )}
         </AnimatePresence>
       </div>

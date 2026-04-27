@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AdminPackage } from "@/stores/admin-store";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function PickupPage() {
+  const { t } = useTranslation();
   const [qrInput, setQrInput] = useState("");
   const [searching, setSearching] = useState(false);
   const [foundPkg, setFoundPkg] = useState<AdminPackage | null>(null);
@@ -31,7 +33,7 @@ export default function PickupPage() {
 
     try {
       const res = await fetch(`/api/admin/packages?tracking=${encodeURIComponent(trimmed)}`);
-      if (!res.ok) throw new Error("Arama başarısız");
+      if (!res.ok) throw new Error(t("pickup.error.search"));
       const json = await res.json();
       const packages = json.data || json;
 
@@ -41,7 +43,7 @@ export default function PickupPage() {
         setNotFound(true);
       }
     } catch {
-      setError("Paket aranırken hata oluştu");
+      setError(t("pickup.error.searchPaket"));
     } finally {
       setSearching(false);
     }
@@ -61,14 +63,14 @@ export default function PickupPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Kod üretilemedi");
+        setError(data.error || t("pickup.error.codeFailed"));
         return;
       }
 
       setVerificationCode(data.code);
       setCodeSent(true);
     } catch {
-      setError("Bir hata oluştu");
+      setError(t("pickup.error.generic"));
     } finally {
       setSendingCode(false);
     }
@@ -89,13 +91,13 @@ export default function PickupPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setCodeError(data.error || "Teslimat başarısız");
+        setCodeError(data.error || t("pickup.error.deliveryFailed"));
         return;
       }
 
       setCompleted(true);
     } catch {
-      setCodeError("Bir hata oluştu");
+      setCodeError(t("pickup.error.generic"));
     } finally {
       setDelivering(false);
     }
@@ -119,14 +121,14 @@ export default function PickupPage() {
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="font-display text-2xl font-bold text-deep-sea-teal">
-            Teslimat
+            {t("pickup.title")}
           </h1>
           {foundPkg && (
             <button
               onClick={handleReset}
               className="text-sm text-deep-sea-teal/50 hover:text-chios-purple transition-colors cursor-pointer"
             >
-              Yeni Teslimat
+              {t("pickup.newDelivery")}
             </button>
           )}
         </div>
@@ -159,7 +161,7 @@ export default function PickupPage() {
                       value={qrInput}
                       onChange={(e) => setQrInput(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleScan()}
-                      placeholder="Takip no veya CBX ID girin"
+                      placeholder={t("pickup.inputPlaceholder")}
                       className="w-full px-5 py-4 rounded-2xl border-2 border-deep-sea-teal/10 bg-white text-deep-sea-teal text-lg font-mono placeholder:text-deep-sea-teal/20 focus:outline-none focus:border-chios-purple/50 transition-all"
                       autoFocus
                     />
@@ -191,7 +193,7 @@ export default function PickupPage() {
                     animate={{ opacity: 1 }}
                     className="text-sm text-danger-red text-center"
                   >
-                    Bu koda ait paket bulunamadı
+                    {t("pickup.notFound")}
                   </motion.p>
                 )}
               </div>
@@ -214,7 +216,7 @@ export default function PickupPage() {
                 className="bg-deep-sea-teal rounded-3xl p-8 text-white text-center"
               >
                 <div className="text-sm text-white/50 uppercase tracking-wider mb-2">
-                  Teslim Edilecek
+                  {t("pickup.toDeliver")}
                 </div>
                 <div className="font-display text-4xl font-bold mb-2">
                   {foundPkg.users?.name || "Bilinmeyen"}
@@ -231,17 +233,17 @@ export default function PickupPage() {
               {!codeSent ? (
                 <div className="bg-white rounded-2xl p-5 shadow-sm border border-deep-sea-teal/5">
                   <h3 className="font-display text-lg font-semibold text-deep-sea-teal mb-3">
-                    Doğrulama Kodu
+                    {t("pickup.verificationTitle")}
                   </h3>
                   <p className="text-sm text-deep-sea-teal/50 mb-4">
-                    Müşteriye tek kullanımlık kod gönderin
+                    {t("pickup.verificationDesc")}
                   </p>
                   <button
                     onClick={handleSendCode}
                     disabled={sendingCode}
                     className="w-full py-4 bg-chios-purple text-white font-semibold rounded-xl hover:bg-chios-purple-dark transition-colors cursor-pointer disabled:opacity-50 min-h-[48px]"
                   >
-                    {sendingCode ? "Gönderiliyor..." : "Kod Gönder"}
+                    {sendingCode ? t("pickup.sending") : t("pickup.sendCode")}
                   </button>
                 </div>
               ) : (
@@ -249,20 +251,20 @@ export default function PickupPage() {
                   {/* Mock: show the code */}
                   <div className="p-4 bg-chios-purple/5 rounded-xl text-center">
                     <div className="text-xs text-deep-sea-teal/40 uppercase tracking-wider mb-1">
-                      Doğrulama Kodu (Mock)
+                      {t("pickup.mockCodeLabel")}
                     </div>
                     <div className="font-mono text-3xl font-bold text-chios-purple tracking-[0.3em]">
                       {verificationCode}
                     </div>
                     <div className="text-xs text-deep-sea-teal/30 mt-1">
-                      Gerçek SMS ile müşteriye gönderilecek
+                      {t("pickup.mockCodeNote")}
                     </div>
                   </div>
 
                   {/* Code input */}
                   <div>
                     <label className="text-xs font-medium text-deep-sea-teal/40 uppercase tracking-wider">
-                      Müşterinin Kodu
+                      {t("pickup.customerCode")}
                     </label>
                     <input
                       type="text"
@@ -273,7 +275,7 @@ export default function PickupPage() {
                         setCodeError("");
                       }}
                       maxLength={6}
-                      placeholder="6 haneli kod"
+                      placeholder={t("pickup.codePlaceholder")}
                       className="mt-1 w-full px-5 py-4 rounded-xl border-2 border-deep-sea-teal/10 bg-white text-deep-sea-teal text-2xl font-mono text-center tracking-[0.3em] placeholder:text-deep-sea-teal/15 focus:outline-none focus:border-chios-purple/50 transition-all"
                       autoFocus
                     />
@@ -287,7 +289,7 @@ export default function PickupPage() {
                     disabled={enteredCode.length !== 6 || delivering}
                     className="w-full py-4 bg-success-green text-white font-display font-bold text-lg rounded-xl hover:bg-green-600 active:scale-[0.98] transition-all cursor-pointer shadow-lg disabled:opacity-40 disabled:cursor-not-allowed min-h-[48px]"
                   >
-                    {delivering ? "Teslim Ediliyor..." : "TESLİM ET"}
+                    {delivering ? t("pickup.delivering") : t("pickup.deliver")}
                   </button>
                 </div>
               )}
@@ -327,7 +329,7 @@ export default function PickupPage() {
               </motion.div>
 
               <h2 className="font-display text-2xl font-bold text-deep-sea-teal mb-1">
-                Teslim Edildi!
+                {t("pickup.delivered")}
               </h2>
               <p className="text-deep-sea-teal/50 mb-4">
                 {foundPkg?.users?.name} — {foundPkg?.content}
@@ -337,7 +339,7 @@ export default function PickupPage() {
                 onClick={handleReset}
                 className="px-8 py-3 bg-deep-sea-teal text-white font-semibold rounded-2xl hover:bg-deep-sea-teal/90 transition-colors cursor-pointer min-h-[48px]"
               >
-                Yeni Teslimat
+                {t("pickup.newDelivery")}
               </button>
             </motion.div>
           )}

@@ -2,131 +2,109 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import { useTranslation } from "@/hooks/use-translation";
 
-const steps = [
-  {
-    number: "01",
-    title: "Alışveriş Yapın",
-    description:
-      "Türkiye'deki herhangi bir e-ticaret sitesinden alışveriş yapın. ChiosBox adresinizi teslimat adresi olarak kullanın.",
-    gradient: "from-chios-purple/15 to-chios-purple/5",
-    accentColor: "#5D3FD3",
-    illustration: (
-      <svg viewBox="0 0 120 100" fill="none" className="w-full h-full">
-        <rect x="30" y="25" width="60" height="50" rx="6" fill="#5D3FD3" opacity="0.1" />
-        <rect x="35" y="30" width="50" height="40" rx="4" stroke="#5D3FD3" strokeWidth="1.5" opacity="0.6" />
-        <path d="M35 42H85" stroke="#5D3FD3" strokeWidth="1" opacity="0.3" />
-        <path d="M55 30V70" stroke="#5D3FD3" strokeWidth="1" opacity="0.3" />
-        {/* Shopping bag */}
-        <path d="M52 52L48 68H72L68 52" stroke="#5D3FD3" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
-        <path d="M54 52V48C54 44 58 42 60 42C62 42 66 44 66 48V52" stroke="#5D3FD3" strokeWidth="1.5" opacity="0.5" />
-        {/* Sparkle */}
-        <circle cx="78" cy="32" r="2" fill="#FFCF7E" opacity="0.6">
-          <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite" />
-        </circle>
-      </svg>
-    ),
-  },
-  {
-    number: "02",
-    title: "Depomuza Gelsin",
-    description:
-      "Paketleriniz Sakız Adası'ndaki güvenli depomuza ulaşır. Barkod okutulur ve sistemde kayda girer.",
-    gradient: "from-deep-sea-teal/15 to-deep-sea-teal/5",
-    accentColor: "#004953",
-    illustration: (
-      <svg viewBox="0 0 120 100" fill="none" className="w-full h-full">
-        {/* Warehouse */}
-        <rect x="25" y="40" width="70" height="40" rx="4" fill="#004953" opacity="0.08" />
-        <path d="M20 44L60 25L100 44" stroke="#004953" strokeWidth="1.5" opacity="0.5" />
-        <rect x="30" y="44" width="60" height="36" rx="2" stroke="#004953" strokeWidth="1.2" opacity="0.4" />
-        {/* Door */}
-        <rect x="48" y="58" width="24" height="22" rx="2" fill="#004953" opacity="0.15" />
-        {/* Boxes inside */}
-        <rect x="34" y="50" width="10" height="10" rx="1.5" fill="#5D3FD3" opacity="0.3" />
-        <rect x="76" y="50" width="10" height="10" rx="1.5" fill="#FFCF7E" opacity="0.4" />
-        {/* Arrow coming in */}
-        <motion.g
-          animate={{ x: [0, 5, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <path d="M60 18V28M56 24L60 28L64 24" stroke="#5D3FD3" strokeWidth="1.5" opacity="0.4" />
-        </motion.g>
-      </svg>
-    ),
-  },
-  {
-    number: "03",
-    title: "Fotoğraf Onayı",
-    description:
-      "Depo görevlisi paketinizin fotoğrafını çeker. Panelinizden paketinizi görür, içeriğini doğrularsınız.",
-    gradient: "from-sunset-gold/20 to-sunset-gold/5",
-    accentColor: "#F97316",
-    illustration: (
-      <svg viewBox="0 0 120 100" fill="none" className="w-full h-full">
-        {/* Camera body */}
-        <rect x="30" y="35" width="50" height="38" rx="6" fill="#F97316" opacity="0.1" stroke="#F97316" strokeWidth="1.2" />
-        {/* Lens */}
-        <circle cx="55" cy="54" r="12" stroke="#F97316" strokeWidth="1.5" opacity="0.5" />
-        <circle cx="55" cy="54" r="7" fill="#F97316" opacity="0.15" />
-        <circle cx="55" cy="54" r="3" fill="#F97316" opacity="0.3" />
-        {/* Flash */}
-        <rect x="68" y="38" width="8" height="5" rx="1.5" fill="#FFCF7E" opacity="0.5">
-          <animate attributeName="opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite" />
-        </rect>
-        {/* Viewfinder */}
-        <rect x="38" y="38" width="10" height="6" rx="1" fill="#F97316" opacity="0.2" />
-        {/* Flash lines */}
-        {[0, 1, 2].map((i) => (
-          <line key={i} x1={78 + i * 6} y1={42 - i * 2} x2={82 + i * 6} y2={46 - i * 2} stroke="#FFCF7E" strokeWidth="1" opacity="0">
-            <animate attributeName="opacity" values="0;0.5;0" dur="3s" begin={`${i * 0.1}s`} repeatCount="indefinite" />
-          </line>
-        ))}
-      </svg>
-    ),
-  },
-  {
-    number: "04",
-    title: "Teslim Alın",
-    description:
-      "Paketlerinizi birleştirin, tasarruf edin. QR kodunuzu gösterin, adanızda teslim alın. Bu kadar basit!",
-    gradient: "from-success-green/15 to-success-green/5",
-    accentColor: "#22C55E",
-    illustration: (
-      <svg viewBox="0 0 120 100" fill="none" className="w-full h-full">
-        {/* Hand */}
-        <path d="M45 60C45 60 40 55 38 50C36 45 38 40 42 38" stroke="#22C55E" strokeWidth="1.5" opacity="0.4" strokeLinecap="round" />
-        {/* Package in hand */}
-        <rect x="42" y="42" width="28" height="22" rx="3" fill="#22C55E" opacity="0.12" stroke="#22C55E" strokeWidth="1.2" />
-        <path d="M42 53H70" stroke="#22C55E" strokeWidth="0.8" opacity="0.3" />
-        <path d="M56 42V64" stroke="#22C55E" strokeWidth="0.8" opacity="0.3" />
-        {/* Checkmark */}
-        <motion.g
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.5, type: "spring" }}
-        >
-          <circle cx="80" cy="38" r="10" fill="#22C55E" opacity="0.15" />
-          <path d="M75 38L78 42L86 34" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
-        </motion.g>
-        {/* Sparkles */}
-        <circle cx="88" cy="30" r="1.5" fill="#FFCF7E" opacity="0.5">
-          <animate attributeName="opacity" values="0.2;0.7;0.2" dur="1.8s" repeatCount="indefinite" />
-        </circle>
-        <circle cx="74" cy="28" r="1" fill="#22C55E" opacity="0.4">
-          <animate attributeName="opacity" values="0.2;0.6;0.2" dur="2.2s" repeatCount="indefinite" />
-        </circle>
-      </svg>
-    ),
-  },
+const stepIllustrations = [
+  (
+    <svg viewBox="0 0 120 100" fill="none" className="w-full h-full">
+      <rect x="30" y="25" width="60" height="50" rx="6" fill="#5D3FD3" opacity="0.1" />
+      <rect x="35" y="30" width="50" height="40" rx="4" stroke="#5D3FD3" strokeWidth="1.5" opacity="0.6" />
+      <path d="M35 42H85" stroke="#5D3FD3" strokeWidth="1" opacity="0.3" />
+      <path d="M55 30V70" stroke="#5D3FD3" strokeWidth="1" opacity="0.3" />
+      {/* Shopping bag */}
+      <path d="M52 52L48 68H72L68 52" stroke="#5D3FD3" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+      <path d="M54 52V48C54 44 58 42 60 42C62 42 66 44 66 48V52" stroke="#5D3FD3" strokeWidth="1.5" opacity="0.5" />
+      {/* Sparkle */}
+      <circle cx="78" cy="32" r="2" fill="#FFCF7E" opacity="0.6">
+        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite" />
+      </circle>
+    </svg>
+  ),
+  (
+    <svg viewBox="0 0 120 100" fill="none" className="w-full h-full">
+      {/* Warehouse */}
+      <rect x="25" y="40" width="70" height="40" rx="4" fill="#004953" opacity="0.08" />
+      <path d="M20 44L60 25L100 44" stroke="#004953" strokeWidth="1.5" opacity="0.5" />
+      <rect x="30" y="44" width="60" height="36" rx="2" stroke="#004953" strokeWidth="1.2" opacity="0.4" />
+      {/* Door */}
+      <rect x="48" y="58" width="24" height="22" rx="2" fill="#004953" opacity="0.15" />
+      {/* Boxes inside */}
+      <rect x="34" y="50" width="10" height="10" rx="1.5" fill="#5D3FD3" opacity="0.3" />
+      <rect x="76" y="50" width="10" height="10" rx="1.5" fill="#FFCF7E" opacity="0.4" />
+      {/* Arrow coming in */}
+      <motion.g
+        animate={{ x: [0, 5, 0] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        <path d="M60 18V28M56 24L60 28L64 24" stroke="#5D3FD3" strokeWidth="1.5" opacity="0.4" />
+      </motion.g>
+    </svg>
+  ),
+  (
+    <svg viewBox="0 0 120 100" fill="none" className="w-full h-full">
+      {/* Camera body */}
+      <rect x="30" y="35" width="50" height="38" rx="6" fill="#F97316" opacity="0.1" stroke="#F97316" strokeWidth="1.2" />
+      {/* Lens */}
+      <circle cx="55" cy="54" r="12" stroke="#F97316" strokeWidth="1.5" opacity="0.5" />
+      <circle cx="55" cy="54" r="7" fill="#F97316" opacity="0.15" />
+      <circle cx="55" cy="54" r="3" fill="#F97316" opacity="0.3" />
+      {/* Flash */}
+      <rect x="68" y="38" width="8" height="5" rx="1.5" fill="#FFCF7E" opacity="0.5">
+        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite" />
+      </rect>
+      {/* Viewfinder */}
+      <rect x="38" y="38" width="10" height="6" rx="1" fill="#F97316" opacity="0.2" />
+      {/* Flash lines */}
+      {[0, 1, 2].map((i) => (
+        <line key={i} x1={78 + i * 6} y1={42 - i * 2} x2={82 + i * 6} y2={46 - i * 2} stroke="#FFCF7E" strokeWidth="1" opacity="0">
+          <animate attributeName="opacity" values="0;0.5;0" dur="3s" begin={`${i * 0.1}s`} repeatCount="indefinite" />
+        </line>
+      ))}
+    </svg>
+  ),
+  (
+    <svg viewBox="0 0 120 100" fill="none" className="w-full h-full">
+      {/* Hand */}
+      <path d="M45 60C45 60 40 55 38 50C36 45 38 40 42 38" stroke="#22C55E" strokeWidth="1.5" opacity="0.4" strokeLinecap="round" />
+      {/* Package in hand */}
+      <rect x="42" y="42" width="28" height="22" rx="3" fill="#22C55E" opacity="0.12" stroke="#22C55E" strokeWidth="1.2" />
+      <path d="M42 53H70" stroke="#22C55E" strokeWidth="0.8" opacity="0.3" />
+      <path d="M56 42V64" stroke="#22C55E" strokeWidth="0.8" opacity="0.3" />
+      {/* Checkmark */}
+      <motion.g
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.5, type: "spring" }}
+      >
+        <circle cx="80" cy="38" r="10" fill="#22C55E" opacity="0.15" />
+        <path d="M75 38L78 42L86 34" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
+      </motion.g>
+      {/* Sparkles */}
+      <circle cx="88" cy="30" r="1.5" fill="#FFCF7E" opacity="0.5">
+        <animate attributeName="opacity" values="0.2;0.7;0.2" dur="1.8s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="74" cy="28" r="1" fill="#22C55E" opacity="0.4">
+        <animate attributeName="opacity" values="0.2;0.6;0.2" dur="2.2s" repeatCount="indefinite" />
+      </circle>
+    </svg>
+  ),
+];
+
+const stepStyles = [
+  { gradient: "from-chios-purple/15 to-chios-purple/5", accentColor: "#5D3FD3" },
+  { gradient: "from-deep-sea-teal/15 to-deep-sea-teal/5", accentColor: "#004953" },
+  { gradient: "from-sunset-gold/20 to-sunset-gold/5", accentColor: "#F97316" },
+  { gradient: "from-success-green/15 to-success-green/5", accentColor: "#22C55E" },
 ];
 
 function StepCard({
   step,
   index,
+  totalSteps,
 }: {
-  step: (typeof steps)[0];
+  step: { number: string; title: string; description: string; gradient: string; accentColor: string; illustration: React.ReactNode };
   index: number;
+  totalSteps: number;
 }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
@@ -140,7 +118,7 @@ function StepCard({
       className="relative group"
     >
       {/* Connector line */}
-      {index < steps.length - 1 && (
+      {index < totalSteps - 1 && (
         <div className="absolute left-8 top-full w-[2px] h-12 bg-gradient-to-b from-deep-sea-teal/10 to-transparent" />
       )}
 
@@ -188,8 +166,16 @@ function StepCard({
 }
 
 export function HowItWorks() {
+  const { t } = useTranslation();
   const sectionRef = useRef(null);
   const sectionInView = useInView(sectionRef, { once: true, margin: "-100px" });
+
+  const steps = [
+    { number: t("howItWorks.step1.number"), title: t("howItWorks.step1.title"), description: t("howItWorks.step1.description"), gradient: stepStyles[0].gradient, accentColor: stepStyles[0].accentColor, illustration: stepIllustrations[0] },
+    { number: t("howItWorks.step2.number"), title: t("howItWorks.step2.title"), description: t("howItWorks.step2.description"), gradient: stepStyles[1].gradient, accentColor: stepStyles[1].accentColor, illustration: stepIllustrations[1] },
+    { number: t("howItWorks.step3.number"), title: t("howItWorks.step3.title"), description: t("howItWorks.step3.description"), gradient: stepStyles[2].gradient, accentColor: stepStyles[2].accentColor, illustration: stepIllustrations[2] },
+    { number: "04", title: t("howItWorks.step4.title"), description: t("howItWorks.step4.desc"), gradient: stepStyles[3].gradient, accentColor: stepStyles[3].accentColor, illustration: stepIllustrations[3] },
+  ];
 
   return (
     <section id="nasil-calisir" className="py-24 relative overflow-hidden">
@@ -210,20 +196,19 @@ export function HowItWorks() {
             animate={sectionInView ? { scale: 1, opacity: 1 } : {}}
             transition={{ delay: 0.1, duration: 0.4 }}
           >
-            Kolay & Hızlı
+            {t("howItWorks.tag")}
           </motion.span>
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-deep-sea-teal">
-            Nasıl Çalışır?
+            {t("howItWorks.title")}
           </h2>
           <p className="mt-3 text-deep-sea-teal/60 max-w-lg mx-auto">
-            Dört basit adımda Türkiye&apos;den Avrupa&apos;ya kargo teslimatınızı
-            yönetin.
+            {t("howItWorks.description")}
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
           {steps.map((step, i) => (
-            <StepCard key={step.number} step={step} index={i} />
+            <StepCard key={step.number} step={step} index={i} totalSteps={steps.length} />
           ))}
         </div>
       </div>

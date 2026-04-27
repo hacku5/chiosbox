@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useTranslation } from "@/hooks/use-translation";
 import { HeroAnimation } from "./hero-animation";
 
 function FloatingOrb({ className, delay = 0 }: { className: string; delay?: number }) {
@@ -45,6 +46,8 @@ function FloatingShape({ children, delay = 0, x = 0, y = 0 }: { children: React.
 }
 
 export function Hero() {
+  const { t } = useTranslation();
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
       {/* Rich gradient mesh background */}
@@ -109,7 +112,7 @@ export function Hero() {
               transition={{ duration: 2, repeat: Infinity }}
             />
             <span className="text-sm font-medium text-chios-purple">
-              Türkiye → AB Kargo Kolaylığı
+              {t("hero.tag")}
             </span>
           </motion.div>
 
@@ -119,11 +122,11 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            Avrupa Teslimat
+            {t("hero.title.line1")}
             <br />
-            Adresiniz{" "}
+            {t("hero.title.line2")}{" "}
             <span className="relative inline-block">
-              <span className="text-chios-purple relative z-10">Hazır</span>
+              <span className="text-chios-purple relative z-10">{t("hero.title.line3")}</span>
               <motion.svg
                 className="absolute -bottom-2 left-0 w-full"
                 viewBox="0 0 200 12"
@@ -158,9 +161,7 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
           >
-            Türkiye&apos;den alışveriş yapın, paketleriniz Sakız
-            Adası&apos;ndaki depomuza gelsin. Birleştirin, tasarruf edin,
-            kapınıza teslim edelim.
+            {t("hero.description")}
           </motion.p>
 
           <motion.div
@@ -174,7 +175,7 @@ export function Hero() {
                 href="/register"
                 className="group relative inline-flex items-center justify-center px-7 py-3.5 bg-chios-purple text-white font-display font-semibold rounded-full transition-all duration-300 shadow-lg shadow-chios-purple/25 hover:shadow-xl hover:shadow-chios-purple/30 cursor-pointer overflow-hidden"
               >
-                <span className="relative z-10">Hemen Adresini Al</span>
+                <span className="relative z-10">{t("hero.cta")}</span>
                 <motion.svg
                   width="20"
                   height="20"
@@ -198,7 +199,7 @@ export function Hero() {
                 href="#nasil-calisir"
                 className="inline-flex items-center justify-center px-7 py-3.5 border-2 border-deep-sea-teal/10 text-deep-sea-teal font-display font-semibold rounded-full hover:border-chios-purple/30 hover:text-chios-purple hover:bg-chios-purple/[0.03] transition-all duration-300 cursor-pointer backdrop-blur-sm"
               >
-                Nasıl Çalışır?
+                {t("hero.ctaSecondary")}
               </a>
             </motion.div>
           </motion.div>
@@ -210,9 +211,9 @@ export function Hero() {
             transition={{ delay: 0.7, duration: 0.6 }}
           >
             {[
-              { icon: "M20 6L9 17l-5-5", text: "€9.99/ay'dan başlayan fiyatlarla" },
-              { icon: "M20 6L9 17l-5-5", text: "Anında adres" },
-              { icon: "M20 6L9 17l-5-5", text: "Kapıdan kapıya teslimat" },
+              { icon: "M20 6L9 17l-5-5", text: t("hero.feature1") },
+              { icon: "M20 6L9 17l-5-5", text: t("hero.feature2") },
+              { icon: "M20 6L9 17l-5-5", text: t("hero.feature3") },
             ].map((item, i) => (
               <motion.div
                 key={i}

@@ -3,6 +3,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import Link from "next/link";
+import { useTranslation } from "@/hooks/use-translation";
 
 function FloatingPackage({ delay, x, y, size = 20 }: { delay: number; x: string; y: string; size?: number }) {
   return (
@@ -66,6 +67,7 @@ function RouteLine() {
 export function FinalCTA() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });
+  const { t } = useTranslation();
 
   return (
     <section className="py-24 relative overflow-hidden">
@@ -152,14 +154,14 @@ export function FinalCTA() {
             animate={isInView ? { scale: 1, opacity: 1 } : {}}
             transition={{ delay: 0.1, duration: 0.4 }}
           >
-            Hemen Başlayın
+            {t("finalCta.title")}
           </motion.span>
 
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
-            Avrupa Teslimat Adresinizi
+            {t("finalCta.description")}
             <br />
             <span className="relative inline-block">
-              <span className="text-sunset-gold relative z-10">Hemen Alın</span>
+              <span className="text-sunset-gold relative z-10">{t("finalCta.cta")}</span>
               <motion.div
                 className="absolute -inset-3 bg-sunset-gold/[0.15] rounded-lg blur-xl"
                 animate={{ opacity: [0.3, 0.6, 0.3] }}
@@ -169,8 +171,7 @@ export function FinalCTA() {
           </h2>
 
           <p className="mt-6 text-lg text-white/70 max-w-xl mx-auto leading-relaxed">
-            €9.99/ay&apos;dan başlayan fiyatlarla, Türkiye&apos;den yaptığınız alışverişleri
-            Sakız Adası üzerinden AB&apos;ye sorunsuz teslim edelim.
+            {t("finalCta.cta2")}
           </p>
 
           <motion.div
@@ -184,7 +185,7 @@ export function FinalCTA() {
                 href="/register"
                 className="group relative inline-flex items-center justify-center px-8 py-4 bg-white text-chios-purple font-display font-bold text-lg rounded-full transition-all duration-300 shadow-xl shadow-black/10 hover:shadow-2xl cursor-pointer overflow-hidden"
               >
-                <span className="relative z-10">Hemen Başla</span>
+                <span className="relative z-10">{t("finalCta.cta")}</span>
                 <motion.svg
                   width="20"
                   height="20"
@@ -217,9 +218,9 @@ export function FinalCTA() {
             transition={{ delay: 0.6, duration: 0.6 }}
           >
             {[
-              { icon: "M20 6L9 17l-5-5", text: "Anında ChiosBox ID" },
-              { icon: "M20 6L9 17l-5-5", text: "Kapıdan kapıya teslimat" },
-              { icon: "M20 6L9 17l-5-5", text: "Güvenli ödeme" },
+              { icon: "M20 6L9 17l-5-5", text: t("finalCta.trust1") },
+              { icon: "M20 6L9 17l-5-5", text: t("finalCta.trust2") },
+              { icon: "M20 6L9 17l-5-5", text: t("finalCta.trust3") },
             ].map((item, i) => (
               <motion.div
                 key={i}

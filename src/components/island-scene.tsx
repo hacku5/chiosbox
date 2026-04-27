@@ -2,6 +2,7 @@
 
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
 import { useRef } from "react";
+import { useTranslation } from "@/hooks/use-translation";
 
 /* ───── Low-poly SVG building ───── */
 function Building({ x, y, w, h, color, delay = 0 }: { x: number; y: number; w: number; h: number; color: string; delay?: number }) {
@@ -325,6 +326,7 @@ function FloatingPackage({ startX, startY, endX, endY, delay = 0, color = "#5D3F
 
 /* ───── Scroll-linked wrapper ───── */
 export function IslandScene() {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -372,37 +374,37 @@ export function IslandScene() {
           <div className="relative w-full max-w-xl px-6 text-center">
             <motion.div style={{ opacity: text1Opacity, y: text1Y }} className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="inline-block px-4 py-2 bg-chios-purple/10 backdrop-blur-sm rounded-full text-sm font-medium text-chios-purple mb-3 border border-chios-purple/10">
-                Türkiye&apos;den Yola Çıktı
+                {t("islandScene.departed.badge")}
               </span>
               <h2 className="font-display text-2xl sm:text-3xl font-bold text-deep-sea-teal">
-                Paketleriniz Yolda
+                {t("islandScene.departed.title")}
               </h2>
               <p className="mt-2 text-sm text-deep-sea-teal/60 max-w-sm">
-                Türkiye&apos;deki satıcılardan alınan paketler, Sakız Adası&apos;na doğru yola çıkıyor.
+                {t("islandScene.departed.description")}
               </p>
             </motion.div>
 
             <motion.div style={{ opacity: text2Opacity, y: text2Y }} className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="inline-block px-4 py-2 bg-deep-sea-teal/10 backdrop-blur-sm rounded-full text-sm font-medium text-deep-sea-teal mb-3 border border-deep-sea-teal/10">
-                Ege&apos;yi Aşıyor
+                {t("islandScene.crossing.badge")}
               </span>
               <h2 className="font-display text-2xl sm:text-3xl font-bold text-deep-sea-teal">
-                Güvenle Taşınıyor
+                {t("islandScene.crossing.title")}
               </h2>
               <p className="mt-2 text-sm text-deep-sea-teal/60 max-w-sm">
-                Tekneler ve kargo yollarıyla, her paket sigortalı ve takip edilebilir.
+                {t("islandScene.crossing.description")}
               </p>
             </motion.div>
 
             <motion.div style={{ opacity: text3Opacity, y: text3Y }} className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="inline-block px-4 py-2 bg-success-green/10 backdrop-blur-sm rounded-full text-sm font-medium text-success-green mb-3 border border-success-green/10">
-                Hedefe Ulaştı
+                {t("islandScene.arrived.badge")}
               </span>
               <h2 className="font-display text-2xl sm:text-3xl font-bold text-deep-sea-teal">
-                Sakız Adası Depomuzda
+                {t("islandScene.arrived.title")}
               </h2>
               <p className="mt-2 text-sm text-deep-sea-teal/60 max-w-sm">
-                Konsolide edin, tasarruf edin, kapınıza teslim edelim.
+                {t("islandScene.arrived.description")}
               </p>
             </motion.div>
           </div>

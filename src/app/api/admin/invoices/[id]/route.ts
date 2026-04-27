@@ -22,7 +22,7 @@ export async function PATCH(
   const body = await request.json();
 
   if (!body.status || !VALID_STATUSES.includes(body.status)) {
-    return NextResponse.json({ error: "Geçersiz durum" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
   // Fetch current status to validate transition
@@ -33,13 +33,13 @@ export async function PATCH(
     .single();
 
   if (fetchErr || !current) {
-    return NextResponse.json({ error: "Fatura bulunamadı" }, { status: 404 });
+    return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
   }
 
   const allowed = VALID_TRANSITIONS[current.status] || [];
   if (!allowed.includes(body.status)) {
     return NextResponse.json(
-      { error: `${current.status} durumundan ${body.status} durumuna geçiş yapılamaz` },
+      { error: `Cannot transition from ${current.status} to ${body.status}` },
       { status: 400 }
     );
   }
@@ -61,7 +61,7 @@ export async function PATCH(
     .single();
 
   if (updateErr) {
-    return NextResponse.json({ error: "Güncelleme başarısız" }, { status: 500 });
+    return NextResponse.json({ error: "Update failed" }, { status: 500 });
   }
 
   return NextResponse.json(data);

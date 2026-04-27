@@ -4,11 +4,13 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/stores/auth-store";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslation } from "@/hooks/use-translation";
 
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectedFrom = searchParams.get("redirectedFrom") || "/dashboard";
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -68,7 +70,7 @@ export function LoginForm() {
       {/* Email */}
       <motion.div variants={item}>
         <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">
-          E-posta
+          {t("login.email")}
         </label>
         <input
           type="email"
@@ -83,7 +85,7 @@ export function LoginForm() {
       {/* Password */}
       <motion.div variants={item}>
         <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">
-          Şifre
+          {t("login.password")}
         </label>
         <div className="relative">
           <input
@@ -121,10 +123,10 @@ export function LoginForm() {
             type="checkbox"
             className="w-4 h-4 rounded border-deep-sea-teal/20 text-chios-purple focus:ring-chios-purple/20 cursor-pointer"
           />
-          <span className="text-xs text-deep-sea-teal/50">Beni Hatırla</span>
+          <span className="text-xs text-deep-sea-teal/50">{t("login.rememberMe")}</span>
         </label>
         <a href="#" className="text-xs text-chios-purple hover:text-chios-purple-dark transition-colors cursor-pointer">
-          Şifremi Unuttum
+          {t("login.forgotPassword")}
         </a>
       </motion.div>
 
@@ -143,19 +145,19 @@ export function LoginForm() {
                 <circle cx="12" cy="12" r="10" strokeOpacity="0.3" />
                 <path d="M12 2a10 10 0 019.95 9" strokeLinecap="round" />
               </svg>
-              Giriş Yapılıyor...
+              {t("login.submitting")}
             </span>
           ) : (
-            "Giriş Yap"
+            t("login.submit")
           )}
         </motion.button>
       </motion.div>
 
       {/* Register link */}
       <motion.p variants={item} className="text-center text-sm text-deep-sea-teal/40">
-        Hesabınız yok mu?{" "}
+        {t("login.noAccount")}{" "}
         <a href="/register" className="text-chios-purple font-medium hover:text-chios-purple-dark transition-colors cursor-pointer">
-          Kayıt Olun
+          {t("login.registerLink")}
         </a>
       </motion.p>
     </motion.form>

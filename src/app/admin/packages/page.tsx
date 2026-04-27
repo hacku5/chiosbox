@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAdminUser } from "../admin-layout-client";
 import { hasPermission } from "@/lib/permissions";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface PackageRow {
   id: string;
@@ -31,15 +32,8 @@ interface PaginatedResponse {
   totalPages: number;
 }
 
-const statusLabels: Record<string, { label: string; color: string }> = {
-  BEKLENIYOR: { label: "Beklemede", color: "text-deep-sea-teal/60 bg-deep-sea-teal/5" },
-  YOLDA: { label: "Yolda", color: "text-accent-orange bg-accent-orange/10" },
-  DEPODA: { label: "Depoda", color: "text-chios-purple bg-chios-purple/10" },
-  BIRLESTIRILDI: { label: "Birleştirildi", color: "text-success-green bg-success-green/10" },
-  TESLIM_EDILDI: { label: "Teslim Edildi", color: "text-success-green bg-success-green/10" },
-};
-
 export default function AdminPackagesPage() {
+  const { t } = useTranslation();
   const adminUser = useAdminUser();
   const [packages, setPackages] = useState<PackageRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,6 +46,14 @@ export default function AdminPackagesPage() {
   const [updating, setUpdating] = useState(false);
 
   const canEdit = hasPermission(adminUser.permissions, "packages");
+
+  const statusLabels: Record<string, { label: string; color: string }> = {
+    BEKLENIYOR: { label: t("status.beklemede"), color: "text-deep-sea-teal/60 bg-deep-sea-teal/5" },
+    YOLDA: { label: t("status.yolda"), color: "text-accent-orange bg-accent-orange/10" },
+    DEPODA: { label: t("status.depoda"), color: "text-chios-purple bg-chios-purple/10" },
+    BIRLESTIRILDI: { label: t("status.birlestirildi"), color: "text-success-green bg-success-green/10" },
+    TESLIM_EDILDI: { label: t("status.teslimEdildi"), color: "text-success-green bg-success-green/10" },
+  };
 
   const fetchPackages = async () => {
     setLoading(true);
@@ -97,7 +99,7 @@ export default function AdminPackagesPage() {
 
   const handleDelete = async (pkgId: string) => {
     if (!canEdit) return;
-    if (!confirm("Bu paketi silmek istediğinize emin misiniz?")) return;
+    if (!confirm(t("packages.deleteConfirm"))) return;
     setUpdating(true);
     const res = await fetch(`/api/admin/packages/${pkgId}`, { method: "DELETE" });
     if (res.ok) {
@@ -112,8 +114,8 @@ export default function AdminPackagesPage() {
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="font-display text-2xl font-bold text-deep-sea-teal">Paketler</h1>
-            <p className="text-sm text-deep-sea-teal/50 mt-1">{total} paket</p>
+            <h1 className="font-display text-2xl font-bold text-deep-sea-teal">{t("packages.title")}</h1>
+            <p className="text-sm text-deep-sea-teal/50 mt-1">{t("packages.count", { total })}</p>
           </div>
         </div>
 
@@ -129,7 +131,7 @@ export default function AdminPackagesPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder="Takip no ile ara..."
+              placeholder={t("packages.searchPlaceholder")}
               className="w-full pl-11 pr-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-sm text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50"
             />
           </div>
@@ -138,12 +140,12 @@ export default function AdminPackagesPage() {
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
             className="px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-sm text-deep-sea-teal focus:outline-none focus:border-chios-purple/50 cursor-pointer"
           >
-            <option value="">Tüm Durumlar</option>
-            <option value="BEKLENIYOR">Beklemede</option>
-            <option value="YOLDA">Yolda</option>
-            <option value="DEPODA">Depoda</option>
-            <option value="BIRLESTIRILDI">Birleştirildi</option>
-            <option value="TESLIM_EDILDI">Teslim Edildi</option>
+            <option value="">{t("packages.allStatuses")}</option>
+            <option value="BEKLENIYOR">{t("status.beklemede")}</option>
+            <option value="YOLDA">{t("status.yolda")}</option>
+            <option value="DEPODA">{t("status.depoda")}</option>
+            <option value="BIRLESTIRILDI">{t("status.birlestirildi")}</option>
+            <option value="TESLIM_EDILDI">{t("status.teslimEdildi")}</option>
           </select>
         </div>
 
@@ -156,7 +158,7 @@ export default function AdminPackagesPage() {
           </div>
         ) : packages.length === 0 ? (
           <div className="text-center py-16 text-deep-sea-teal/30">
-            <p className="text-sm">Paket bulunamadı</p>
+            <p className="text-sm">{t("packages.notFound")}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -197,7 +199,7 @@ export default function AdminPackagesPage() {
                             ? "text-accent-orange bg-accent-orange/10"
                             : "text-deep-sea-teal/50 bg-deep-sea-teal/[0.03]"
                         }`}>
-                          {pkg.storage_days_used} gün
+                          {t("packages.daysAgo", { n: pkg.storage_days_used })}
                         </span>
                       )}
                     </div>
@@ -216,7 +218,7 @@ export default function AdminPackagesPage() {
               disabled={page === 1}
               className="px-4 py-2 rounded-xl border border-deep-sea-teal/10 text-sm text-deep-sea-teal disabled:opacity-30 cursor-pointer"
             >
-              Önceki
+              {t("packages.previous")}
             </button>
             <span className="text-sm text-deep-sea-teal/50">
               {page} / {totalPages}
@@ -226,7 +228,7 @@ export default function AdminPackagesPage() {
               disabled={page === totalPages}
               className="px-4 py-2 rounded-xl border border-deep-sea-teal/10 text-sm text-deep-sea-teal disabled:opacity-30 cursor-pointer"
             >
-              Sonraki
+              {t("packages.next")}
             </button>
           </div>
         )}
@@ -241,6 +243,7 @@ export default function AdminPackagesPage() {
               onStatusUpdate={handleStatusUpdate}
               onDelete={handleDelete}
               updating={updating}
+              statusLabels={statusLabels}
             />
           )}
         </AnimatePresence>
@@ -256,6 +259,7 @@ function PackageDetailModal({
   onStatusUpdate,
   onDelete,
   updating,
+  statusLabels,
 }: {
   pkg: PackageRow;
   canEdit: boolean;
@@ -263,7 +267,9 @@ function PackageDetailModal({
   onStatusUpdate: (id: string, status: string) => void;
   onDelete: (id: string) => void;
   updating: boolean;
+  statusLabels: Record<string, { label: string; color: string }>;
 }) {
+  const { t } = useTranslation();
   const sc = statusLabels[pkg.status] || { label: pkg.status, color: "" };
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -305,29 +311,29 @@ function PackageDetailModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-5 pb-5">
           <div className="space-y-0 divide-y divide-deep-sea-teal/5">
-            <InfoRow label="Müşteri" value={pkg.users.name} />
+            <InfoRow label={t("packages.detail.customer")} value={pkg.users.name} />
             <InfoRow label="ChiosBox ID" value={pkg.users.chios_box_id} mono />
             <InfoRow label="Email" value={pkg.users.email} />
-            <InfoRow label="Kargo" value={pkg.carrier} />
-            <InfoRow label="Takip No" value={pkg.tracking_no} mono />
-            {pkg.shelf_location && <InfoRow label="Raf" value={pkg.shelf_location} />}
+            <InfoRow label={t("packages.detail.carrier")} value={pkg.carrier} />
+            <InfoRow label={t("packages.detail.trackingNo")} value={pkg.tracking_no} mono />
+            {pkg.shelf_location && <InfoRow label={t("packages.detail.shelf")} value={pkg.shelf_location} />}
             {pkg.arrived_at && (
-              <InfoRow label="Varış" value={new Date(pkg.arrived_at).toLocaleDateString("tr-TR")} />
+              <InfoRow label={t("packages.detail.arrival")} value={new Date(pkg.arrived_at).toLocaleDateString("tr-TR")} />
             )}
-            <InfoRow label="Bildirim" value={new Date(pkg.created_at).toLocaleDateString("tr-TR")} />
+            <InfoRow label={t("packages.detail.notification")} value={new Date(pkg.created_at).toLocaleDateString("tr-TR")} />
             {pkg.storage_days_used > 0 && (
-              <InfoRow label="Depoda" value={`${pkg.storage_days_used} gün`} />
+              <InfoRow label={t("packages.detail.inWarehouse")} value={t("packages.daysAgo", { n: pkg.storage_days_used })} />
             )}
             {pkg.weight_kg != null && Number(pkg.weight_kg) > 0 && (
-              <InfoRow label="Ağırlık" value={`${Number(pkg.weight_kg)} kg`} />
+              <InfoRow label={t("packages.detail.weight")} value={`${Number(pkg.weight_kg)} kg`} />
             )}
-            {pkg.dimensions && <InfoRow label="Boyut" value={pkg.dimensions} />}
+            {pkg.dimensions && <InfoRow label={t("packages.detail.dimensions")} value={pkg.dimensions} />}
             {Number(pkg.demurrage_fee) > 0 && (
-              <InfoRow label="Gecikme Ücreti" value={`€${Number(pkg.demurrage_fee).toFixed(2)}`} highlight />
+              <InfoRow label={t("packages.detail.demurrageFee")} value={`€${Number(pkg.demurrage_fee).toFixed(2)}`} highlight />
             )}
             {pkg.notes && (
               <div className="py-3">
-                <div className="text-[10px] text-deep-sea-teal/40 uppercase tracking-wider mb-1">Not</div>
+                <div className="text-[10px] text-deep-sea-teal/40 uppercase tracking-wider mb-1">{t("packages.detail.notes")}</div>
                 <div className="text-sm text-deep-sea-teal">{pkg.notes}</div>
               </div>
             )}
@@ -337,7 +343,7 @@ function PackageDetailModal({
           {canEdit && (
             <div className="mt-4 space-y-3">
               <label className="text-xs font-medium text-deep-sea-teal/40 uppercase tracking-wider">
-                Durum Güncelle
+                {t("packages.detail.updateStatus")}
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {Object.entries(statusLabels).map(([key, val]) => (
@@ -362,7 +368,7 @@ function PackageDetailModal({
                   onClick={() => setConfirmDelete(true)}
                   className="w-full py-2.5 text-danger-red text-xs font-medium rounded-xl border border-danger-red/20 hover:bg-danger-red/5 transition-colors cursor-pointer"
                 >
-                  Paketi Sil
+                  {t("packages.detail.delete")}
                 </button>
               ) : (
                 <div className="flex gap-2">
@@ -370,14 +376,14 @@ function PackageDetailModal({
                     onClick={() => setConfirmDelete(false)}
                     className="flex-1 py-2.5 text-deep-sea-teal/50 text-xs font-medium rounded-xl border border-deep-sea-teal/10 cursor-pointer"
                   >
-                    Vazgeç
+                    {t("packages.detail.cancel")}
                   </button>
                   <button
                     onClick={() => onDelete(pkg.id)}
                     disabled={updating}
                     className="flex-1 py-2.5 bg-danger-red text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50"
                   >
-                    {updating ? "Siliniyor..." : "Evet, Sil"}
+                    {updating ? t("packages.detail.deleting") : t("packages.detail.confirmDelete")}
                   </button>
                 </div>
               )}

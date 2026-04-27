@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "@/hooks/use-translation";
 
 export function StorageCountdown({ daysLeft }: { daysLeft: number }) {
+  const { t } = useTranslation();
   const percentage = Math.max(0, Math.min(100, (daysLeft / 14) * 100));
   const isWarning = daysLeft <= 5;
   const circumference = 2 * Math.PI * 42;
@@ -58,7 +59,7 @@ export function StorageCountdown({ daysLeft }: { daysLeft: number }) {
           {daysLeft}
         </span>
         <span className="text-[10px] text-deep-sea-teal/40 -mt-0.5">
-          gün
+          {t("common.days")}
         </span>
       </div>
     </div>

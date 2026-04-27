@@ -9,7 +9,7 @@ export async function GET(request: Request) {
 
   // Only super admin can access user management
   if (!isSuperAdmin(user.permissions)) {
-    return NextResponse.json({ error: "Sadece super admin kullanıcı yönetimi yapabilir" }, { status: 403 });
+    return NextResponse.json({ error: "Only super admin can manage users" }, { status: 403 });
   }
 
   const supabase = getAdminClient();

@@ -31,17 +31,17 @@ export async function DELETE(
     .single();
 
   if (!pkg) {
-    return NextResponse.json({ error: "Paket bulunamadı" }, { status: 404 });
+    return NextResponse.json({ error: "Package not found" }, { status: 404 });
   }
 
   if (pkg.user_id !== appUser.id) {
-    return NextResponse.json({ error: "Bu paketi silme yetkiniz yok" }, { status: 403 });
+    return NextResponse.json({ error: "You do not have permission to delete this package" }, { status: 403 });
   }
 
   // Only allow deletion of packages that haven't been processed yet
   if (pkg.status !== "BEKLENIYOR") {
     return NextResponse.json(
-      { error: "Sadece beklemede olan paketler silinebilir. Depodaki paketler için destek ile iletişime geçin." },
+      { error: "Only pending packages can be deleted. Contact support for packages in warehouse." },
       { status: 400 }
     );
   }
@@ -52,7 +52,7 @@ export async function DELETE(
     .eq("id", id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Operation failed" }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });

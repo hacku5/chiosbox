@@ -12,11 +12,11 @@ export async function POST(request: Request) {
   const { packageId, code } = body;
 
   if (!packageId) {
-    return NextResponse.json({ error: "Paket ID gerekli" }, { status: 400 });
+    return NextResponse.json({ error: "Package ID is required" }, { status: 400 });
   }
 
   if (!code) {
-    return NextResponse.json({ error: "Doğrulama kodu gerekli" }, { status: 400 });
+    return NextResponse.json({ error: "Verification code required" }, { status: 400 });
   }
 
   // Fetch package with delivery code
@@ -27,22 +27,22 @@ export async function POST(request: Request) {
     .single();
 
   if (fetchErr || !pkg) {
-    return NextResponse.json({ error: "Paket bulunamadı" }, { status: 404 });
+    return NextResponse.json({ error: "Package not found" }, { status: 404 });
   }
 
   if (!pkg.delivery_code) {
-    return NextResponse.json({ error: "Bu paket için henüz kod üretilmedi" }, { status: 400 });
+    return NextResponse.json({ error: "No code generated for this package yet" }, { status: 400 });
   }
 
   // Check expiry
   if (pkg.delivery_code_expires_at && new Date(pkg.delivery_code_expires_at) < new Date()) {
-    return NextResponse.json({ error: "Kodun süresi dolmuş, yeni kod gönderin" }, { status: 400 });
+    return NextResponse.json({ error: "Code expired, send a new code" }, { status: 400 });
   }
 
   // Hash entered code and compare with stored hash
   const codeHash = createHash("sha256").update(code).digest("hex");
   if (pkg.delivery_code !== codeHash) {
-    return NextResponse.json({ error: "Kod hatalı" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid code" }, { status: 400 });
   }
 
   // Deliver package

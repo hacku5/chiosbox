@@ -26,7 +26,7 @@ export async function GET() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Operation failed" }, { status: 500 });
   }
 
   // Fetch invoice items with package info
@@ -89,12 +89,12 @@ export async function PATCH(request: Request) {
     .single();
 
   if (fetchErr || !existing) {
-    return NextResponse.json({ error: "Fatura bulunamadı" }, { status: 404 });
+    return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
   }
 
   if (existing.status !== "PENDING") {
     return NextResponse.json(
-      { error: "Bu fatura zaten ödenmiş veya iptal edilmiş" },
+      { error: "This invoice is already paid or cancelled" },
       { status: 400 }
     );
   }
@@ -112,7 +112,7 @@ export async function PATCH(request: Request) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Operation failed" }, { status: 500 });
   }
 
   return NextResponse.json(data);

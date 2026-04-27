@@ -24,7 +24,7 @@ export async function GET(
     .single();
 
   if (userError || !user) {
-    return NextResponse.json({ error: "Müşteri bulunamadı" }, { status: 404 });
+    return NextResponse.json({ error: "Customer not found" }, { status: 404 });
   }
 
   // Get packages

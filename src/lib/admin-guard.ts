@@ -31,7 +31,7 @@ export async function requireAdmin(requiredPermission?: Permission): Promise<
   }
 
   if (requiredPermission && !hasPermission(appUser.permissions, requiredPermission)) {
-    return { user: null, error: NextResponse.json({ error: "Bu işlem için yetkiniz yok" }, { status: 403 }) };
+    return { user: null, error: NextResponse.json({ error: "You don't have permission for this action" }, { status: 403 }) };
   }
 
   return { user: appUser as AdminUser, error: null };

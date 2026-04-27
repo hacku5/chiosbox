@@ -5,10 +5,12 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { useTranslation } from "@/hooks/use-translation";
 
-const staticNavItems = [
+const navItemConfigs = [
   {
-    label: "Ana Sayfa",
+    key: "sidebar.home",
     href: "/dashboard",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -18,7 +20,7 @@ const staticNavItems = [
     ),
   },
   {
-    label: "Paketlerim",
+    key: "sidebar.packages",
     href: "/dashboard/packages",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -29,7 +31,7 @@ const staticNavItems = [
     ),
   },
   {
-    label: "Birleştir",
+    key: "sidebar.consolidate",
     href: "/dashboard/consolidate",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -42,7 +44,7 @@ const staticNavItems = [
     ),
   },
   {
-    label: "İşlemler",
+    key: "sidebar.actions",
     href: "/dashboard/actions",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -51,7 +53,7 @@ const staticNavItems = [
     ),
   },
   {
-    label: "Ödeme",
+    key: "sidebar.payment",
     href: "/dashboard/checkout",
     badge: true,
     icon: (
@@ -62,7 +64,7 @@ const staticNavItems = [
     ),
   },
   {
-    label: "Profil",
+    key: "sidebar.profile",
     href: "/dashboard/profile",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -79,6 +81,7 @@ export function Sidebar() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const [pendingCount, setPendingCount] = useState(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetch("/api/invoices")
@@ -93,6 +96,11 @@ export function Sidebar() {
     await logout();
     router.push("/login");
   };
+
+  const navItems = navItemConfigs.map((config) => ({
+    ...config,
+    label: t(config.key),
+  }));
 
   return (
     <>
@@ -122,7 +130,7 @@ export function Sidebar() {
         </div>
 
         <nav className="flex-1 px-3 py-6 space-y-1">
-          {staticNavItems.map((item) => {
+          {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
@@ -176,8 +184,11 @@ export function Sidebar() {
                 <polyline points="16 17 21 12 16 7" />
                 <line x1="21" y1="12" x2="9" y2="12" />
               </svg>
-              Çıkış Yap
+              {t("sidebar.logout")}
             </button>
+            <div className="mt-1">
+              <LanguageSwitcher />
+            </div>
           </div>
         )}
       </aside>
@@ -185,7 +196,7 @@ export function Sidebar() {
       {/* Mobile Bottom Nav */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-t border-deep-sea-teal/5 safe-area-pb">
         <div className="flex items-center justify-around h-18 px-3 py-2">
-          {staticNavItems.map((item) => {
+          {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link

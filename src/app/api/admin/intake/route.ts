@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   const { trackingNo, shelfLocation } = body;
 
   if (!trackingNo || !shelfLocation) {
-    return NextResponse.json({ error: "Eksik bilgi" }, { status: 400 });
+    return NextResponse.json({ error: "Missing information" }, { status: 400 });
   }
 
   // Find the package by tracking number
@@ -24,12 +24,13 @@ export async function POST(request: Request) {
     .single();
 
   if (findError || !pkg) {
-    return NextResponse.json({ error: "Paket bulunamadı" }, { status: 404 });
+    return NextResponse.json({ error: "Package not found" }, { status: 404 });
   }
 
-  // Prevent duplicate intake
-  if (pkg.status === "DEPODA") {
-    return NextResponse.json({ error: "Bu paket zaten depoda kabul edilmiş" }, { status: 409 });
+  // Prevent intake of already-processed packages
+  const nonIntakeStatuses = ["DEPODA", "BIRLESTIRILDI", "TESLIM_EDILDI", "HAZIR", "IPTAL"];
+  if (nonIntakeStatuses.includes(pkg.status)) {
+    return NextResponse.json({ error: "This package has already been processed" }, { status: 409 });
   }
 
   // Update package: set shelf, status, arrived_at
@@ -67,7 +68,7 @@ export async function POST(request: Request) {
     console.error(`[INTAKE] Invoice creation failed for package ${pkg.id}:`, invoiceError.message);
     return NextResponse.json({
       ...data,
-      _warning: "Fatura oluşturulamadı. Lütfen manuel olarak oluşturun.",
+      _warning: "Invoice could not be created. Please create it manually.",
     }, { status: 200 });
   }
 

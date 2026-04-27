@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ALL_PERMISSIONS, type Permission } from "@/lib/permissions";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface UserRow {
   id: string;
@@ -16,6 +17,7 @@ interface UserRow {
 }
 
 export default function AdminUsersPage() {
+  const { t } = useTranslation();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -44,8 +46,8 @@ export default function AdminUsersPage() {
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
-          <h1 className="font-display text-2xl font-bold text-deep-sea-teal">Kullanıcı Yönetimi</h1>
-          <p className="text-sm text-deep-sea-teal/50 mt-1">Rol ve izin atamaları</p>
+          <h1 className="font-display text-2xl font-bold text-deep-sea-teal">{t("users.title")}</h1>
+          <p className="text-sm text-deep-sea-teal/50 mt-1">{t("users.subtitle")}</p>
         </div>
 
         {/* Search */}
@@ -59,7 +61,7 @@ export default function AdminUsersPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            placeholder="İsim, email veya ChiosBox ID ile ara..."
+            placeholder={t("users.searchPlaceholder")}
             className="w-full pl-11 pr-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-sm text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50"
           />
         </div>
@@ -134,6 +136,7 @@ export default function AdminUsersPage() {
               user={selectedUser}
               onClose={() => setSelectedUser(null)}
               onUpdated={() => { setSelectedUser(null); fetchUsers(); }}
+              t={t}
             />
           )}
         </AnimatePresence>
@@ -142,19 +145,20 @@ export default function AdminUsersPage() {
   );
 }
 
-const permissionLabels: Record<Permission, string> = {
-  intake: "Kabul (Paket Kabul)",
-  pickup: "Teslimat",
-  demurrage: "Gecikme Yönetimi",
-  packages: "Paket Listesi",
-  invoices: "Fatura Yönetimi",
-  customers: "Müşteri Yönetimi",
-};
+const permissionLabelsFn = (t: (key: string) => string): Record<Permission, string> => ({
+  intake: t("perm.intake"),
+  pickup: t("perm.pickup"),
+  demurrage: t("perm.demurrage"),
+  packages: t("perm.packages"),
+  invoices: t("perm.invoices"),
+  customers: t("perm.customers"),
+});
 
-function EditUserModal({ user, onClose, onUpdated }: {
+function EditUserModal({ user, onClose, onUpdated, t }: {
   user: UserRow;
   onClose: () => void;
   onUpdated: () => void;
+  t: (key: string) => string;
 }) {
   const [isAdmin, setIsAdmin] = useState(user.is_admin);
   const [permissions, setPermissions] = useState<string[]>(
@@ -163,6 +167,7 @@ function EditUserModal({ user, onClose, onUpdated }: {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  const permissionLabels = permissionLabelsFn(t);
   const isSuper = permissions.includes("*");
 
   const togglePermission = (perm: Permission) => {
@@ -186,7 +191,7 @@ function EditUserModal({ user, onClose, onUpdated }: {
       onUpdated();
     } else {
       const data = await res.json();
-      setError(data.error || "Güncelleme başarısız");
+      setError(data.error || t("users.error.updateFailed"));
     }
     setSaving(false);
   };
@@ -208,7 +213,7 @@ function EditUserModal({ user, onClose, onUpdated }: {
         className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden"
       >
         <div className="flex items-center justify-between p-5 pb-3">
-          <h2 className="font-display text-lg font-bold text-deep-sea-teal">Kullanıcı Düzenle</h2>
+          <h2 className="font-display text-lg font-bold text-deep-sea-teal">{t("users.editModal.title")}</h2>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-deep-sea-teal/5 flex items-center justify-center cursor-pointer">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18" />
@@ -233,8 +238,8 @@ function EditUserModal({ user, onClose, onUpdated }: {
           {/* Admin toggle */}
           <div className="flex items-center justify-between p-3 bg-white border border-deep-sea-teal/10 rounded-xl">
             <div>
-              <div className="text-sm font-medium text-deep-sea-teal">Admin Yetkisi</div>
-              <div className="text-xs text-deep-sea-teal/40">Admin paneline erişim</div>
+              <div className="text-sm font-medium text-deep-sea-teal">{t("users.editModal.adminAccess")}</div>
+              <div className="text-xs text-deep-sea-teal/40">{t("users.editModal.adminAccessDesc")}</div>
             </div>
             <button
               onClick={() => setIsAdmin(!isAdmin)}
@@ -254,7 +259,7 @@ function EditUserModal({ user, onClose, onUpdated }: {
           {isAdmin && !isSuper && (
             <div>
               <label className="text-xs font-medium text-deep-sea-teal/40 uppercase tracking-wider mb-2 block">
-                İzinler
+                {t("users.editModal.permissions")}
               </label>
               <div className="space-y-2">
                 {ALL_PERMISSIONS.map((perm) => (
@@ -287,7 +292,7 @@ function EditUserModal({ user, onClose, onUpdated }: {
 
           {isSuper && (
             <div className="p-3 bg-chios-purple/5 border border-chios-purple/10 rounded-xl text-xs text-chios-purple">
-              Super admin — tüm yetkilere sahip, düzenlenemez.
+              {t("users.editModal.superAdmin")}
             </div>
           )}
 
@@ -296,7 +301,7 @@ function EditUserModal({ user, onClose, onUpdated }: {
             disabled={saving}
             className="w-full py-3.5 bg-chios-purple text-white font-display font-bold rounded-2xl hover:bg-chios-purple-dark disabled:opacity-30 transition-all cursor-pointer"
           >
-            {saving ? "Kaydediliyor..." : "Kaydet"}
+            {saving ? t("users.editModal.saving") : t("users.editModal.save")}
           </button>
         </div>
       </motion.div>

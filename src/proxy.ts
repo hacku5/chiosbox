@@ -38,6 +38,37 @@ export async function proxy(request: NextRequest) {
   // Pass pathname as header so server components can read it
   supabaseResponse.headers.set("x-pathname", pathname);
 
+  // --- Language prefix handling ---
+  // Match /en/*, /de/*, /tr/* etc. — set cookie and redirect to root path
+  const langPrefixMatch = pathname.match(/^\/([a-z]{2})\/(.*)$/);
+  if (langPrefixMatch) {
+    const [, prefixLang, rest] = langPrefixMatch;
+    // Verify this language exists and is enabled
+    try {
+      const { data: lang } = await supabase
+        .from("languages")
+        .select("code, is_enabled")
+        .eq("code", prefixLang)
+        .eq("is_enabled", true)
+        .single();
+
+      if (lang) {
+        const redirectUrl = new URL(`/${rest}`, request.url);
+        const response = NextResponse.redirect(redirectUrl);
+        response.cookies.set("lang", prefixLang, {
+          path: "/",
+          maxAge: 365 * 24 * 60 * 60,
+          sameSite: "lax",
+        });
+        return response;
+      }
+    } catch { /* language not found, fall through */ }
+  }
+
+  // Pass current language as header
+  const currentLang = request.cookies.get("lang")?.value || "en";
+  supabaseResponse.headers.set("x-lang", currentLang);
+
   // Redirect authenticated users away from login/register
   if (user && (pathname === "/login" || pathname === "/register")) {
     // Check if user is admin to redirect to correct dashboard
@@ -83,6 +114,10 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
+  // Note: API route auth is handled by each route handler individually
+  // (via requireAdmin(), getUser() etc.) — proxy layer cannot return
+  // response bodies in Next.js 16.
+
   return supabaseResponse;
 }
 
@@ -90,8 +125,8 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/admin/:path*",
-    "/api/:path*",
     "/login",
     "/register",
+    "/:lang(tr|en|de)/:path*",
   ],
 };

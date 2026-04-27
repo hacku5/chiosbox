@@ -11,7 +11,7 @@ export async function PATCH(
   if (error) return error;
 
   if (!isSuperAdmin(user.permissions)) {
-    return NextResponse.json({ error: "Sadece super admin kullanıcı yönetimi yapabilir" }, { status: 403 });
+    return NextResponse.json({ error: "Only super admin can manage users" }, { status: 403 });
   }
 
   const { id } = await params;
@@ -29,7 +29,7 @@ export async function PATCH(
   }
 
   if (Object.keys(updateData).length === 0) {
-    return NextResponse.json({ error: "Güncellenecek alan yok" }, { status: 400 });
+    return NextResponse.json({ error: "No fields to update" }, { status: 400 });
   }
 
   const { data, error: updateErr } = await supabase

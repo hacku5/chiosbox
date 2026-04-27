@@ -3,14 +3,16 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAdminStore, AdminPackage } from "@/stores/admin-store";
+import { useTranslation } from "@/hooks/use-translation";
 
-function getZone(days: number): { bg: string; border: string; text: string; label: string } {
-  if (days >= 30) return { bg: "bg-danger-red/10", border: "border-danger-red/30", text: "text-danger-red", label: "Terk Edildi" };
-  if (days >= 15) return { bg: "bg-sunset-gold/20", border: "border-sunset-gold/30", text: "text-accent-orange", label: "Gecikme Ücreti" };
+function getZone(days: number, t: (key: string) => string): { bg: string; border: string; text: string; label: string } {
+  if (days >= 30) return { bg: "bg-danger-red/10", border: "border-danger-red/30", text: "text-danger-red", label: t("demurrage.abandoned") };
+  if (days >= 15) return { bg: "bg-sunset-gold/20", border: "border-sunset-gold/30", text: "text-accent-orange", label: t("demurrage.demurrageFee") };
   return { bg: "", border: "border-deep-sea-teal/5", text: "text-deep-sea-teal", label: "" };
 }
 
 export default function DemurragePage() {
+  const { t } = useTranslation();
   const { packages, loading, error, fetchPackages, discardPackage } = useAdminStore();
   const [discarding, setDiscarding] = useState<string | null>(null);
   const [charging, setCharging] = useState<string | null>(null);
@@ -50,7 +52,7 @@ export default function DemurragePage() {
         }, 2000);
       } else {
         const data = await res.json();
-        alert(data.error || "Gecikme ücreti uygulanamadı");
+        alert(data.error || t("demurrage.error.applyFailed"));
       }
     } catch { /* ignore */ }
     setCharging(null);
@@ -61,10 +63,10 @@ export default function DemurragePage() {
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="font-display text-2xl font-bold text-deep-sea-teal">
-            Gecikme Radarı
+            {t("demurrage.title")}
           </h1>
           <p className="text-sm text-deep-sea-teal/50 mt-1">
-            Depolama süresini aşan paketleri takip edin
+            {t("demurrage.subtitle")}
           </p>
         </div>
 
@@ -72,15 +74,15 @@ export default function DemurragePage() {
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-deep-sea-teal/5 text-center">
             <div className="text-2xl font-display font-bold text-deep-sea-teal">{normal.length}</div>
-            <div className="text-xs text-deep-sea-teal/40">Normal (≤14 gün)</div>
+            <div className="text-xs text-deep-sea-teal/40">{t("demurrage.normal")}</div>
           </div>
           <div className="bg-sunset-gold/10 rounded-2xl p-4 border border-sunset-gold/20 text-center">
             <div className="text-2xl font-display font-bold text-accent-orange">{warning.length}</div>
-            <div className="text-xs text-accent-orange/60">Gecikme (15-29 gün)</div>
+            <div className="text-xs text-accent-orange/60">{t("demurrage.delay")}</div>
           </div>
           <div className="bg-danger-red/10 rounded-2xl p-4 border border-danger-red/20 text-center">
             <div className="text-2xl font-display font-bold text-danger-red">{abandoned.length}</div>
-            <div className="text-xs text-danger-red/60">Terk Edildi (30+ gün)</div>
+            <div className="text-xs text-danger-red/60">{t("demurrage.abandonedZone")}</div>
           </div>
         </div>
 
@@ -105,7 +107,7 @@ export default function DemurragePage() {
           <div className="space-y-3">
             {packages.map((pkg, i) => {
               const days = pkg.storage_days_used;
-              const zone = getZone(days);
+              const zone = getZone(days, t);
               return (
                 <motion.div
                   key={pkg.id}
@@ -119,7 +121,7 @@ export default function DemurragePage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-deep-sea-teal">
-                          {pkg.users?.name || "Bilinmeyen"}
+                          {pkg.users?.name || t("demurrage.unknown")}
                         </span>
                         <code className="text-xs font-mono text-deep-sea-teal/40">
                           {pkg.users?.chios_box_id}
@@ -131,14 +133,14 @@ export default function DemurragePage() {
                         )}
                       </div>
                       <div className="text-sm text-deep-sea-teal/50 mt-0.5">
-                        {pkg.content} · Raf {pkg.shelf_location || "—"} · Geliş: {pkg.arrived_at ? new Date(pkg.arrived_at).toLocaleDateString("tr-TR") : "—"}
+                        {pkg.content} · {t("demurrage.shelfPrefix").replace("{shelf}", String(pkg.shelf_location || "—"))} · {t("demurrage.arrival").replace("{date}", pkg.arrived_at ? new Date(pkg.arrived_at).toLocaleDateString("tr-TR") : "—")}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                       <div className="text-right">
                         <div className={`font-display text-xl font-bold ${zone.text}`}>
-                          {days} gün
+                          {t("demurrage.daysLabel").replace("{n}", String(days))}
                         </div>
                       </div>
 
@@ -150,13 +152,13 @@ export default function DemurragePage() {
                                 onClick={() => setConfirmCharge(null)}
                                 className="px-3 py-2 text-xs text-deep-sea-teal/50 rounded-lg border border-deep-sea-teal/10 cursor-pointer"
                               >
-                                Vazgeç
+                                {t("demurrage.cancel")}
                               </button>
                               <button
                                 onClick={() => { setConfirmCharge(null); handleChargeDemurrage(pkg.id); }}
                                 className="px-3 py-2 bg-accent-orange text-white text-xs font-semibold rounded-lg cursor-pointer"
                               >
-                                €{((days - 14) * 1.5).toFixed(2)} Uygula
+                                {t("demurrage.applyAmount").replace("{amount}", ((days - 14) * 1.5).toFixed(2))}
                               </button>
                             </div>
                           ) : (
@@ -168,8 +170,8 @@ export default function DemurragePage() {
                               {charging === pkg.id
                                 ? "..."
                                 : chargeSuccess === pkg.id
-                                ? "Fatura Oluşturuldu!"
-                                : `Gecikme Ücreti Uygula (€${((days - 14) * 1.5).toFixed(2)})`}
+                                ? t("demurrage.invoiceCreated")
+                                : t("demurrage.applyFeeButton").replace("{amount}", ((days - 14) * 1.5).toFixed(2))}
                             </button>
                           )}
                         </>
@@ -183,14 +185,14 @@ export default function DemurragePage() {
                                 onClick={() => setConfirmDiscard(null)}
                                 className="px-3 py-2 text-xs text-deep-sea-teal/50 rounded-lg border border-deep-sea-teal/10 cursor-pointer"
                               >
-                                Vazgeç
+                                {t("demurrage.cancel")}
                               </button>
                               <button
                                 onClick={() => { setConfirmDiscard(null); handleDiscard(pkg.id); }}
                                 disabled={discarding === pkg.id}
                                 className="px-3 py-2 bg-danger-red text-white text-xs font-semibold rounded-lg cursor-pointer disabled:opacity-50"
                               >
-                                {discarding === pkg.id ? "..." : "Evet, Sil"}
+                                {discarding === pkg.id ? "..." : t("demurrage.confirmDelete")}
                               </button>
                             </div>
                           ) : (
@@ -198,7 +200,7 @@ export default function DemurragePage() {
                               onClick={() => setConfirmDiscard(pkg.id)}
                               className="px-4 py-2.5 bg-danger-red text-white text-sm font-semibold rounded-xl hover:bg-red-600 transition-colors cursor-pointer min-h-[48px]"
                             >
-                              Tasfiye Et
+                              {t("demurrage.discard")}
                             </button>
                           )}
                         </>
@@ -217,7 +219,7 @@ export default function DemurragePage() {
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
-            <p>Tüm paketler temizlendi</p>
+            <p>{t("demurrage.allClear")}</p>
           </div>
         )}
 
@@ -257,8 +259,9 @@ function DemurrageDetailModal({
   chargeSuccess: string | null;
   discarding: string | null;
 }) {
+  const { t } = useTranslation();
   const days = pkg.storage_days_used;
-  const zone = getZone(days);
+  const zone = getZone(days, t);
   const [confirmAction, setConfirmAction] = useState<string | null>(null);
 
   return (
@@ -301,36 +304,36 @@ function DemurrageDetailModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-5 pb-5">
           <div className="space-y-0 divide-y divide-deep-sea-teal/5">
-            <InfoRow label="Müşteri" value={pkg.users?.name || "—"} />
+            <InfoRow label={t("demurrage.detail.customer")} value={pkg.users?.name || "—"} />
             <InfoRow label="ChiosBox ID" value={pkg.users?.chios_box_id || "—"} mono />
-            <InfoRow label="İçerik" value={pkg.content} />
-            <InfoRow label="Raf" value={pkg.shelf_location || "—"} />
+            <InfoRow label={t("demurrage.detail.content")} value={pkg.content} />
+            <InfoRow label={t("demurrage.detail.shelf")} value={pkg.shelf_location || "—"} />
             {pkg.arrived_at && (
-              <InfoRow label="Geliş Tarihi" value={new Date(pkg.arrived_at).toLocaleDateString("tr-TR")} />
+              <InfoRow label={t("demurrage.detail.arrivalDate")} value={new Date(pkg.arrived_at).toLocaleDateString("tr-TR")} />
             )}
-            <InfoRow label="Depoda" value={`${days} gün`} />
-            <InfoRow label="Kalan Ücretsiz Gün" value={`${Math.max(0, 14 - days)} gün`} />
+            <InfoRow label={t("demurrage.detail.inWarehouse")} value={t("demurrage.daysLabel").replace("{n}", String(days))} />
+            <InfoRow label={t("demurrage.detail.freeDaysLeft")} value={t("demurrage.daysLabel").replace("{n}", String(Math.max(0, 14 - days)))} />
             {days > 14 && (
               <InfoRow
-                label="Gecikme Ücreti"
+                label={t("demurrage.detail.demurrageFee")}
                 value={`€${((days - 14) * 1.5).toFixed(2)}`}
                 highlight
               />
             )}
             {Number(pkg.demurrage_fee) > 0 && (
               <InfoRow
-                label="Uygulanan Ücret"
+                label={t("demurrage.detail.appliedFee")}
                 value={`€${Number(pkg.demurrage_fee).toFixed(2)}`}
                 highlight
               />
             )}
             {pkg.weight_kg != null && Number(pkg.weight_kg) > 0 && (
-              <InfoRow label="Ağırlık" value={`${Number(pkg.weight_kg)} kg`} />
+              <InfoRow label={t("demurrage.detail.weight")} value={`${Number(pkg.weight_kg)} kg`} />
             )}
-            {pkg.dimensions && <InfoRow label="Boyut" value={pkg.dimensions} />}
+            {pkg.dimensions && <InfoRow label={t("demurrage.detail.dimensions")} value={pkg.dimensions} />}
             {pkg.notes && (
               <div className="py-3">
-                <div className="text-[10px] text-deep-sea-teal/40 uppercase tracking-wider mb-1">Not</div>
+                <div className="text-[10px] text-deep-sea-teal/40 uppercase tracking-wider mb-1">{t("demurrage.detail.notes")}</div>
                 <div className="text-sm text-deep-sea-teal">{pkg.notes}</div>
               </div>
             )}
@@ -346,13 +349,13 @@ function DemurrageDetailModal({
                       onClick={() => setConfirmAction(null)}
                       className="flex-1 py-2.5 text-deep-sea-teal/50 text-xs font-medium rounded-xl border border-deep-sea-teal/10 cursor-pointer"
                     >
-                      Vazgeç
+                      {t("demurrage.cancel")}
                     </button>
                     <button
                       onClick={() => { setConfirmAction(null); onChargeDemurrage(pkg.id); }}
                       className="flex-1 py-2.5 bg-accent-orange text-white text-xs font-semibold rounded-xl cursor-pointer"
                     >
-                      €{((days - 14) * 1.5).toFixed(2)} Uygula
+                      {t("demurrage.applyAmount").replace("{amount}", ((days - 14) * 1.5).toFixed(2))}
                     </button>
                   </div>
                 ) : (
@@ -364,8 +367,8 @@ function DemurrageDetailModal({
                     {charging === pkg.id
                       ? "..."
                       : chargeSuccess === pkg.id
-                      ? "Fatura Oluşturuldu!"
-                      : `Gecikme Ücreti Uygula (€${((days - 14) * 1.5).toFixed(2)})`}
+                      ? t("demurrage.invoiceCreated")
+                      : t("demurrage.applyFeeButton").replace("{amount}", ((days - 14) * 1.5).toFixed(2))}
                   </button>
                 )}
               </>
@@ -379,14 +382,14 @@ function DemurrageDetailModal({
                       onClick={() => setConfirmAction(null)}
                       className="flex-1 py-2.5 text-deep-sea-teal/50 text-xs font-medium rounded-xl border border-deep-sea-teal/10 cursor-pointer"
                     >
-                      Vazgeç
+                      {t("demurrage.cancel")}
                     </button>
                     <button
                       onClick={() => { setConfirmAction(null); onDiscard(pkg.id); }}
                       disabled={discarding === pkg.id}
                       className="flex-1 py-2.5 bg-danger-red text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50"
                     >
-                      {discarding === pkg.id ? "..." : "Evet, Sil"}
+                      {discarding === pkg.id ? "..." : t("demurrage.confirmDelete")}
                     </button>
                   </div>
                 ) : (
@@ -394,7 +397,7 @@ function DemurrageDetailModal({
                     onClick={() => setConfirmAction("discard")}
                     className="w-full py-3 bg-danger-red text-white text-sm font-semibold rounded-xl hover:bg-red-600 transition-colors cursor-pointer"
                   >
-                    Tasfiye Et
+                    {t("demurrage.discard")}
                   </button>
                 )}
               </>

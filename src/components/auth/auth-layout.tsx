@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { AuthIllustration } from "./auth-illustration";
+import { useTranslation } from "@/hooks/use-translation";
 import Link from "next/link";
 
 interface AuthLayoutProps {
@@ -11,6 +12,7 @@ interface AuthLayoutProps {
 }
 
 export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-gradient-to-br from-mastic-white via-white to-chios-purple/[0.03]">
       <div className="min-h-screen flex">
@@ -34,10 +36,10 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
               className="mt-8 text-center"
             >
               <h2 className="font-display text-xl font-semibold text-deep-sea-teal">
-                ChiosBox ile Avrupa Kapınızda
+                {t("authLayout.heading")}
               </h2>
               <p className="mt-2 text-sm text-deep-sea-teal/50 max-w-xs">
-                Türkiye&apos;den Avrupa&apos;ya, Avrupa&apos;dan Türkiye&apos;ye kapıdan kapıya kargo hizmeti
+                {t("authLayout.description")}
               </p>
             </motion.div>
           </div>

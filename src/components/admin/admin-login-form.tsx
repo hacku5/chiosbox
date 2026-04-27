@@ -4,8 +4,10 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
+import { useTranslation } from "@/hooks/use-translation";
 
 export function AdminLoginForm() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,7 +33,7 @@ export function AdminLoginForm() {
       // Check if user is admin
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (!authUser) {
-        setError("Giriş başarısız");
+        setError(t("adminLogin.error.loginFailed"));
         setLoading(false);
         return;
       }
@@ -44,14 +46,14 @@ export function AdminLoginForm() {
 
       if (!appUser?.is_admin) {
         await supabase.auth.signOut();
-        setError("Bu hesap admin erişimine sahip değil");
+        setError(t("adminLogin.error.noAdminAccess"));
         setLoading(false);
         return;
       }
 
       router.push("/admin");
     } catch {
-      setError("Bir hata oluştu");
+      setError(t("adminLogin.error.generic"));
       setLoading(false);
     }
   };
@@ -88,7 +90,7 @@ export function AdminLoginForm() {
 
       <motion.div variants={item}>
         <label className="block text-sm font-medium text-white mb-1.5">
-          E-posta
+          {t("adminLogin.email")}
         </label>
         <input
           type="email"
@@ -102,7 +104,7 @@ export function AdminLoginForm() {
 
       <motion.div variants={item}>
         <label className="block text-sm font-medium text-white mb-1.5">
-          Şifre
+          {t("adminLogin.password")}
         </label>
         <div className="relative">
           <input
@@ -147,10 +149,10 @@ export function AdminLoginForm() {
                 <circle cx="12" cy="12" r="10" strokeOpacity="0.3" />
                 <path d="M12 2a10 10 0 019.95 9" strokeLinecap="round" />
               </svg>
-              Giriş Yapılıyor...
+              {t("adminLogin.submitting")}
             </span>
           ) : (
-            "Admin Girişi"
+            t("adminLogin.title")
           )}
         </motion.button>
       </motion.div>

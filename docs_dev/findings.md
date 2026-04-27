@@ -19,5 +19,5 @@
 - **Styling:** Tailwind CSS + Radix UI
 - **Animation:** Framer Motion + Lottie-React
 - **Backend:** Node.js (Express veya NestJS)
-- **Database:** PostgreSQL + Prisma ORM
+- **Database:** Supabase PostgreSQL
 - **Cron:** Node-Cron (gecikme ücretleri)

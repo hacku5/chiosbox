@@ -3,8 +3,14 @@ import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin } from "@/lib/admin-guard";
 import { sendPushToUser } from "@/lib/send-notification";
 import { randomInt, createHash } from "crypto";
+import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  // Rate limit: 30 code generations per admin per minute
+  const ip = getClientIp(request);
+  const rl = rateLimit(`pickup-code:${ip}`, 30, 60 * 1000);
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
+
   const { user, error } = await requireAdmin("pickup");
   if (error) return error;
 
@@ -13,7 +19,7 @@ export async function POST(request: Request) {
   const { packageId } = body;
 
   if (!packageId) {
-    return NextResponse.json({ error: "Paket ID gerekli" }, { status: 400 });
+    return NextResponse.json({ error: "Package ID is required" }, { status: 400 });
   }
 
   // Verify package exists and belongs to a user
@@ -24,7 +30,7 @@ export async function POST(request: Request) {
     .single();
 
   if (fetchErr || !pkg) {
-    return NextResponse.json({ error: "Paket bulunamadı" }, { status: 404 });
+    return NextResponse.json({ error: "Package not found" }, { status: 404 });
   }
 
   // Generate 6-digit code using crypto.randomInt
@@ -49,8 +55,8 @@ export async function POST(request: Request) {
 
   // Push notification — don't leak the code in notification
   sendPushToUser(pkg.user_id, {
-    title: "Teslimat Kodunuz Hazır",
-    body: "Kodunuzu almak için uygulamayı açın",
+    title: "Your Delivery Code is Ready",
+    body: "Open the app to get your code",
     url: "/dashboard",
   }).catch(() => {});
 

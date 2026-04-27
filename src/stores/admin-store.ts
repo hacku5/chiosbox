@@ -48,11 +48,11 @@ export const useAdminStore = create<AdminState>((set, get) => ({
 
       const url = `/api/admin/packages${params.toString() ? `?${params}` : ""}`;
       const res = await fetch(url);
-      if (!res.ok) throw new Error("Paketler yüklenemedi");
+      if (!res.ok) throw new Error("Failed to load packages");
       const json = await res.json();
       set({ packages: Array.isArray(json) ? json : json.data ?? [], loading: false });
     } catch (err) {
-      set({ loading: false, error: err instanceof Error ? err.message : "Bir hata oluştu" });
+      set({ loading: false, error: err instanceof Error ? err.message : "An error occurred" });
     }
   },
 
@@ -64,12 +64,12 @@ export const useAdminStore = create<AdminState>((set, get) => ({
         body: JSON.stringify({ trackingNo, shelfLocation: shelf }),
       });
       const data = await res.json();
-      if (!res.ok) return { error: data.error || "Kabul başarısız" };
+      if (!res.ok) return { error: data.error || "Intake failed" };
       // Refresh packages list
-      get().fetchPackages();
+      await get().fetchPackages();
       return {};
     } catch {
-      return { error: "Bir hata oluştu" };
+      return { error: "An error occurred" };
     }
   },
 
@@ -81,11 +81,11 @@ export const useAdminStore = create<AdminState>((set, get) => ({
         body: JSON.stringify({ packageId }),
       });
       const data = await res.json();
-      if (!res.ok) return { error: data.error || "Teslimat başarısız" };
-      get().fetchPackages();
+      if (!res.ok) return { error: data.error || "Delivery failed" };
+      await get().fetchPackages();
       return {};
     } catch {
-      return { error: "Bir hata oluştu" };
+      return { error: "An error occurred" };
     }
   },
 
@@ -96,14 +96,13 @@ export const useAdminStore = create<AdminState>((set, get) => ({
       });
       if (!res.ok) {
         const data = await res.json();
-        return { error: data.error || "Tasfiye başarısız" };
+        return { error: data.error || "Discard failed" };
       }
-      set((state) => ({
-        packages: state.packages.filter((p) => p.id !== id),
-      }));
+      // Refresh from server to ensure consistency
+      await get().fetchPackages();
       return {};
     } catch {
-      return { error: "Bir hata oluştu" };
+      return { error: "An error occurred" };
     }
   },
 }));

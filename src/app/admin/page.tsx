@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useTranslation } from "@/hooks/use-translation";
 import { useAdminUser } from "./admin-layout-client";
 import { hasPermission, isSuperAdmin } from "@/lib/permissions";
 
@@ -36,16 +37,17 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.35 } },
 };
 
-const statusLabels: Record<string, { label: string; color: string }> = {
-  BEKLENIYOR: { label: "Beklemede", color: "text-deep-sea-teal/60 bg-deep-sea-teal/5" },
-  YOLDA: { label: "Yolda", color: "text-accent-orange bg-accent-orange/10" },
-  DEPODA: { label: "Depoda", color: "text-chios-purple bg-chios-purple/10" },
-  BIRLESTIRILDI: { label: "Birleştirildi", color: "text-success-green bg-success-green/10" },
-  TESLIM_EDILDI: { label: "Teslim Edildi", color: "text-success-green bg-success-green/10" },
-};
-
 export default function AdminDashboardPage() {
+  const { t } = useTranslation();
   const adminUser = useAdminUser();
+
+  const statusLabels: Record<string, { label: string; color: string }> = {
+    BEKLENIYOR: { label: t("status.beklemede"), color: "text-deep-sea-teal/60 bg-deep-sea-teal/5" },
+    YOLDA: { label: t("status.yolda"), color: "text-accent-orange bg-accent-orange/10" },
+    DEPODA: { label: t("status.depoda"), color: "text-chios-purple bg-chios-purple/10" },
+    BIRLESTIRILDI: { label: t("status.birlestirildi"), color: "text-success-green bg-success-green/10" },
+    TESLIM_EDILDI: { label: t("status.teslimEdildi"), color: "text-success-green bg-success-green/10" },
+  };
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -57,12 +59,12 @@ export default function AdminDashboardPage() {
   }, []);
 
   const quickActions = [
-    { label: "Kabul", href: "/admin/intake", permission: "intake" as const, color: "bg-chios-purple" },
-    { label: "Teslimat", href: "/admin/pickup", permission: "pickup" as const, color: "bg-deep-sea-teal" },
-    { label: "Gecikme", href: "/admin/demurrage", permission: "demurrage" as const, color: "bg-accent-orange" },
-    { label: "Paketler", href: "/admin/packages", permission: "packages" as const, color: "bg-success-green" },
-    { label: "Faturalar", href: "/admin/invoices", permission: "invoices" as const, color: "bg-chios-purple-light" },
-    { label: "Müşteriler", href: "/admin/customers", permission: "customers" as const, color: "bg-deep-sea-teal" },
+    { label: t("action.kabul"), href: "/admin/intake", permission: "intake" as const, color: "bg-chios-purple" },
+    { label: t("action.teslimat"), href: "/admin/pickup", permission: "pickup" as const, color: "bg-deep-sea-teal" },
+    { label: t("action.gecikme"), href: "/admin/demurrage", permission: "demurrage" as const, color: "bg-accent-orange" },
+    { label: t("action.paketler"), href: "/admin/packages", permission: "packages" as const, color: "bg-success-green" },
+    { label: t("action.faturalar"), href: "/admin/invoices", permission: "invoices" as const, color: "bg-chios-purple-light" },
+    { label: t("action.musteriler"), href: "/admin/customers", permission: "customers" as const, color: "bg-deep-sea-teal" },
   ].filter((a) =>
     isSuperAdmin(adminUser.permissions) || hasPermission(adminUser.permissions, a.permission)
   );
@@ -95,10 +97,10 @@ export default function AdminDashboardPage() {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="font-display text-2xl font-bold text-deep-sea-teal">
-            Yönetim Paneli
+            {t("dashboard.title")}
           </h1>
           <p className="text-sm text-deep-sea-teal/50 mt-1">
-            Hoş geldin, {adminUser.name}
+            {t("dashboard.welcome", { name: adminUser.name })}
           </p>
         </div>
 
@@ -106,7 +108,7 @@ export default function AdminDashboardPage() {
           {/* Stats Cards */}
           <motion.div variants={item} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
-              label="Toplam Paket"
+              label={t("dashboard.totalPackages")}
               value={stats.totalPackages}
               icon={
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -116,7 +118,7 @@ export default function AdminDashboardPage() {
               color="bg-chios-purple/10 text-chios-purple"
             />
             <StatCard
-              label="Depoda"
+              label={t("dashboard.inWarehouse")}
               value={stats.depodaCount}
               icon={
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -128,9 +130,9 @@ export default function AdminDashboardPage() {
               color="bg-deep-sea-teal/10 text-deep-sea-teal"
             />
             <StatCard
-              label="Son 7 Gün"
+              label={t("dashboard.last7Days")}
               value={stats.newPackages}
-              sub="yeni paket"
+              sub={t("dashboard.newPackages")}
               icon={
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
@@ -140,7 +142,7 @@ export default function AdminDashboardPage() {
               color="bg-success-green/10 text-success-green"
             />
             <StatCard
-              label="Haftalık Gelir"
+              label={t("dashboard.weeklyRevenue")}
               value={`€${stats.weekRevenue.toFixed(0)}`}
               icon={
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -157,7 +159,7 @@ export default function AdminDashboardPage() {
             {/* Status Distribution */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-deep-sea-teal/5">
               <h2 className="text-xs font-medium text-deep-sea-teal/40 uppercase tracking-wider mb-4">
-                Durum Dağılımı
+                {t("dashboard.statusDistribution")}
               </h2>
               <div className="space-y-3">
                 {Object.entries(stats.statusCounts).map(([status, count]) => {
@@ -188,7 +190,7 @@ export default function AdminDashboardPage() {
             {/* Recent Activity */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-deep-sea-teal/5 md:col-span-2">
               <h2 className="text-xs font-medium text-deep-sea-teal/40 uppercase tracking-wider mb-4">
-                Son Aktiviteler
+                {t("dashboard.recentActivity")}
               </h2>
               <div className="space-y-0 divide-y divide-deep-sea-teal/5">
                 {stats.recentPackages.slice(0, 8).map((pkg) => {
@@ -197,7 +199,7 @@ export default function AdminDashboardPage() {
                     <div key={pkg.id} className="flex items-center justify-between py-3">
                       <div className="min-w-0">
                         <div className="text-sm font-medium text-deep-sea-teal truncate">
-                          {(pkg.users as unknown as { name: string })?.name || "Bilinmeyen"}
+                          {(pkg.users as unknown as { name: string })?.name || t("dashboard.unknown")}
                         </div>
                         <div className="text-xs text-deep-sea-teal/40 font-mono">
                           {pkg.tracking_no}
@@ -230,10 +232,10 @@ export default function AdminDashboardPage() {
                       <line x1="12" y1="8" x2="12" y2="12" />
                       <line x1="12" y1="16" x2="12.01" y2="16" />
                     </svg>
-                    <span className="text-sm font-semibold text-accent-orange">Gecikme Uyarısı</span>
+                    <span className="text-sm font-semibold text-accent-orange">{t("dashboard.demurrageAlert")}</span>
                   </div>
                   <p className="text-xs text-deep-sea-teal/60">
-                    {stats.demurrageCount} paket 14 günü aştı
+                    {t("dashboard.demurrageDesc", { count: stats.demurrageCount })}
                   </p>
                   <p className="text-lg font-bold text-accent-orange mt-1">
                     €{stats.totalDemurrage.toFixed(2)}
@@ -248,10 +250,10 @@ export default function AdminDashboardPage() {
                       <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                       <polyline points="14 2 14 8 20 8" />
                     </svg>
-                    <span className="text-sm font-semibold text-chios-purple">Bekleyen Faturalar</span>
+                    <span className="text-sm font-semibold text-chios-purple">{t("dashboard.pendingInvoices")}</span>
                   </div>
                   <p className="text-xs text-deep-sea-teal/60">
-                    {stats.pendingInvoiceCount} fatura ödenmeyi bekliyor
+                    {t("dashboard.pendingInvoiceDesc", { count: stats.pendingInvoiceCount })}
                   </p>
                   <p className="text-lg font-bold text-chios-purple mt-1">
                     €{stats.pendingInvoiceTotal.toFixed(2)}
@@ -262,7 +264,7 @@ export default function AdminDashboardPage() {
               {/* Shelf Usage */}
               <div className="bg-white rounded-2xl p-5 shadow-sm border border-deep-sea-teal/5">
                 <h3 className="text-xs font-medium text-deep-sea-teal/40 uppercase tracking-wider mb-3">
-                  Raf Kullanımı
+                  {t("dashboard.shelfUsage")}
                 </h3>
                 <div className="space-y-2">
                   {["A", "B", "C"].map((shelf) => {
@@ -292,7 +294,7 @@ export default function AdminDashboardPage() {
             {/* Quick Actions */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-deep-sea-teal/5 md:col-span-2">
               <h2 className="text-xs font-medium text-deep-sea-teal/40 uppercase tracking-wider mb-4">
-                Hızlı İşlemler
+                {t("dashboard.quickActions")}
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {quickActions.map((action) => (

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface PlanOption {
   id: string;
@@ -11,41 +12,43 @@ interface PlanOption {
   features: string[];
 }
 
-const plans: PlanOption[] = [
-  {
-    id: "TEMEL",
-    name: "Temel",
-    price: "€9.99",
-    period: "/ay",
-    features: [
-      "ChiosBox EU adresi",
-      "14 gün ücretsiz depolama",
-      "Panel erişimi",
-      "E-posta bildirimleri",
-    ],
-  },
-  {
-    id: "PREMIUM",
-    name: "Premium",
-    price: "€24.99",
-    period: "/ay",
-    badge: "En Popüler",
-    features: [
-      "Her şey Temel pakette",
-      "21 gün ücretsiz depolama",
-      "Ücretsiz konsolidasyon",
-      "Türkiye teslimat takibi",
-      "Özel destek hattı",
-    ],
-  },
-];
-
 interface PlanSelectorProps {
   selected: string;
   onSelect: (plan: string) => void;
 }
 
 export function PlanSelector({ selected, onSelect }: PlanSelectorProps) {
+  const { t } = useTranslation();
+
+  const plans: PlanOption[] = [
+    {
+      id: "TEMEL",
+      name: t("planSelector.temel.name"),
+      price: "€9.99",
+      period: t("planSelector.period"),
+      features: [
+        t("planSelector.temel.f1"),
+        t("planSelector.temel.f2"),
+        t("planSelector.temel.f3"),
+        t("planSelector.temel.f4"),
+      ],
+    },
+    {
+      id: "PREMIUM",
+      name: t("planSelector.premium.name"),
+      price: "€24.99",
+      period: t("planSelector.period"),
+      badge: t("planSelector.premium.badge"),
+      features: [
+        t("planSelector.premium.f1"),
+        t("planSelector.premium.f2"),
+        t("planSelector.premium.f3"),
+        t("planSelector.premium.f4"),
+        t("planSelector.premium.f5"),
+      ],
+    },
+  ];
+
   return (
     <div className="grid grid-cols-2 gap-3">
       {plans.map((plan) => (

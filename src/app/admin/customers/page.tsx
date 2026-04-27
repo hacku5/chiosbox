@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface CustomerRow {
   id: string;
@@ -18,6 +19,7 @@ interface CustomerRow {
 }
 
 export default function AdminCustomersPage() {
+  const { t } = useTranslation();
   const [customers, setCustomers] = useState<CustomerRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -54,8 +56,8 @@ export default function AdminCustomersPage() {
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-6">
-          <h1 className="font-display text-2xl font-bold text-deep-sea-teal">Müşteriler</h1>
-          <p className="text-sm text-deep-sea-teal/50 mt-1">{total} müşteri</p>
+          <h1 className="font-display text-2xl font-bold text-deep-sea-teal">{t("customers.title")}</h1>
+          <p className="text-sm text-deep-sea-teal/50 mt-1">{t("customers.count", { total })}</p>
         </div>
 
         {/* Search */}
@@ -69,7 +71,7 @@ export default function AdminCustomersPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            placeholder="İsim, email veya ChiosBox ID ile ara..."
+            placeholder={t("customers.searchPlaceholder")}
             className="w-full pl-11 pr-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-sm text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50"
           />
         </div>
@@ -83,7 +85,7 @@ export default function AdminCustomersPage() {
           </div>
         ) : customers.length === 0 ? (
           <div className="text-center py-16 text-deep-sea-teal/30">
-            <p className="text-sm">Müşteri bulunamadı</p>
+            <p className="text-sm">{t("customers.notFound")}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -112,7 +114,7 @@ export default function AdminCustomersPage() {
                       <div className="flex items-center gap-3 text-xs text-deep-sea-teal/40">
                         <span className="font-mono">{customer.chios_box_id}</span>
                         <span>{customer.email}</span>
-                        <span>{customer.packageCount} paket</span>
+                        <span>{t("customers.packageCount", { n: customer.packageCount })}</span>
                       </div>
                     </div>
                     <div className="flex-shrink-0 text-right">
@@ -121,7 +123,7 @@ export default function AdminCustomersPage() {
                           <div className="text-sm font-bold text-accent-orange">
                             €{customer.pendingInvoiceTotal.toFixed(2)}
                           </div>
-                          <div className="text-[10px] text-deep-sea-teal/30">bekliyor</div>
+                          <div className="text-[10px] text-deep-sea-teal/30">{t("customers.pending")}</div>
                         </div>
                       ) : (
                         <div className="text-xs text-deep-sea-teal/30">
@@ -144,7 +146,7 @@ export default function AdminCustomersPage() {
               disabled={page === 1}
               className="px-4 py-2 rounded-xl border border-deep-sea-teal/10 text-sm text-deep-sea-teal disabled:opacity-30 cursor-pointer"
             >
-              Önceki
+              {t("customers.previous")}
             </button>
             <span className="text-sm text-deep-sea-teal/50">{page} / {totalPages}</span>
             <button
@@ -152,7 +154,7 @@ export default function AdminCustomersPage() {
               disabled={page === totalPages}
               className="px-4 py-2 rounded-xl border border-deep-sea-teal/10 text-sm text-deep-sea-teal disabled:opacity-30 cursor-pointer"
             >
-              Sonraki
+              {t("customers.next")}
             </button>
           </div>
         )}

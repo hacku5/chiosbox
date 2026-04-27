@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import Link from "next/link";
+import { useTranslation } from "@/hooks/use-translation";
 
 const BASE_FEE = 4; // € per package
 const CONSOLIDATION_FEE = 8; // € one-time
@@ -61,6 +62,7 @@ function Odometer({ value }: { value: number }) {
 }
 
 export function PricingCalculator() {
+  const { t } = useTranslation();
   const [packages, setPackages] = useState(3);
   const [storageDays, setStorageDays] = useState(10);
   const ref = useRef(null);
@@ -82,14 +84,13 @@ export function PricingCalculator() {
           className="text-center mb-16"
         >
           <span className="inline-block px-3 py-1.5 bg-sunset-gold/20 rounded-full text-sm font-medium text-accent-orange mb-4">
-            Şeffaf Fiyatlandırma
+            {t("pricing.tag")}
           </span>
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-deep-sea-teal">
-            Maliyetinizi Hesaplayın
+            {t("pricing.title")}
           </h2>
           <p className="mt-3 text-deep-sea-teal/60 max-w-lg mx-auto">
-            Kaç paketiniz var ve ne kadar depolamak istediğinizi seçin.
-            Anında tahmini maliyetinizi görün.
+            {t("pricing.description")}
           </p>
         </motion.div>
 
@@ -102,14 +103,14 @@ export function PricingCalculator() {
           {/* Left: Sliders */}
           <div className="bg-white rounded-3xl p-8 shadow-lg shadow-deep-sea-teal/[0.05] border border-deep-sea-teal/5">
             <h3 className="font-display text-lg font-semibold text-deep-sea-teal mb-8">
-              Parametreler
+              {t("pricing.parameters")}
             </h3>
 
             {/* Package count slider */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-3">
                 <label className="text-sm font-medium text-deep-sea-teal/70">
-                  Paket Sayısı
+                  {t("pricing.packageCount")}
                 </label>
                 <span className="font-display text-2xl font-bold text-chios-purple">
                   {packages}
@@ -133,7 +134,7 @@ export function PricingCalculator() {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <label className="text-sm font-medium text-deep-sea-teal/70">
-                  Depolama Süresi (Gün)
+                  {t("pricing.storageDays")}
                 </label>
                 <span className="font-display text-2xl font-bold text-chios-purple">
                   {storageDays}
@@ -148,8 +149,8 @@ export function PricingCalculator() {
                 className="w-full h-2 rounded-full appearance-none cursor-pointer slider-chios"
               />
               <div className="flex justify-between text-xs text-deep-sea-teal/40 mt-1">
-                <span>1 gün</span>
-                <span>30 gün</span>
+                <span>{t("pricing.storage1")}</span>
+                <span>{t("pricing.storage30")}</span>
               </div>
             </div>
 
@@ -160,14 +161,14 @@ export function PricingCalculator() {
                   <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
                   <polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
-                İlk 14 gün ücretsiz depolama
+                {t("pricing.fee.storage14")}
               </div>
               <div className="flex items-center gap-2 text-xs text-deep-sea-teal/50">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-success-green">
                   <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
                   <polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
-                Paket başı kabul ücreti €{BASE_FEE}
+                {t("pricing.fee.acceptInfo")}
               </div>
             </div>
           </div>
@@ -176,7 +177,7 @@ export function PricingCalculator() {
           <div className="bg-deep-sea-teal rounded-3xl p-8 text-white shadow-xl shadow-deep-sea-teal/20 flex flex-col justify-between">
             <div>
               <h3 className="font-display text-lg font-semibold text-white/90 mb-6">
-                Aylık Tahmini Maliyet
+                {t("pricing.monthlyCost")}
               </h3>
 
               <div className="mb-8">
@@ -186,18 +187,18 @@ export function PricingCalculator() {
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-white/60">
-                    Kabul Ücreti ({packages} paket × €{BASE_FEE})
+                    {t("pricing.fee.accept")} ({packages} {t("pricing.fee.acceptUnit", { fee: String(BASE_FEE) })})
                   </span>
                   <span className="font-medium">€{cost.acceptFee.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/60">Konsolidasyon Ücreti</span>
+                  <span className="text-white/60">{t("pricing.consolidationFee")}</span>
                   <span className="font-medium">€{cost.consolidationFee.toFixed(2)}</span>
                 </div>
                 {cost.demurrageFee > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-white/60">
-                      Gecikme Ücreti ({storageDays - FREE_STORAGE_DAYS} gün × €{DAILY_DEMURRAGE})
+                      {t("pricing.demurrageFeeLabel", { days: String(storageDays - FREE_STORAGE_DAYS), fee: String(DAILY_DEMURRAGE) })}
                     </span>
                     <span className="font-medium text-sunset-gold">
                       €{cost.demurrageFee.toFixed(2)}
@@ -205,7 +206,7 @@ export function PricingCalculator() {
                   </div>
                 )}
                 <div className="border-t border-white/10 pt-3 flex justify-between text-sm font-semibold">
-                  <span>Toplam</span>
+                  <span>{t("pricing.total")}</span>
                   <span>€{cost.totalWithConsolidation.toFixed(2)}</span>
                 </div>
               </div>
@@ -221,7 +222,7 @@ export function PricingCalculator() {
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
                 </svg>
                 <span className="text-sm font-medium text-success-green">
-                  Birleştirerek ~€{cost.savings.toFixed(0)} tasarruf edebilirsiniz!
+                  {t("pricing.savings", { amount: cost.savings.toFixed(0) })}
                 </span>
               </motion.div>
             )}
@@ -268,10 +269,10 @@ export function PricingCalculator() {
           className="text-center mb-12"
         >
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-deep-sea-teal">
-            Size Uygun Paketi Seçin
+            {t("pricing.planTitle")}
           </h2>
           <p className="mt-3 text-deep-sea-teal/60 max-w-lg mx-auto">
-            Türkiye&apos;den Avrupa&apos;ya, Avrupa&apos;dan Türkiye&apos;ye kapıdan kapıya kargo ayrıcalığı
+            {t("pricing.planDesc")}
           </p>
         </motion.div>
 
@@ -284,21 +285,21 @@ export function PricingCalculator() {
             className="bg-white rounded-3xl p-8 shadow-lg shadow-deep-sea-teal/[0.05] border border-deep-sea-teal/5 hover:border-chios-purple/20 transition-all duration-300"
           >
             <div className="font-display text-lg font-semibold text-deep-sea-teal">
-              Temel
+              {t("pricing.basic.name")}
             </div>
             <div className="mt-2 flex items-baseline gap-1">
               <span className="text-4xl font-display font-bold text-chios-purple">€9.99</span>
-              <span className="text-sm text-deep-sea-teal/40">/ay</span>
+              <span className="text-sm text-deep-sea-teal/40">{t("pricing.month")}</span>
             </div>
             <p className="mt-2 text-sm text-deep-sea-teal/50">
-              Basit adres, basit teslimat
+              {t("pricing.basic.subtitle")}
             </p>
             <ul className="mt-6 space-y-3">
               {[
-                "ChiosBox EU adresi",
-                "14 gün ücretsiz depolama",
-                "Panel erişimi",
-                "E-posta bildirimleri",
+                t("pricing.basic.f1"),
+                t("pricing.basic.f2"),
+                t("pricing.basic.f3"),
+                t("pricing.basic.f4"),
               ].map((f, i) => (
                 <li key={i} className="flex items-center gap-2.5 text-sm text-deep-sea-teal/70">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-success-green flex-shrink-0">
@@ -312,7 +313,7 @@ export function PricingCalculator() {
               href="/register?plan=temel"
               className="mt-8 w-full inline-flex items-center justify-center py-3.5 border-2 border-chios-purple text-chios-purple font-display font-semibold rounded-xl hover:bg-chios-purple hover:text-white transition-all duration-200 cursor-pointer"
             >
-              Temel Paketi Seç
+              {t("pricing.basic.cta")}
             </Link>
           </motion.div>
 
@@ -326,7 +327,7 @@ export function PricingCalculator() {
             {/* Badge */}
             <div className="absolute top-0 right-0">
               <div className="bg-sunset-gold text-deep-sea-teal text-xs font-bold px-4 py-1.5 rounded-bl-2xl">
-                En Popüler
+                {t("pricing.mostPopular")}
               </div>
             </div>
 
@@ -335,22 +336,22 @@ export function PricingCalculator() {
 
             <div className="relative">
               <div className="font-display text-lg font-semibold text-white">
-                Premium
+                {t("pricing.premium.name")}
               </div>
               <div className="mt-2 flex items-baseline gap-1">
                 <span className="text-4xl font-display font-bold text-white">€24.99</span>
-                <span className="text-sm text-white/50">/ay</span>
+                <span className="text-sm text-white/50">{t("pricing.month")}</span>
               </div>
               <p className="mt-2 text-sm text-white/60">
-                Tam kontrol, maksimum tasarruf
+                {t("pricing.premium.subtitle")}
               </p>
               <ul className="mt-6 space-y-3">
                 {[
-                  "Her şey Temel pakette",
-                  "21 gün ücretsiz depolama",
-                  "Ücretsiz konsolidasyon",
-                  "Türkiye teslimat takibi",
-                  "Özel destek hattı",
+                  t("pricing.premium.f1"),
+                  t("pricing.premium.f2"),
+                  t("pricing.premium.f3"),
+                  t("pricing.premium.f4"),
+                  t("pricing.premium.f5"),
                 ].map((f, i) => (
                   <li key={i} className="flex items-center gap-2.5 text-sm text-white/80">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-sunset-gold flex-shrink-0">
@@ -364,7 +365,7 @@ export function PricingCalculator() {
                 href="/register?plan=premium"
                 className="mt-8 w-full inline-flex items-center justify-center py-3.5 bg-white text-chios-purple font-display font-semibold rounded-xl hover:bg-mastic-white transition-all duration-200 cursor-pointer shadow-lg"
               >
-                Premium Paketi Seç
+                {t("pricing.premium.cta")}
               </Link>
             </div>
           </motion.div>

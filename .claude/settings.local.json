@@ -9,8 +9,6 @@
       "Bash(rtk npm *)",
       "Bash(rtk read *)",
       "Bash(rtk curl *)",
-      "Bash(rtk prisma *)",
-      "Bash(./node_modules/.bin/prisma init *)",
       "Bash(python3 \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"logistics shipping e-commerce animated vibrant modern\" --design-system -p \"ChiosBox\")",
       "Bash(python3 \"C:/Users/MySir/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"logistics shipping e-commerce animated vibrant modern\" --design-system -p \"ChiosBox\")",
       "Bash(python3 \"C:/Users/MySir/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"hero animated interactive scrollytelling\" --domain landing -n 8)",
@@ -26,10 +24,8 @@
       "mcp__plugin_supabase_supabase__get_project",
       "mcp__plugin_supabase_supabase__get_publishable_keys",
       "mcp__plugin_supabase_supabase__get_project_url",
-      "Bash(./node_modules/.bin/prisma --version)",
       "mcp__context7__resolve-library-id",
       "mcp__context7__query-docs",
-      "Bash(./node_modules/.bin/prisma generate *)",
       "Bash(python *)",
       "Bash(taskkill //F //IM node.exe)",
       "Bash(rtk git *)",
@@ -46,7 +42,16 @@
       "Bash(rtk find *)",
       "mcp__web-reader__webReader",
       "WebSearch",
-      "Bash(node *)"
+      "Bash(node *)",
+      "mcp__plugin_context-mode_context-mode__ctx_doctor",
+      "mcp__plugin_context-mode_context-mode__ctx_batch_execute",
+      "mcp__plugin_context-mode_context-mode__ctx_execute_file",
+      "mcp__plugin_context-mode_context-mode__ctx_search",
+      "Bash(rtk tsc *)",
+      "mcp__plugin_context-mode_context-mode__ctx_execute",
+      "Bash(rtk next *)",
+      "Bash(rtk grep *)"
     ]
-  }
+  },
+  "spinnerTipsEnabled": true
 }

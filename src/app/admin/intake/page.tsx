@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAdminStore, AdminPackage } from "@/stores/admin-store";
+import { useTranslation } from "@/hooks/use-translation";
 
 const shelfOptions = [
   "A-1", "A-2", "A-3", "A-4", "A-5",
@@ -11,6 +12,7 @@ const shelfOptions = [
 ];
 
 export default function IntakePage() {
+  const { t } = useTranslation();
   const [barcode, setBarcode] = useState("");
   const [searching, setSearching] = useState(false);
   const [foundPkg, setFoundPkg] = useState<AdminPackage | null>(null);
@@ -33,7 +35,7 @@ export default function IntakePage() {
 
     try {
       const res = await fetch(`/api/admin/packages?tracking=${encodeURIComponent(trimmed)}`);
-      if (!res.ok) throw new Error("Arama başarısız");
+      if (!res.ok) throw new Error(t("intake.error.search"));
       const json = await res.json();
       const packages = json.data || json;
 
@@ -43,7 +45,7 @@ export default function IntakePage() {
         setNotFound(true);
       }
     } catch {
-      setError("Paket aranırken hata oluştu");
+      setError(t("intake.error.searchPaket"));
     } finally {
       setSearching(false);
     }
@@ -66,7 +68,7 @@ export default function IntakePage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "Kayıt başarısız");
+        setError(data.error || t("intake.error.saveFailed"));
         return;
       }
 
@@ -78,7 +80,7 @@ export default function IntakePage() {
       setSaved(true);
       fetchPackages();
     } catch {
-      setError("Bir hata oluştu");
+      setError(t("intake.error.generic"));
     } finally {
       setSaving(false);
     }
@@ -99,14 +101,14 @@ export default function IntakePage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="font-display text-2xl font-bold text-deep-sea-teal">
-            Paket Kabul
+            {t("intake.title")}
           </h1>
           {(foundPkg || notFound) && (
             <button
               onClick={handleReset}
               className="text-sm text-deep-sea-teal/50 hover:text-chios-purple transition-colors cursor-pointer"
             >
-              Yeni Kabul
+              {t("intake.newIntake")}
             </button>
           )}
         </div>
@@ -141,14 +143,14 @@ export default function IntakePage() {
                   <line x1="9" y1="21" x2="9" y2="9" />
                 </svg>
                 <p className="text-white/40 text-sm">
-                  Barkodu kameraya gösterin veya manuel girin
+                  {t("intake.barcodeInstruction")}
                 </p>
               </div>
 
               {/* Manual barcode input */}
               <div className="bg-white rounded-2xl p-5 shadow-sm border border-deep-sea-teal/5">
                 <label className="block text-sm font-medium text-deep-sea-teal mb-3">
-                  Barkod / Takip No
+                  {t("intake.barcodeLabel")}
                 </label>
                 <div className="flex gap-3">
                   <input
@@ -156,7 +158,7 @@ export default function IntakePage() {
                     value={barcode}
                     onChange={(e) => setBarcode(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleBarcodeSubmit()}
-                    placeholder="Barkodu okutun veya yazın"
+                    placeholder={t("intake.barcodePlaceholder")}
                     className="flex-1 px-5 py-4 rounded-2xl border-2 border-deep-sea-teal/10 bg-white text-deep-sea-teal text-lg font-mono placeholder:text-deep-sea-teal/20 focus:outline-none focus:border-chios-purple/50 transition-all"
                     autoFocus
                   />
@@ -184,7 +186,7 @@ export default function IntakePage() {
                     animate={{ opacity: 1 }}
                     className="mt-3 text-sm text-danger-red text-center"
                   >
-                    Bu takip numarasına ait paket bulunamadı
+                    {t("intake.notFound")}
                   </motion.p>
                 )}
               </div>
@@ -207,15 +209,15 @@ export default function IntakePage() {
                 animate={{ scale: 1 }}
                 className="bg-chios-purple rounded-2xl p-5 text-white"
               >
-                <div className="text-sm text-white/60 mb-1">Müşteri</div>
+                <div className="text-sm text-white/60 mb-1">{t("intake.customer")}</div>
                 <div className="font-display text-2xl font-bold">
-                  {foundPkg.users?.name || "Bilinmeyen"}
+                  {foundPkg.users?.name || t("intake.unknown")}
                 </div>
                 <div className="text-sm text-white/60 mt-1 font-mono">
                   {foundPkg.users?.chios_box_id}
                 </div>
                 <div className="mt-3 pt-3 border-t border-white/10">
-                  <div className="text-sm text-white/60">İçerik</div>
+                  <div className="text-sm text-white/60">{t("intake.content")}</div>
                   <div className="font-medium">{foundPkg.content}</div>
                   <div className="text-xs text-white/40 mt-1 font-mono">
                     {foundPkg.carrier} — {foundPkg.tracking_no}
@@ -228,7 +230,7 @@ export default function IntakePage() {
                   )}
                   {foundPkg.notes && (
                     <div className="mt-2 text-xs text-white/40 italic">
-                      Not: {foundPkg.notes}
+                      {t("intake.notes", { text: foundPkg.notes })}
                     </div>
                   )}
                 </div>
@@ -241,7 +243,7 @@ export default function IntakePage() {
                 className="bg-white rounded-2xl p-5 shadow-sm border border-deep-sea-teal/5"
               >
                 <label className="block text-sm font-medium text-deep-sea-teal mb-3">
-                  Raf Atama
+                  {t("intake.shelfAssignment")}
                 </label>
                 <div className="grid grid-cols-5 gap-2">
                   {shelfOptions.map((shelf) => (
@@ -267,7 +269,7 @@ export default function IntakePage() {
                     disabled={saving}
                     className="mt-4 w-full py-4 bg-success-green text-white font-display font-bold text-lg rounded-2xl hover:bg-green-600 active:scale-[0.98] transition-all cursor-pointer shadow-lg disabled:opacity-50 min-h-[48px]"
                   >
-                    {saving ? "Kaydediliyor..." : "KAYDET"}
+                    {saving ? t("intake.saving") : t("intake.save")}
                   </motion.button>
                 )}
               </motion.div>
@@ -299,20 +301,20 @@ export default function IntakePage() {
               </motion.div>
 
               <h2 className="font-display text-2xl font-bold text-deep-sea-teal mb-2">
-                Kaydedildi!
+                {t("intake.saved")}
               </h2>
               <p className="text-deep-sea-teal/50 text-center mb-2">
                 {foundPkg?.users?.name} — {foundPkg?.users?.chios_box_id}
               </p>
               <div className="font-display text-3xl font-bold text-chios-purple">
-                Raf: {selectedShelf}
+                {t("intake.shelfPrefix", { shelf: selectedShelf })}
               </div>
 
               <button
                 onClick={handleReset}
                 className="mt-8 px-8 py-3 bg-deep-sea-teal text-white font-semibold rounded-2xl hover:bg-deep-sea-teal/90 transition-colors cursor-pointer min-h-[48px]"
               >
-                Yeni Kabul
+                {t("intake.newIntake")}
               </button>
             </motion.div>
           )}

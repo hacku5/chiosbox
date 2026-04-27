@@ -153,7 +153,7 @@ Müşterinin "Aktif Paketlerim" ekranında tetikleyebileceği maliyet düşürme
 * **Styling & UI Framework:** Tailwind CSS (Aegean Light renk kodları `tailwind.config.js` içine gömülecek) + Radix UI (Erişilebilir, stilize edilebilir headless komponentler).
 * **Animasyonlar:** Framer Motion (Bento grid geçişleri ve sıvı hover efektleri) + Lottie-React (Karmaşık illüstrasyonlar).
 * **Backend & API:** Node.js (Express veya NestJS).
-* **Database:** PostgreSQL (Mali kayıtlar ve sipariş ilişkileri için) + Prisma ORM.
+* **Database:** Supabase PostgreSQL.
 * **Görev Zamanlayıcı (Cron Jobs):** Gecikme ücretlerini (demurrage) her gece hesaplamak ve otomatik e-posta bildirimleri atmak için Node-Cron.
 
 ---

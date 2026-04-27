@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type PackageStatus = "bekleniyor" | "yolda" | "depoda" | "birlestirildi" | "teslim_edildi";
+export type PackageStatus = "bekleniyor" | "yolda" | "depoda" | "hazir" | "birlestirildi" | "teslim_edildi" | "iptal";
 
 export interface Package {
   id: string;
@@ -38,8 +38,10 @@ function mapStatus(dbStatus: string): PackageStatus {
     BEKLENIYOR: "bekleniyor",
     YOLDA: "yolda",
     DEPODA: "depoda",
+    HAZIR: "hazir",
     BIRLESTIRILDI: "birlestirildi",
     TESLIM_EDILDI: "teslim_edildi",
+    IPTAL: "iptal",
   };
   return map[dbStatus] || "bekleniyor";
 }
@@ -54,7 +56,7 @@ export const usePackageStore = create<PackageState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const res = await fetch("/api/packages");
-      if (!res.ok) throw new Error("Paketler yüklenemedi");
+      if (!res.ok) throw new Error("Failed to load packages");
       const data = await res.json();
       const packages: Package[] = data.map((p: Record<string, unknown>) => ({
         ...p,
@@ -62,7 +64,7 @@ export const usePackageStore = create<PackageState>((set, get) => ({
       }));
       set({ packages, loading: false });
     } catch (err) {
-      set({ loading: false, error: err instanceof Error ? err.message : "Bir hata oluştu" });
+      set({ loading: false, error: err instanceof Error ? err.message : "An error occurred" });
     }
   },
 
@@ -79,13 +81,13 @@ export const usePackageStore = create<PackageState>((set, get) => ({
       const res = await fetch(`/api/packages/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json();
-        return { error: data.error || "Silme başarısız" };
+        return { error: data.error || "Delete failed" };
       }
       // Refresh from server to ensure consistency
       await get().fetchPackages();
       return {};
     } catch {
-      return { error: "Bir hata oluştu" };
+      return { error: "An error occurred" };
     }
   },
 }));

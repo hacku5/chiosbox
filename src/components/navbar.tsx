@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/stores/auth-store";
 import { useRouter } from "next/navigation";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { useTranslation } from "@/hooks/use-translation";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -13,6 +15,7 @@ export function Navbar() {
   const logout = useAuthStore((s) => s.logout);
   const fetchUser = useAuthStore((s) => s.fetchUser);
   const router = useRouter();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -80,23 +83,24 @@ export function Navbar() {
             href="/#nasil-calisir"
             className="text-sm font-medium text-deep-sea-teal/70 hover:text-chios-purple transition-colors duration-200"
           >
-            Nasıl Çalışır?
+            {t("nav.howItWorks")}
           </Link>
           <Link
             href="/#fiyat"
             className="text-sm font-medium text-deep-sea-teal/70 hover:text-chios-purple transition-colors duration-200"
           >
-            Fiyatlar
+            {t("nav.pricing")}
           </Link>
           <Link
             href="/#guven"
             className="text-sm font-medium text-deep-sea-teal/70 hover:text-chios-purple transition-colors duration-200"
           >
-            Güven
+            {t("nav.trust")}
           </Link>
         </nav>
 
         <div className="flex items-center gap-3">
+          <LanguageSwitcher />
           {loading ? (
             <div className="w-24 h-9 rounded-full bg-deep-sea-teal/5 animate-pulse" />
           ) : isAuthenticated && user ? (
@@ -118,7 +122,7 @@ export function Navbar() {
                 onClick={handleLogout}
                 className="text-sm font-medium text-deep-sea-teal/40 hover:text-danger-red transition-colors duration-200 cursor-pointer"
               >
-                Çıkış
+                {t("nav.logout")}
               </button>
             </>
           ) : (
@@ -127,13 +131,13 @@ export function Navbar() {
                 href="/login"
                 className="hidden sm:inline-block text-sm font-medium text-deep-sea-teal/70 hover:text-chios-purple transition-colors duration-200"
               >
-                Giriş Yap
+                {t("nav.login")}
               </Link>
               <Link
                 href="/register"
                 className="inline-flex items-center px-5 py-2.5 bg-chios-purple text-white text-sm font-semibold rounded-full hover:bg-chios-purple-dark transition-colors duration-200 shadow-md hover:shadow-lg cursor-pointer"
               >
-                Hemen Adresini Al
+                {t("nav.getAddress")}
               </Link>
             </>
           )}

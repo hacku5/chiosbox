@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslation } from "@/hooks/use-translation";
 
 export function Footer() {
+  const { t } = useTranslation();
+
   return (
     <footer className="bg-deep-sea-teal/[0.03] border-t border-deep-sea-teal/5">
       <div className="mx-auto max-w-6xl px-6 py-12">
@@ -27,14 +32,13 @@ export function Footer() {
               </span>
             </div>
             <p className="text-sm text-deep-sea-teal/60 leading-relaxed">
-              Türkiye&apos;den AB&apos;ye e-ticaret alışverişi yapanlar için
-              Sakız Adası merkezli paket konsolidasyon yönetimi.
+              {t("footer.description")}
             </p>
           </div>
 
           <div>
             <h4 className="font-display font-semibold text-deep-sea-teal mb-3 text-sm">
-              Hizmet
+              {t("footer.service")}
             </h4>
             <ul className="space-y-2">
               <li>
@@ -42,7 +46,7 @@ export function Footer() {
                   href="#nasil-calisir"
                   className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
                 >
-                  Nasıl Çalışır?
+                  {t("footer.howItWorks")}
                 </Link>
               </li>
               <li>
@@ -50,7 +54,7 @@ export function Footer() {
                   href="#fiyat"
                   className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
                 >
-                  Fiyatlandırma
+                  {t("footer.pricing")}
                 </Link>
               </li>
               <li>
@@ -58,7 +62,7 @@ export function Footer() {
                   href="/konsolidasyon"
                   className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
                 >
-                  Konsolidasyon
+                  {t("footer.consolidation")}
                 </Link>
               </li>
             </ul>
@@ -66,7 +70,7 @@ export function Footer() {
 
           <div>
             <h4 className="font-display font-semibold text-deep-sea-teal mb-3 text-sm">
-              Destek
+              {t("footer.support")}
             </h4>
             <ul className="space-y-2">
               <li>
@@ -74,7 +78,7 @@ export function Footer() {
                   href="/sss"
                   className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
                 >
-                  Sıkça Sorulan Sorular
+                  {t("footer.faq")}
                 </Link>
               </li>
               <li>
@@ -82,7 +86,7 @@ export function Footer() {
                   href="/iletisim"
                   className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
                 >
-                  İletişim
+                  {t("footer.contact")}
                 </Link>
               </li>
               <li>
@@ -90,7 +94,7 @@ export function Footer() {
                   href="/takip"
                   className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
                 >
-                  Kargo Takip
+                  {t("footer.tracking")}
                 </Link>
               </li>
             </ul>
@@ -98,7 +102,7 @@ export function Footer() {
 
           <div>
             <h4 className="font-display font-semibold text-deep-sea-teal mb-3 text-sm">
-              Yasal
+              {t("footer.legal")}
             </h4>
             <ul className="space-y-2">
               <li>
@@ -106,7 +110,7 @@ export function Footer() {
                   href="/gizlilik"
                   className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
                 >
-                  Gizlilik Politikası
+                  {t("footer.privacy")}
                 </Link>
               </li>
               <li>
@@ -114,7 +118,7 @@ export function Footer() {
                   href="/kullanim-kosullari"
                   className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
                 >
-                  Kullanım Koşulları
+                  {t("footer.terms")}
                 </Link>
               </li>
             </ul>
@@ -133,7 +137,7 @@ export function Footer() {
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
                 <span className="text-xs font-medium text-success-green">
-                  SSL Güvenli
+                  {t("footer.sslSecure")}
                 </span>
               </div>
               <div className="px-2.5 py-1 bg-chios-purple/10 rounded-full">
@@ -147,11 +151,10 @@ export function Footer() {
 
         <div className="mt-10 pt-6 border-t border-deep-sea-teal/5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-deep-sea-teal/40">
-            &copy; 2026 ChiosBox &mdash; Yunanistan IKE Şirketi. Tüm hakları
-            saklıdır.
+            {t("footer.copyright")}
           </p>
           <p className="text-xs text-deep-sea-teal/40">
-            Sakız Adası, Yunanistan
+            {t("footer.location")}
           </p>
         </div>
       </div>

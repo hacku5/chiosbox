@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { sanitizeRequired, sanitizeText } from "@/lib/sanitize";
 
 export async function GET() {
   const supabase = await createClient();
@@ -17,7 +18,7 @@ export async function GET() {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 });
   }
 
   return NextResponse.json(data);
@@ -39,17 +40,18 @@ export async function PATCH(request: Request) {
     .single();
 
   if (!appUser) {
-    return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
   const body = await request.json();
 
   const updateData: Record<string, unknown> = {};
-  if (body.name && typeof body.name === "string") updateData.name = body.name.trim();
-  if (body.phone !== undefined) updateData.phone = body.phone?.trim() || null;
+  const name = sanitizeRequired(body.name, 100);
+  if (name) updateData.name = name;
+  if (body.phone !== undefined) updateData.phone = sanitizeText(body.phone, 20) || null;
 
   if (Object.keys(updateData).length === 0) {
-    return NextResponse.json({ error: "Güncellenecek alan yok" }, { status: 400 });
+    return NextResponse.json({ error: "No fields to update" }, { status: 400 });
   }
 
   const { data, error } = await supabase
@@ -60,7 +62,7 @@ export async function PATCH(request: Request) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Profile update failed" }, { status: 500 });
   }
 
   return NextResponse.json(data);

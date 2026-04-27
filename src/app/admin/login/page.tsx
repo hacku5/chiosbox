@@ -4,8 +4,10 @@ import { Suspense } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function AdminLoginPage() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-deep-sea-teal flex">
       {/* Left: Branding */}
@@ -38,10 +40,10 @@ export default function AdminLoginPage() {
             className="mt-8 text-center"
           >
             <h2 className="font-display text-2xl font-bold text-white">
-              ChiosBox Yönetim Paneli
+              {t("adminLogin.brandingTitle")}
             </h2>
             <p className="mt-2 text-sm text-white/40 max-w-xs">
-              Paket yönetimi, faturalama ve müşteri işlemleri için admin girişi
+              {t("adminLogin.brandingDesc")}
             </p>
           </motion.div>
 
@@ -80,10 +82,10 @@ export default function AdminLoginPage() {
 
           {/* Heading */}
           <h1 className="font-display text-2xl font-bold text-white">
-            Yönetim Paneli
+            {t("adminLogin.heading")}
           </h1>
           <p className="mt-1.5 text-sm text-white/40">
-            Admin hesabınızla giriş yapın
+            {t("adminLogin.subheading")}
           </p>
 
           {/* Form */}
@@ -100,9 +102,9 @@ export default function AdminLoginPage() {
             transition={{ delay: 0.5 }}
             className="text-center text-sm text-white/20 mt-8"
           >
-            Müşteri misiniz?{" "}
+            {t("adminLogin.customerQuestion")}{" "}
             <Link href="/login" className="text-white/40 hover:text-white/60 transition-colors cursor-pointer">
-              Müşteri Girişi
+              {t("adminLogin.customerLogin")}
             </Link>
           </motion.p>
         </motion.div>

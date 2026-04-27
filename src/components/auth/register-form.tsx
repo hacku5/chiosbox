@@ -5,13 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/stores/auth-store";
 import { PlanSelector } from "./plan-selector";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useTranslation } from "@/hooks/use-translation";
 
 type Step = "info" | "email-verify" | "phone-verify" | "payment" | "success";
-
-const PLAN_PRICES: Record<string, { name: string; price: string }> = {
-  TEMEL: { name: "Temel", price: "€9.99" },
-  PREMIUM: { name: "Premium", price: "€24.99" },
-};
 
 function CodeInput({ length = 6, onComplete, loading }: { length?: number; onComplete: (code: string) => void; loading?: boolean }) {
   const [digits, setDigits] = useState<string[]>(Array(length).fill(""));
@@ -75,12 +71,12 @@ function CodeInput({ length = 6, onComplete, loading }: { length?: number; onCom
   );
 }
 
-function StepIndicator({ step }: { step: Step }) {
+function StepIndicator({ step, t }: { step: Step; t: (key: string) => string }) {
   const steps = [
-    { key: "info", label: "Bilgiler", num: 1 },
-    { key: "email-verify", label: "E-posta", num: 2 },
-    { key: "phone-verify", label: "Telefon", num: 3 },
-    { key: "payment", label: "Ödeme", num: 4 },
+    { key: "info", label: t("register.steps.info"), num: 1 },
+    { key: "email-verify", label: t("register.steps.emailVerify"), num: 2 },
+    { key: "phone-verify", label: t("register.steps.phoneVerify"), num: 3 },
+    { key: "payment", label: t("register.steps.payment"), num: 4 },
   ];
 
   const currentIndex = steps.findIndex((s) => s.key === step);
@@ -113,6 +109,7 @@ export function RegisterForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const preselectedPlan = searchParams.get("plan")?.toUpperCase() || "TEMEL";
+  const { t } = useTranslation();
 
   const [step, setStep] = useState<Step>("info");
   const [name, setName] = useState("");
@@ -140,8 +137,8 @@ export function RegisterForm() {
 
   useEffect(() => {
     if (resendCountdown <= 0) return;
-    const t = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+    return () => clearTimeout(timer);
   }, [resendCountdown]);
 
   const handleInfoSubmit = (e: React.FormEvent) => {
@@ -149,11 +146,11 @@ export function RegisterForm() {
     setError("");
 
     if (password !== passwordConfirm) {
-      setError("Şifreler eşleşmiyor");
+      setError(t("register.passwordMismatch"));
       return;
     }
     if (!tosAccepted) {
-      setError("Kullanım koşullarını kabul etmelisiniz");
+      setError(t("register.tosRequired"));
       return;
     }
 
@@ -237,11 +234,11 @@ export function RegisterForm() {
     show: { opacity: 1, y: 0, transition: { duration: 0.35 } },
   };
 
-  const selectedPlanInfo = PLAN_PRICES[plan] || PLAN_PRICES.TEMEL;
+  const planName = plan === "PREMIUM" ? t("register.planPremium") : t("register.planTemel");
 
   return (
     <div>
-      <StepIndicator step={step} />
+      <StepIndicator step={step} t={t} />
 
       <AnimatePresence mode="wait">
         {/* STEP 1: Info + Plan */}
@@ -264,17 +261,17 @@ export function RegisterForm() {
             </AnimatePresence>
 
             <motion.div variants={item}>
-              <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">Ad Soyad</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Adınız Soyadınız" className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200" />
+              <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">{t("register.nameLabel")}</label>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder={t("register.namePlaceholder")} className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200" />
             </motion.div>
 
             <motion.div variants={item}>
-              <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">E-posta</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="ornek@email.com" className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200" />
+              <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">{t("register.emailLabel")}</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder={t("register.emailPlaceholder")} className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200" />
             </motion.div>
 
             <motion.div variants={item}>
-              <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">Şifre</label>
+              <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">{t("register.passwordLabel")}</label>
               <div className="relative">
                 <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••" className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-deep-sea-teal/30 hover:text-deep-sea-teal/60 transition-colors cursor-pointer">
@@ -288,29 +285,29 @@ export function RegisterForm() {
             </motion.div>
 
             <motion.div variants={item}>
-              <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">Şifre Tekrar</label>
+              <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">{t("register.passwordConfirmLabel")}</label>
               <input type={showPassword ? "text" : "password"} value={passwordConfirm} onChange={(e) => setPasswordConfirm(e.target.value)} required minLength={6} placeholder="••••••••" className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200" />
             </motion.div>
 
             <motion.div variants={item}>
-              <label className="block text-sm font-medium text-deep-sea-teal mb-2">Plan Seçin</label>
+              <label className="block text-sm font-medium text-deep-sea-teal mb-2">{t("register.planLabel")}</label>
               <PlanSelector selected={plan} onSelect={setPlan} />
             </motion.div>
 
             <motion.div variants={item} className="flex items-start gap-2.5">
               <input type="checkbox" id="tos" checked={tosAccepted} onChange={(e) => setTosAccepted(e.target.checked)} className="mt-0.5 w-4 h-4 rounded border-deep-sea-teal/20 text-chios-purple focus:ring-chios-purple/20 cursor-pointer" />
-              <label htmlFor="tos" className="text-xs text-deep-sea-teal/50 leading-relaxed cursor-pointer">Kullanım koşullarını ve gizlilik politikasını okudum, kabul ediyorum.</label>
+              <label htmlFor="tos" className="text-xs text-deep-sea-teal/50 leading-relaxed cursor-pointer">{t("register.tosAgreement")}</label>
             </motion.div>
 
             <motion.div variants={item}>
               <motion.button type="submit" whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} className="w-full py-3.5 bg-chios-purple text-white font-display font-semibold rounded-xl hover:bg-chios-purple-dark transition-all duration-200 cursor-pointer shadow-lg shadow-chios-purple/20">
-                Devam Et
+                {t("register.continue")}
               </motion.button>
             </motion.div>
 
             <motion.p variants={item} className="text-center text-sm text-deep-sea-teal/40">
-              Zaten hesabınız var mı?{" "}
-              <a href="/login" className="text-chios-purple font-medium hover:text-chios-purple-dark transition-colors cursor-pointer">Giriş Yapın</a>
+              {t("login.noAccount")}{" "}
+              <a href="/login" className="text-chios-purple font-medium hover:text-chios-purple-dark transition-colors cursor-pointer">{t("register.loginLink")}</a>
             </motion.p>
           </motion.form>
         )}
@@ -332,9 +329,9 @@ export function RegisterForm() {
                   <path d="M22 7l-10 6L2 7" />
                 </svg>
               </div>
-              <h3 className="font-display text-lg font-semibold text-deep-sea-teal">E-postanızı Doğrulayın</h3>
+              <h3 className="font-display text-lg font-semibold text-deep-sea-teal">{t("register.emailVerifyTitle")}</h3>
               <p className="text-sm text-deep-sea-teal/50 mt-1">
-                <span className="font-medium text-chios-purple">{email}</span> adresine gönderilen 6 haneli kodu girin.
+                <span className="font-medium text-chios-purple">{email}</span> {t("register.emailVerifyDescription")}
               </p>
             </div>
 
@@ -349,25 +346,25 @@ export function RegisterForm() {
             <CodeInput onComplete={handleEmailCode} loading={loading} />
 
             {loading && (
-              <p className="text-center text-sm text-deep-sea-teal/40">Doğrulanıyor...</p>
+              <p className="text-center text-sm text-deep-sea-teal/40">{t("register.verifying")}</p>
             )}
 
             <div className="text-center">
               {resendCountdown > 0 ? (
-                <p className="text-xs text-deep-sea-teal/30">Kod gelmedi mi? {resendCountdown}s sonra tekrar gönderin</p>
+                <p className="text-xs text-deep-sea-teal/30">{t("register.emailNotReceived", { countdown: resendCountdown })}</p>
               ) : (
                 <button
                   type="button"
                   onClick={() => setResendCountdown(60)}
                   className="text-xs text-chios-purple font-medium hover:text-chios-purple-dark transition-colors cursor-pointer"
                 >
-                  Kodu Tekrar Gönder
+                  {t("register.resendCode")}
                 </button>
               )}
             </div>
 
             <button type="button" onClick={() => setStep("info")} className="w-full py-2.5 text-sm text-deep-sea-teal/50 hover:text-deep-sea-teal transition-colors cursor-pointer">
-              ← Bilgilere Dön
+              ← {t("register.backToInfo")}
             </button>
           </motion.div>
         )}
@@ -393,9 +390,9 @@ export function RegisterForm() {
                       <line x1="12" y1="18" x2="12" y2="18" strokeWidth="2.5" strokeLinecap="round" />
                     </svg>
                   </div>
-                  <h3 className="font-display text-lg font-semibold text-deep-sea-teal">Telefonunuzu Doğrulayın</h3>
+                  <h3 className="font-display text-lg font-semibold text-deep-sea-teal">{t("register.phoneVerifyTitle")}</h3>
                   <p className="text-sm text-deep-sea-teal/50 mt-1">
-                    <span className="font-medium text-chios-purple">{formatPhone(phone)}</span> numarasına gönderilen 6 haneli kodu girin.
+                    <span className="font-medium text-chios-purple">{formatPhone(phone)}</span> {t("register.phoneVerifyDescription")}
                   </p>
                 </div>
 
@@ -410,15 +407,15 @@ export function RegisterForm() {
                 <CodeInput onComplete={handlePhoneCode} loading={loading} />
 
                 {loading && (
-                  <p className="text-center text-sm text-deep-sea-teal/40">Doğrulanıyor...</p>
+                  <p className="text-center text-sm text-deep-sea-teal/40">{t("register.verifying")}</p>
                 )}
 
                 <div className="text-center">
                   {resendCountdown > 0 ? (
-                    <p className="text-xs text-deep-sea-teal/30">SMS gelmedi mi? {resendCountdown}s sonra tekrar gönderin</p>
+                    <p className="text-xs text-deep-sea-teal/30">{t("register.smsNotReceived", { countdown: resendCountdown })}</p>
                   ) : (
                     <button type="button" onClick={() => setResendCountdown(60)} className="text-xs text-chios-purple font-medium hover:text-chios-purple-dark transition-colors cursor-pointer">
-                      Kodu Tekrar Gönder
+                      {t("register.resendCode")}
                     </button>
                   )}
                 </div>
@@ -432,15 +429,15 @@ export function RegisterForm() {
                       <line x1="12" y1="18" x2="12" y2="18" strokeWidth="2.5" strokeLinecap="round" />
                     </svg>
                   </div>
-                  <h3 className="font-display text-lg font-semibold text-deep-sea-teal">Telefon Numaranız</h3>
+                  <h3 className="font-display text-lg font-semibold text-deep-sea-teal">{t("register.phoneTitle")}</h3>
                   <p className="text-sm text-deep-sea-teal/50 mt-1">
-                    Teslimat bildirimleri için telefon numaranızı girin.
+                    {t("register.phoneDescription")}
                   </p>
                 </div>
 
                 <form onSubmit={handlePhoneSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">Telefon Numarası</label>
+                    <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">{t("register.phoneLabel")}</label>
                     <input
                       type="tel"
                       value={formatPhone(phone)}
@@ -457,14 +454,14 @@ export function RegisterForm() {
                     whileTap={{ scale: 0.98 }}
                     className="w-full py-3.5 bg-chios-purple text-white font-display font-semibold rounded-xl hover:bg-chios-purple-dark transition-all duration-200 cursor-pointer shadow-lg shadow-chios-purple/20"
                   >
-                    SMS Kodu Gönder
+                    {t("register.sendSmsCode")}
                   </motion.button>
                 </form>
               </>
             )}
 
             <button type="button" onClick={() => { setStep("email-verify"); setResendCountdown(0); setPhone(""); }} className="w-full py-2.5 text-sm text-deep-sea-teal/50 hover:text-deep-sea-teal transition-colors cursor-pointer">
-              ← E-posta Adımına Dön
+              {t("register.backToEmail")}
             </button>
           </motion.div>
         )}
@@ -490,21 +487,21 @@ export function RegisterForm() {
 
             <div className="bg-chios-purple/5 rounded-2xl p-5 border border-chios-purple/10">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-deep-sea-teal/60">{selectedPlanInfo.name} Plan</span>
-                <span className="text-sm font-semibold text-deep-sea-teal">{selectedPlanInfo.price}/ay</span>
+                <span className="text-sm text-deep-sea-teal/60">{planName} {t("register.steps.payment")}</span>
+                <span className="text-sm font-semibold text-deep-sea-teal">{plan === "PREMIUM" ? "€24.99" : "€9.99"}{t("register.monthSuffix")}</span>
               </div>
               <div className="flex items-center justify-between text-xs text-deep-sea-teal/40">
-                <span>İlk 7 gün ücretsiz</span>
-                <span className="text-success-green font-medium">Deneme</span>
+                <span>{t("register.freeTrialFirst")}</span>
+                <span className="text-success-green font-medium">{t("register.trialBadge")}</span>
               </div>
               <div className="border-t border-deep-sea-teal/5 mt-3 pt-3 flex items-center justify-between">
-                <span className="text-sm font-semibold text-deep-sea-teal">Bugün ödenecek</span>
+                <span className="text-sm font-semibold text-deep-sea-teal">{t("register.dueToday")}</span>
                 <span className="text-lg font-display font-bold text-chios-purple">€0.00</span>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">Kart Numarası</label>
+              <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">{t("register.cardNumberLabel")}</label>
               <div className="relative">
                 <input type="text" value={cardNumber} onChange={(e) => setCardNumber(formatCardNumber(e.target.value))} required placeholder="4242 4242 4242 4242" className="w-full px-4 py-3 pr-16 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200 font-mono" />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
@@ -515,34 +512,34 @@ export function RegisterForm() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">Son Kullanma</label>
+                <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">{t("register.cardExpiryLabel")}</label>
                 <input type="text" value={cardExpiry} onChange={(e) => setCardExpiry(formatExpiry(e.target.value))} required placeholder="AA/YY" className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200 font-mono" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">CVC</label>
+                <label className="block text-sm font-medium text-deep-sea-teal mb-1.5">{t("register.cardCvcLabel")}</label>
                 <input type="text" value={cardCvc} onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, "").slice(0, 3))} required placeholder="123" className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/50 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200 font-mono" />
               </div>
             </div>
 
             <div className="flex gap-3 pt-2">
               <button type="button" onClick={() => { setStep("phone-verify"); setResendCountdown(0); }} className="px-5 py-3 rounded-xl border border-deep-sea-teal/10 text-deep-sea-teal/60 text-sm font-medium hover:bg-deep-sea-teal/5 transition-colors cursor-pointer">
-                Geri
+                {t("register.backBtn")}
               </button>
               <motion.button type="submit" disabled={loading} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} className="flex-1 py-3.5 bg-chios-purple text-white font-display font-semibold rounded-xl hover:bg-chios-purple-dark disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer shadow-lg shadow-chios-purple/20">
                 {loading ? (
                   <span className="inline-flex items-center gap-2">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin"><circle cx="12" cy="12" r="10" strokeOpacity="0.3" /><path d="M12 2a10 10 0 019.95 9" strokeLinecap="round" /></svg>
-                    İşleniyor...
+                    {t("register.processing")}
                   </span>
                 ) : (
-                  "Ödemeyi Onayla — €0.00"
+                  t("register.confirmPayment")
                 )}
               </motion.button>
             </div>
 
             <div className="flex items-center justify-center gap-2 text-xs text-deep-sea-teal/30 pt-1">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
-              Stripe güvenli ödeme ile korunmaktadır
+              {t("register.securePayment")}
             </div>
           </motion.form>
         )}
@@ -565,11 +562,11 @@ export function RegisterForm() {
                 <motion.path d="M20 6L9 17l-5-5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.3, duration: 0.5 }} />
               </svg>
             </motion.div>
-            <h3 className="font-display text-xl font-bold text-deep-sea-teal">Hoş Geldiniz!</h3>
-            <p className="text-sm text-deep-sea-teal/50 mt-1 mb-2">Hesabınız ve aboneliğiniz aktif edildi.</p>
+            <h3 className="font-display text-xl font-bold text-deep-sea-teal">{t("register.welcomeTitle")}</h3>
+            <p className="text-sm text-deep-sea-teal/50 mt-1 mb-2">{t("register.welcomeMessage")}</p>
             <div className="flex items-center gap-2 mt-2">
               <div className="w-2 h-2 rounded-full bg-chios-purple animate-pulse" />
-              <p className="text-xs text-deep-sea-teal/30">Yönlendiriliyorsunuz...</p>
+              <p className="text-xs text-deep-sea-teal/30">{t("register.redirecting")}</p>
             </div>
           </motion.div>
         )}

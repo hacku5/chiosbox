@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface CustomerDetail {
   user: {
@@ -39,15 +40,16 @@ interface CustomerDetail {
   pendingTotal: number;
 }
 
-const statusLabels: Record<string, { label: string; color: string }> = {
-  BEKLENIYOR: { label: "Beklemede", color: "text-deep-sea-teal/60 bg-deep-sea-teal/5" },
-  YOLDA: { label: "Yolda", color: "text-accent-orange bg-accent-orange/10" },
-  DEPODA: { label: "Depoda", color: "text-chios-purple bg-chios-purple/10" },
-  BIRLESTIRILDI: { label: "Birleştirildi", color: "text-success-green bg-success-green/10" },
-  TESLIM_EDILDI: { label: "Teslim Edildi", color: "text-success-green bg-success-green/10" },
+const statusColors: Record<string, string> = {
+  BEKLENIYOR: "text-deep-sea-teal/60 bg-deep-sea-teal/5",
+  YOLDA: "text-accent-orange bg-accent-orange/10",
+  DEPODA: "text-chios-purple bg-chios-purple/10",
+  BIRLESTIRILDI: "text-success-green bg-success-green/10",
+  TESLIM_EDILDI: "text-success-green bg-success-green/10",
 };
 
 export default function AdminCustomerDetailPage() {
+  const { t } = useTranslation();
   const params = useParams();
   const router = useRouter();
   const [data, setData] = useState<CustomerDetail | null>(null);
@@ -87,7 +89,7 @@ export default function AdminCustomerDetailPage() {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="15 18 9 12 15 6" />
           </svg>
-          Müşterilere Dön
+          {t("adminCustomers.backToList")}
         </button>
 
         {/* Customer Card */}
@@ -124,17 +126,17 @@ export default function AdminCustomerDetailPage() {
           <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-deep-sea-teal/5">
             <div>
               <div className="text-xl font-display font-bold text-deep-sea-teal">{packages.length}</div>
-              <div className="text-xs text-deep-sea-teal/40">Paket</div>
+              <div className="text-xs text-deep-sea-teal/40">{t("adminCustomers.package")}</div>
             </div>
             <div>
               <div className="text-xl font-display font-bold text-success-green">€{totalSpent.toFixed(2)}</div>
-              <div className="text-xs text-deep-sea-teal/40">Toplam Harcama</div>
+              <div className="text-xs text-deep-sea-teal/40">{t("adminCustomers.totalSpent")}</div>
             </div>
             <div>
               <div className={`text-xl font-display font-bold ${pendingTotal > 0 ? "text-accent-orange" : "text-deep-sea-teal"}`}>
                 €{pendingTotal.toFixed(2)}
               </div>
-              <div className="text-xs text-deep-sea-teal/40">Bekleyen</div>
+              <div className="text-xs text-deep-sea-teal/40">{t("adminCustomers.pending")}</div>
             </div>
           </div>
         </motion.div>
@@ -149,7 +151,7 @@ export default function AdminCustomerDetailPage() {
                 : "bg-white text-deep-sea-teal/60 border border-deep-sea-teal/5"
             }`}
           >
-            Paketler ({packages.length})
+            {t("adminCustomers.packages")} ({packages.length})
           </button>
           <button
             onClick={() => setActiveTab("invoices")}
@@ -159,7 +161,7 @@ export default function AdminCustomerDetailPage() {
                 : "bg-white text-deep-sea-teal/60 border border-deep-sea-teal/5"
             }`}
           >
-            Faturalar ({invoices.length})
+            {t("adminCustomers.invoices")} ({invoices.length})
           </button>
         </div>
 
@@ -167,18 +169,19 @@ export default function AdminCustomerDetailPage() {
         {activeTab === "packages" ? (
           <div className="space-y-2">
             {packages.length === 0 ? (
-              <div className="text-center py-12 text-deep-sea-teal/30 text-sm">Henüz paket yok</div>
+              <div className="text-center py-12 text-deep-sea-teal/30 text-sm">{t("adminCustomers.noPackagesYet")}</div>
             ) : (
               packages.map((pkg) => {
-                const sc = statusLabels[pkg.status] || { label: pkg.status, color: "" };
+                const statusKey = `adminCustomers.status.${pkg.status.toLowerCase()}`;
+                const color = statusColors[pkg.status] || "";
                 return (
                   <div key={pkg.id} className="bg-white rounded-xl p-4 shadow-sm border border-deep-sea-teal/5">
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="font-medium text-deep-sea-teal text-sm">{pkg.content}</span>
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${sc.color}`}>
-                            {sc.label}
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${color}`}>
+                            {t(statusKey)}
                           </span>
                         </div>
                         <div className="text-xs text-deep-sea-teal/40 font-mono">
@@ -197,7 +200,7 @@ export default function AdminCustomerDetailPage() {
         ) : (
           <div className="space-y-2">
             {invoices.length === 0 ? (
-              <div className="text-center py-12 text-deep-sea-teal/30 text-sm">Henüz fatura yok</div>
+              <div className="text-center py-12 text-deep-sea-teal/30 text-sm">{t("adminCustomers.noInvoicesYet")}</div>
             ) : (
               invoices.map((inv) => {
                 const stColor = inv.status === "PAID"
@@ -205,7 +208,7 @@ export default function AdminCustomerDetailPage() {
                   : inv.status === "CANCELLED"
                   ? "text-danger-red bg-danger-red/10"
                   : "text-accent-orange bg-accent-orange/10";
-                const stLabel = inv.status === "PAID" ? "Ödendi" : inv.status === "CANCELLED" ? "İptal" : "Beklemede";
+                const stLabel = inv.status === "PAID" ? t("adminCustomers.paid") : inv.status === "CANCELLED" ? t("adminCustomers.cancelled") : t("adminCustomers.waiting");
                 return (
                   <div key={inv.id} className="bg-white rounded-xl p-4 shadow-sm border border-deep-sea-teal/5">
                     <div className="flex items-center justify-between">

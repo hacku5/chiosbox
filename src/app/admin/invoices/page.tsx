@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAdminUser } from "../admin-layout-client";
 import { hasPermission } from "@/lib/permissions";
 import { FEES } from "@/lib/fees";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface InvoiceItem {
   fee_type: string;
@@ -44,6 +45,7 @@ interface UninvoicedPackage {
 }
 
 export default function AdminInvoicesPage() {
+  const { t } = useTranslation();
   const adminUser = useAdminUser();
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,15 +95,15 @@ export default function AdminInvoicesPage() {
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="font-display text-2xl font-bold text-deep-sea-teal">Faturalar</h1>
-            <p className="text-sm text-deep-sea-teal/50 mt-1">{total} fatura</p>
+            <h1 className="font-display text-2xl font-bold text-deep-sea-teal">{t("invoices.title")}</h1>
+            <p className="text-sm text-deep-sea-teal/50 mt-1">{t("invoices.count", { total })}</p>
           </div>
           {canEdit && (
             <button
               onClick={() => setShowCreate(true)}
               className="px-5 py-2.5 bg-chios-purple text-white text-sm font-semibold rounded-full hover:bg-chios-purple-dark transition-colors cursor-pointer"
             >
-              + Yeni Fatura
+              {t("invoices.newInvoice")}
             </button>
           )}
         </div>
@@ -109,10 +111,10 @@ export default function AdminInvoicesPage() {
         {/* Filters */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           {[
-            { key: "", label: "Tümü" },
-            { key: "PENDING", label: "Beklemede" },
-            { key: "PAID", label: "Ödendi" },
-            { key: "CANCELLED", label: "İptal" },
+            { key: "", label: t("invoices.all") },
+            { key: "PENDING", label: t("invoices.pending") },
+            { key: "PAID", label: t("invoices.paid") },
+            { key: "CANCELLED", label: t("invoices.cancelled") },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -137,7 +139,7 @@ export default function AdminInvoicesPage() {
           </div>
         ) : invoices.length === 0 ? (
           <div className="text-center py-16 text-deep-sea-teal/30">
-            <p className="text-sm">Fatura bulunamadı</p>
+            <p className="text-sm">{t("invoices.notFound")}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -147,7 +149,7 @@ export default function AdminInvoicesPage() {
                 : inv.status === "CANCELLED"
                 ? "text-danger-red bg-danger-red/10"
                 : "text-accent-orange bg-accent-orange/10";
-              const stLabel = inv.status === "PAID" ? "Ödendi" : inv.status === "CANCELLED" ? "İptal" : "Beklemede";
+              const stLabel = inv.status === "PAID" ? t("invoices.paid") : inv.status === "CANCELLED" ? t("invoices.cancelled") : t("invoices.pending");
               const itemCount = inv.items?.length || 0;
 
               return (
@@ -168,12 +170,12 @@ export default function AdminInvoicesPage() {
                         </span>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-deep-sea-teal/40">
-                        {Number(inv.accept_fee) > 0 && <span>Kabul: €{Number(inv.accept_fee).toFixed(2)}</span>}
-                        {Number(inv.consolidation_fee) > 0 && <span>Birleştirme: €{Number(inv.consolidation_fee).toFixed(2)}</span>}
-                        {Number(inv.demurrage_fee) > 0 && <span className="text-accent-orange">Gecikme: €{Number(inv.demurrage_fee).toFixed(2)}</span>}
+                        {Number(inv.accept_fee) > 0 && <span>{t("invoices.acceptFee", { amount: Number(inv.accept_fee).toFixed(2) })}</span>}
+                        {Number(inv.consolidation_fee) > 0 && <span>{t("invoices.consolidationFee", { amount: Number(inv.consolidation_fee).toFixed(2) })}</span>}
+                        {Number(inv.demurrage_fee) > 0 && <span className="text-accent-orange">{t("invoices.demurrageFee", { amount: Number(inv.demurrage_fee).toFixed(2) })}</span>}
                         <span>{new Date(inv.created_at).toLocaleDateString("tr-TR")}</span>
                         {itemCount > 0 && (
-                          <span className="text-chios-purple font-medium">{itemCount} paket</span>
+                          <span className="text-chios-purple font-medium">{t("invoices.packageCount", { n: itemCount })}</span>
                         )}
                       </div>
                     </div>
@@ -197,7 +199,7 @@ export default function AdminInvoicesPage() {
               disabled={page === 1}
               className="px-4 py-2 rounded-xl border border-deep-sea-teal/10 text-sm text-deep-sea-teal disabled:opacity-30 cursor-pointer"
             >
-              Önceki
+              {t("invoices.previous")}
             </button>
             <span className="text-sm text-deep-sea-teal/50">{page} / {totalPages}</span>
             <button
@@ -205,7 +207,7 @@ export default function AdminInvoicesPage() {
               disabled={page === totalPages}
               className="px-4 py-2 rounded-xl border border-deep-sea-teal/10 text-sm text-deep-sea-teal disabled:opacity-30 cursor-pointer"
             >
-              Sonraki
+              {t("invoices.next")}
             </button>
           </div>
         )}
@@ -237,6 +239,7 @@ export default function AdminInvoicesPage() {
 }
 
 function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const { t } = useTranslation();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedUserId, setSelectedUserId] = useState("");
   const [packages, setPackages] = useState<UninvoicedPackage[]>([]);
@@ -293,8 +296,8 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
   const grandTotal = totalAccept + totalDemurrage + consolidationTotal;
 
   const handleCreate = async () => {
-    if (!selectedUserId) { setError("Müşteri seçin"); return; }
-    if (selectedPkgIds.size === 0) { setError("En az bir paket seçin"); return; }
+    if (!selectedUserId) { setError(t("invoices.createModal.selectCustomerError")); return; }
+    if (selectedPkgIds.size === 0) { setError(t("invoices.createModal.selectPackageError")); return; }
     setSaving(true);
     setError("");
 
@@ -312,7 +315,7 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
       onCreated();
     } else {
       const data = await res.json();
-      setError(data.error || "Fatura oluşturulamadı");
+      setError(data.error || t("invoices.createModal.createError"));
     }
     setSaving(false);
   };
@@ -334,7 +337,7 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
         className="bg-white rounded-2xl w-full max-w-lg shadow-xl max-h-[85vh] flex flex-col overflow-hidden"
       >
         <div className="flex items-center justify-between p-5 pb-3 flex-shrink-0">
-          <h2 className="font-display text-lg font-bold text-deep-sea-teal">Yeni Fatura</h2>
+          <h2 className="font-display text-lg font-bold text-deep-sea-teal">{t("invoices.createModal.title")}</h2>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-deep-sea-teal/5 flex items-center justify-center cursor-pointer">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18" />
@@ -353,14 +356,14 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
           {/* Customer select */}
           <div>
             <label className="text-xs font-medium text-deep-sea-teal/40 uppercase tracking-wider mb-2 block">
-              Müşteri
+              {t("invoices.createModal.customer")}
             </label>
             <select
               value={selectedUserId}
               onChange={(e) => setSelectedUserId(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-white text-sm text-deep-sea-teal focus:outline-none focus:border-chios-purple/50 cursor-pointer"
             >
-              <option value="">Müşteri seçin</option>
+              <option value="">{t("invoices.createModal.selectCustomer")}</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name} — {c.chios_box_id}
@@ -373,7 +376,7 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
           {selectedUserId && (
             <div>
               <label className="text-xs font-medium text-deep-sea-teal/40 uppercase tracking-wider mb-2 block">
-                Faturalanacak Paketler
+                {t("invoices.createModal.packetsToBill")}
               </label>
               {loadingPkgs ? (
                 <div className="space-y-2">
@@ -383,7 +386,7 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
                 </div>
               ) : packages.length === 0 ? (
                 <div className="p-4 text-center text-sm text-deep-sea-teal/30 bg-deep-sea-teal/[0.02] rounded-xl">
-                  Faturalanmamış paket bulunamadı
+                  {t("invoices.createModal.noUnbilled")}
                 </div>
               ) : (
                 <div className="space-y-2 max-h-60 overflow-y-auto">
@@ -414,10 +417,10 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
                           <div className="text-xs text-deep-sea-teal/40 font-mono">{pkg.tracking_no} · {pkg.carrier}</div>
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <div className="text-xs text-deep-sea-teal/50">Kabul: €{FEES.ACCEPT.toFixed(2)}</div>
+                          <div className="text-xs text-deep-sea-teal/50">{t("invoices.acceptFee", { amount: FEES.ACCEPT.toFixed(2) })}</div>
                           {overdueDays > 0 && (
                             <div className="text-xs text-accent-orange">
-                              Gecikme: €{(overdueDays * FEES.DAILY_DEMURRAGE).toFixed(2)}
+                              {t("invoices.demurrageFee", { amount: (overdueDays * FEES.DAILY_DEMURRAGE).toFixed(2) })}
                             </div>
                           )}
                         </div>
@@ -447,7 +450,7 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
                         </svg>
                       )}
                     </div>
-                    <span className="text-sm text-deep-sea-teal">Birleştirme Ücreti</span>
+                    <span className="text-sm text-deep-sea-teal">{t("invoices.createModal.consolidationFee")}</span>
                   </div>
                   <span className="text-sm font-medium text-deep-sea-teal">€{FEES.CONSOLIDATION.toFixed(2)}</span>
                 </button>
@@ -459,23 +462,23 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
           {selectedPkgs.length > 0 && (
             <div className="p-4 bg-deep-sea-teal/[0.03] rounded-xl space-y-2">
               <div className="flex justify-between text-xs text-deep-sea-teal/50">
-                <span>Kabul Ücreti ({selectedPkgs.length} paket × €{FEES.ACCEPT.toFixed(2)})</span>
+                <span>{t("invoices.createModal.acceptFee", { count: selectedPkgs.length, fee: FEES.ACCEPT.toFixed(2) })}</span>
                 <span>€{totalAccept.toFixed(2)}</span>
               </div>
               {totalDemurrage > 0 && (
                 <div className="flex justify-between text-xs text-accent-orange">
-                  <span>Gecikme Ücreti</span>
+                  <span>{t("invoices.createModal.demurrageFee")}</span>
                   <span>€{totalDemurrage.toFixed(2)}</span>
                 </div>
               )}
               {addConsolidation && (
                 <div className="flex justify-between text-xs text-deep-sea-teal/50">
-                  <span>Birleştirme Ücreti</span>
+                  <span>{t("invoices.createModal.consolidationLine")}</span>
                   <span>€{FEES.CONSOLIDATION.toFixed(2)}</span>
                 </div>
               )}
               <div className="border-t border-deep-sea-teal/10 pt-2 flex justify-between">
-                <span className="text-sm font-medium text-deep-sea-teal">Toplam</span>
+                <span className="text-sm font-medium text-deep-sea-teal">{t("invoices.createModal.total")}</span>
                 <span className="text-lg font-display font-bold text-deep-sea-teal">€{grandTotal.toFixed(2)}</span>
               </div>
             </div>
@@ -486,7 +489,7 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
             disabled={saving || !selectedUserId || selectedPkgIds.size === 0}
             className="w-full py-3.5 bg-chios-purple text-white font-display font-bold text-lg rounded-2xl hover:bg-chios-purple-dark disabled:opacity-30 transition-all cursor-pointer"
           >
-            {saving ? "Oluşturuluyor..." : `Fatura Oluştur (€${grandTotal.toFixed(2)})`}
+            {saving ? t("invoices.createModal.creating") : t("invoices.createModal.createButton", { amount: grandTotal.toFixed(2) })}
           </button>
         </div>
       </motion.div>
@@ -505,17 +508,18 @@ function InvoiceDetailModal({
   onClose: () => void;
   onStatusUpdate: (id: string, status: string) => void;
 }) {
+  const { t } = useTranslation();
   const stColor = invoice.status === "PAID"
     ? "text-success-green bg-success-green/10"
     : invoice.status === "CANCELLED"
     ? "text-danger-red bg-danger-red/10"
     : "text-accent-orange bg-accent-orange/10";
-  const stLabel = invoice.status === "PAID" ? "Ödendi" : invoice.status === "CANCELLED" ? "İptal" : "Beklemede";
+  const stLabel = invoice.status === "PAID" ? t("invoices.paid") : invoice.status === "CANCELLED" ? t("invoices.cancelled") : t("invoices.pending");
 
   const feeTypeLabels: Record<string, string> = {
-    accept: "Kabul Ücreti",
-    demurrage: "Gecikme Ücreti",
-    consolidation: "Birleştirme Ücreti",
+    accept: t("invoices.detail.acceptFee"),
+    demurrage: t("invoices.detail.demurrageFee"),
+    consolidation: t("invoices.detail.consolidationFee"),
   };
 
   return (
@@ -558,11 +562,11 @@ function InvoiceDetailModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-5 pb-5">
           <div className="space-y-0 divide-y divide-deep-sea-teal/5">
-            <InfoRow label="Müşteri" value={invoice.users.name} />
+            <InfoRow label={t("invoices.detail.customer")} value={invoice.users.name} />
             <InfoRow label="ChiosBox ID" value={invoice.users.chios_box_id} mono />
-            <InfoRow label="Tarih" value={new Date(invoice.created_at).toLocaleDateString("tr-TR")} />
+            <InfoRow label={t("invoices.detail.date")} value={new Date(invoice.created_at).toLocaleDateString("tr-TR")} />
             {invoice.paid_at && (
-              <InfoRow label="Ödeme Tarihi" value={new Date(invoice.paid_at).toLocaleDateString("tr-TR")} />
+              <InfoRow label={t("invoices.detail.paymentDate")} value={new Date(invoice.paid_at).toLocaleDateString("tr-TR")} />
             )}
           </div>
 
@@ -570,24 +574,24 @@ function InvoiceDetailModal({
           <div className="mt-4 p-4 bg-deep-sea-teal/[0.03] rounded-xl space-y-2">
             {Number(invoice.accept_fee) > 0 && (
               <div className="flex justify-between text-xs text-deep-sea-teal/50">
-                <span>Kabul Ücreti</span>
+                <span>{t("invoices.detail.acceptFee")}</span>
                 <span>€{Number(invoice.accept_fee).toFixed(2)}</span>
               </div>
             )}
             {Number(invoice.consolidation_fee) > 0 && (
               <div className="flex justify-between text-xs text-deep-sea-teal/50">
-                <span>Birleştirme Ücreti</span>
+                <span>{t("invoices.detail.consolidationFee")}</span>
                 <span>€{Number(invoice.consolidation_fee).toFixed(2)}</span>
               </div>
             )}
             {Number(invoice.demurrage_fee) > 0 && (
               <div className="flex justify-between text-xs text-accent-orange">
-                <span>Gecikme Ücreti</span>
+                <span>{t("invoices.detail.demurrageFee")}</span>
                 <span>€{Number(invoice.demurrage_fee).toFixed(2)}</span>
               </div>
             )}
             <div className="border-t border-deep-sea-teal/10 pt-2 flex justify-between">
-              <span className="text-sm font-medium text-deep-sea-teal">Toplam</span>
+              <span className="text-sm font-medium text-deep-sea-teal">{t("invoices.detail.total")}</span>
               <span className="text-lg font-display font-bold text-deep-sea-teal">€{Number(invoice.total).toFixed(2)}</span>
             </div>
           </div>
@@ -596,7 +600,7 @@ function InvoiceDetailModal({
           {invoice.items && invoice.items.length > 0 && (
             <div className="mt-4">
               <label className="text-xs font-medium text-deep-sea-teal/40 uppercase tracking-wider mb-2 block">
-                Paketler ({invoice.items.length})
+                {t("invoices.detail.packets", { count: invoice.items.length })}
               </label>
               <div className="space-y-2">
                 {invoice.items.map((item, i) => (
@@ -626,13 +630,13 @@ function InvoiceDetailModal({
                 onClick={() => onStatusUpdate(invoice.id, "PAID")}
                 className="flex-1 py-3 bg-success-green text-white text-sm font-semibold rounded-xl hover:bg-green-600 transition-colors cursor-pointer"
               >
-                Ödendi İşaretle
+                {t("invoices.detail.markPaid")}
               </button>
               <button
                 onClick={() => onStatusUpdate(invoice.id, "CANCELLED")}
                 className="flex-1 py-3 text-danger-red text-sm font-medium rounded-xl border border-danger-red/20 hover:bg-danger-red/5 transition-colors cursor-pointer"
               >
-                İptal Et
+                {t("invoices.detail.cancel")}
               </button>
             </div>
           )}
@@ -643,7 +647,7 @@ function InvoiceDetailModal({
                 onClick={() => onStatusUpdate(invoice.id, "PENDING")}
                 className="w-full py-3 bg-chios-purple text-white text-sm font-semibold rounded-xl hover:bg-chios-purple-dark transition-colors cursor-pointer"
               >
-                İptali Geri Al
+                {t("invoices.detail.undoCancel")}
               </button>
             </div>
           )}
@@ -654,7 +658,7 @@ function InvoiceDetailModal({
                 onClick={() => onStatusUpdate(invoice.id, "PENDING")}
                 className="w-full py-3 text-deep-sea-teal text-sm font-medium rounded-xl border border-deep-sea-teal/20 hover:bg-deep-sea-teal/5 transition-colors cursor-pointer"
               >
-                Ödemeyi Geri Al
+                {t("invoices.detail.undoPayment")}
               </button>
             </div>
           )}

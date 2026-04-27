@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+import { sanitizeRequired } from "@/lib/sanitize";
 
 export async function GET(
   _request: Request,
@@ -33,7 +35,7 @@ export async function GET(
       .single();
 
     if (!pkg) {
-      return NextResponse.json({ error: "Paket bulunamadı" }, { status: 404 });
+      return NextResponse.json({ error: "Package not found" }, { status: 404 });
     }
   }
 
@@ -44,7 +46,7 @@ export async function GET(
     .order("created_at", { ascending: true });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Operation failed" }, { status: 500 });
   }
 
   return NextResponse.json(data);
@@ -54,6 +56,11 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Rate limit: 20 messages per IP per minute
+  const ip = getClientIp(request);
+  const rl = rateLimit(`msg:${ip}`, 20, 60 * 1000);
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
+
   const { id } = await params;
   const supabase = await createClient();
 
@@ -73,12 +80,9 @@ export async function POST(
   }
 
   const body = await request.json();
-  if (!body.message?.trim()) {
-    return NextResponse.json({ error: "Mesaj boş olamaz" }, { status: 400 });
-  }
-
-  if (body.message.length > 2000) {
-    return NextResponse.json({ error: "Mesaj çok uzun (max 2000 karakter)" }, { status: 400 });
+  const message = sanitizeRequired(body.message, 2000);
+  if (!message) {
+    return NextResponse.json({ error: "Message cannot be empty" }, { status: 400 });
   }
 
   // Verify the package belongs to this user (or user is admin)
@@ -91,7 +95,7 @@ export async function POST(
       .single();
 
     if (!pkg) {
-      return NextResponse.json({ error: "Paket bulunamadı" }, { status: 404 });
+      return NextResponse.json({ error: "Package not found" }, { status: 404 });
     }
   }
 
@@ -100,14 +104,14 @@ export async function POST(
     .insert({
       package_id: id,
       user_id: appUser.id,
-      message: body.message.trim(),
+      message,
       is_admin: appUser.is_admin,
     })
     .select("*, users(name)")
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Operation failed" }, { status: 500 });
   }
 
   return NextResponse.json(data, { status: 201 });

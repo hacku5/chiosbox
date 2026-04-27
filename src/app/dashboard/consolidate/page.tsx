@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePackageStore } from "@/stores/package-store";
+import { useTranslation } from "@/hooks/use-translation";
 import { FEES } from "@/lib/fees";
 import { useRouter } from "next/navigation";
 
 export default function ConsolidatePage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const packages = usePackageStore((s) => s.packages);
   const fetchPackages = usePackageStore((s) => s.fetchPackages);
@@ -57,10 +59,10 @@ export default function ConsolidatePage() {
         router.push("/dashboard/checkout");
       } else {
         const data = await res.json();
-        setError(data.error || "Konsolidasyon başarısız");
+        setError(data.error || t("consolidate.error.consolidationFailed"));
       }
     } catch {
-      setError("Bir hata oluştu");
+      setError(t("consolidate.error.generic"));
     }
     setSubmitting(false);
   };
@@ -70,10 +72,10 @@ export default function ConsolidatePage() {
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
           <h1 className="font-display text-2xl font-bold text-deep-sea-teal">
-            Konsolidasyon
+            {t("consolidate.title")}
           </h1>
           <p className="text-sm text-deep-sea-teal/50 mt-1">
-            Paketlerinizi birleştirerek kargo maliyetinden tasarruf edin
+            {t("consolidate.description")}
           </p>
         </div>
 
@@ -88,10 +90,10 @@ export default function ConsolidatePage() {
           <div className="lg:col-span-3">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-display text-lg font-semibold text-deep-sea-teal">
-                Birleştirilebilir Paketler
+                {t("consolidate.availablePackages")}
               </h2>
               <span className="text-sm text-deep-sea-teal/40">
-                {available.length} paket
+                {t("consolidate.packageCount", { count: available.length })}
               </span>
             </div>
 
@@ -142,7 +144,7 @@ export default function ConsolidatePage() {
                           <line x1="12" y1="5" x2="12" y2="19" />
                           <line x1="5" y1="12" x2="19" y2="12" />
                         </svg>
-                        <span className="text-xs font-medium">Ekle</span>
+                        <span className="text-xs font-medium">{t("consolidate.add")}</span>
                       </div>
                     </div>
                   </motion.button>
@@ -163,7 +165,7 @@ export default function ConsolidatePage() {
                     <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
                   </svg>
                   <p className="text-sm">
-                    Tüm paketler eklendi veya depoda paket yok
+                    {t("consolidate.noAvailable")}
                   </p>
                 </div>
               )}
@@ -173,7 +175,7 @@ export default function ConsolidatePage() {
           {/* Right: Master Box */}
           <div className="lg:col-span-2">
             <h2 className="font-display text-lg font-semibold text-deep-sea-teal mb-4">
-              Master Box
+              {t("consolidate.masterBox")}
             </h2>
 
             <div
@@ -244,7 +246,7 @@ export default function ConsolidatePage() {
                     >
                       <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
                     </svg>
-                    <p className="text-sm">Soldan paket ekleyin</p>
+                    <p className="text-sm">{t("consolidate.addFromLeft")}</p>
                   </div>
                 )}
               </div>
@@ -258,12 +260,12 @@ export default function ConsolidatePage() {
                 className="mt-4 bg-white rounded-2xl p-5 shadow-sm border border-deep-sea-teal/5"
               >
                 <h3 className="font-display text-sm font-semibold text-deep-sea-teal mb-3">
-                  Maliyet Özeti
+                  {t("consolidate.costSummary")}
                 </h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-deep-sea-teal/50">
-                      Kabul Ücreti ({masterBox.length} × €{FEES.ACCEPT.toFixed(2)})
+                      {t("consolidate.acceptFeeLine", { count: masterBox.length, fee: FEES.ACCEPT.toFixed(2) })}
                     </span>
                     <span className="font-medium">
                       €{totalAcceptFee.toFixed(2)}
@@ -271,14 +273,14 @@ export default function ConsolidatePage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-deep-sea-teal/50">
-                      Konsolidasyon Ücreti
+                      {t("consolidate.consolidationFee")}
                     </span>
                     <span className="font-medium">
                       €{FEES.CONSOLIDATION.toFixed(2)}
                     </span>
                   </div>
                   <div className="border-t border-deep-sea-teal/5 pt-2 flex justify-between font-semibold">
-                    <span>Toplam</span>
+                    <span>{t("consolidate.total")}</span>
                     <span>€{totalWithConsolidation.toFixed(2)}</span>
                   </div>
                 </div>
@@ -301,7 +303,7 @@ export default function ConsolidatePage() {
                       <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
                     </svg>
                     <span className="text-xs font-medium text-success-green">
-                      Tahmini Tasarruf: +€{Math.abs(savings).toFixed(0)}
+                      {t("consolidate.savings", { amount: Math.abs(savings).toFixed(0) })}
                     </span>
                   </motion.div>
                 )}
@@ -311,7 +313,7 @@ export default function ConsolidatePage() {
                   onClick={handleConsolidate}
                   className="mt-4 w-full py-3 bg-chios-purple text-white font-semibold rounded-xl hover:bg-chios-purple-dark disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
                 >
-                  {submitting ? "Birleştiriliyor..." : "Birleştir"}
+                  {submitting ? t("consolidate.submitting") : t("consolidate.submit")}
                 </button>
               </motion.div>
             )}

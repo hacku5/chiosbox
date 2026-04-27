@@ -7,17 +7,19 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAdminUser } from "@/app/admin/admin-layout-client";
 import { hasPermission, isSuperAdmin } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase-browser";
+import { useTranslation } from "@/hooks/use-translation";
+import { AdminLanguageSwitcher } from "@/components/admin/admin-language-switcher";
 
-interface NavItem {
-  label: string;
+interface NavItemConfig {
+  labelKey: string;
   href: string;
   permission: string | null;
   icon: React.ReactNode;
 }
 
-const allNavItems: NavItem[] = [
+const navItemConfigs: NavItemConfig[] = [
   {
-    label: "Panel",
+    labelKey: "admin.panel",
     href: "/admin",
     permission: null,
     icon: (
@@ -30,7 +32,7 @@ const allNavItems: NavItem[] = [
     ),
   },
   {
-    label: "Kabul",
+    labelKey: "action.kabul",
     href: "/admin/intake",
     permission: "intake",
     icon: (
@@ -41,7 +43,7 @@ const allNavItems: NavItem[] = [
     ),
   },
   {
-    label: "Teslimat",
+    labelKey: "action.teslimat",
     href: "/admin/pickup",
     permission: "pickup",
     icon: (
@@ -55,7 +57,7 @@ const allNavItems: NavItem[] = [
     ),
   },
   {
-    label: "Gecikme",
+    labelKey: "action.gecikme",
     href: "/admin/demurrage",
     permission: "demurrage",
     icon: (
@@ -66,7 +68,7 @@ const allNavItems: NavItem[] = [
     ),
   },
   {
-    label: "Paketler",
+    labelKey: "action.paketler",
     href: "/admin/packages",
     permission: "packages",
     icon: (
@@ -78,7 +80,7 @@ const allNavItems: NavItem[] = [
     ),
   },
   {
-    label: "Faturalar",
+    labelKey: "action.faturalar",
     href: "/admin/invoices",
     permission: "invoices",
     icon: (
@@ -92,7 +94,7 @@ const allNavItems: NavItem[] = [
     ),
   },
   {
-    label: "Müşteriler",
+    labelKey: "action.musteriler",
     href: "/admin/customers",
     permission: "customers",
     icon: (
@@ -105,7 +107,7 @@ const allNavItems: NavItem[] = [
     ),
   },
   {
-    label: "Kullanıcılar",
+    labelKey: "admin.users",
     href: "/admin/users",
     permission: "users",
     icon: (
@@ -115,7 +117,41 @@ const allNavItems: NavItem[] = [
       </svg>
     ),
   },
+  {
+    labelKey: "admin.languages",
+    href: "/admin/languages",
+    permission: null,
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="2" y1="12" x2="22" y2="12" />
+        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+      </svg>
+    ),
+  },
+  {
+    labelKey: "admin.translations",
+    href: "/admin/translations",
+    permission: null,
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M5 8l6 6" />
+        <path d="M4 14l6-6 2-3" />
+        <path d="M2 5h12" />
+        <path d="M7 2v3" />
+        <path d="M11 21l5-10 5 10" />
+        <path d="M14.5 18h7" />
+      </svg>
+    ),
+  },
 ];
+
+interface NavItem {
+  label: string;
+  href: string;
+  permission: string | null;
+  icon: React.ReactNode;
+}
 
 function NavItemLink({
   item,
@@ -167,12 +203,20 @@ export function AdminSidebar() {
   const router = useRouter();
   const adminUser = useAdminUser();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { t } = useTranslation();
 
-  const navItems = allNavItems.filter((item) => {
-    if (item.permission === null) return true;
-    if (item.permission === "users") return isSuperAdmin(adminUser.permissions);
-    return hasPermission(adminUser.permissions, item.permission as never);
-  });
+  const navItems: NavItem[] = navItemConfigs
+    .filter((item) => {
+      if (item.permission === null) return true;
+      if (item.permission === "users") return isSuperAdmin(adminUser.permissions);
+      return hasPermission(adminUser.permissions, item.permission as never);
+    })
+    .map((item) => ({
+      label: t(item.labelKey),
+      href: item.href,
+      permission: item.permission,
+      icon: item.icon,
+    }));
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -183,7 +227,7 @@ export function AdminSidebar() {
   const isActive = (href: string) =>
     href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
 
-  const currentLabel = navItems.find((i) => isActive(i.href))?.label || "Panel";
+  const currentLabel = navItems.find((i) => isActive(i.href))?.label || t("admin.panel");
 
   return (
     <>
@@ -210,6 +254,7 @@ export function AdminSidebar() {
         </nav>
 
         <div className="p-3 mb-2 flex flex-col items-center gap-3">
+          <AdminLanguageSwitcher />
           <button
             onClick={handleLogout}
             className="flex flex-col items-center gap-1 p-2 text-white/30 hover:text-danger-red/80 transition-colors cursor-pointer"
@@ -219,7 +264,7 @@ export function AdminSidebar() {
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" y1="12" x2="9" y2="12" />
             </svg>
-            <span className="text-[9px]">Çıkış</span>
+            <span className="text-[9px]">{t("admin.logout")}</span>
           </button>
         </div>
       </aside>
@@ -308,20 +353,23 @@ export function AdminSidebar() {
                 ))}
               </nav>
 
-              {/* User info at bottom */}
-              <div className="p-4 border-t border-white/10">
-                <div className="flex items-center gap-3 px-2">
-                  <div className="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center">
-                    <span className="text-sm font-semibold text-white">
-                      {(adminUser.name || "?")[0]}
-                    </span>
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-sm font-medium text-white truncate">
-                      {adminUser.name}
+              {/* User info & language at bottom */}
+              <div className="p-4 border-t border-white/10 space-y-3">
+                <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-semibold text-white">
+                        {(adminUser.name || "?")[0]}
+                      </span>
                     </div>
-                    <div className="text-xs text-white/40">Admin</div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-white truncate">
+                        {adminUser.name}
+                      </div>
+                      <div className="text-xs text-white/40">Admin</div>
+                    </div>
                   </div>
+                  <AdminLanguageSwitcher />
                 </div>
               </div>
             </motion.aside>

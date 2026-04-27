@@ -3,8 +3,7 @@
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useRef, useState } from "react";
 import Link from "next/link";
-
-const carriers = ["Yurtiçi Kargo", "Aras Kargo", "MNG Kargo", "PTT Kargo", "Sürat Kargo", "UPS", "DHL", "Diğer"];
+import { useTranslation } from "@/hooks/use-translation";
 
 function StepIndicator({ currentStep }: { currentStep: number }) {
   return (
@@ -40,6 +39,17 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
 export function PackageRequest() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });
+  const { t } = useTranslation();
+  const carriers = [
+    t("pkgReq.carrier.yurtici"),
+    t("pkgReq.carrier.aras"),
+    t("pkgReq.carrier.mng"),
+    t("pkgReq.carrier.ptt"),
+    t("pkgReq.carrier.surat"),
+    "UPS",
+    "DHL",
+    t("pkgReq.carrier.diger"),
+  ];
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -87,13 +97,13 @@ export function PackageRequest() {
             animate={isInView ? { scale: 1, opacity: 1 } : {}}
             transition={{ delay: 0.1, duration: 0.4 }}
           >
-            Hızlı Başvuru
+            {t("pkgReq.tag")}
           </motion.span>
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-deep-sea-teal">
-            Paket İsteği Oluştur
+            {t("pkgReq.title")}
           </h2>
           <p className="mt-3 text-deep-sea-teal/60 max-w-lg mx-auto">
-            Türkiye&apos;den gelen paketinizi bildirin, depomuzda güvenle karşılayalım.
+            {t("pkgReq.description")}
           </p>
         </motion.div>
 
@@ -199,10 +209,10 @@ export function PackageRequest() {
 
             <div className="mt-6 text-center">
               <h3 className="font-display text-lg font-semibold text-deep-sea-teal">
-                3 Adımda Hazır
+                {t("pkgReq.ready")}
               </h3>
               <p className="text-sm text-deep-sea-teal/50 mt-1">
-                Bilgilerinizi girin, paketinizi takip edelim
+                {t("pkgReq.readyDesc")}
               </p>
             </div>
           </motion.div>
@@ -240,24 +250,23 @@ export function PackageRequest() {
                     </svg>
                   </motion.div>
                   <h3 className="font-display text-xl font-bold text-deep-sea-teal mb-2">
-                    İsteğiniz Alındı!
+                    {t("pkgReq.success.title")}
                   </h3>
                   <p className="text-deep-sea-teal/60 mb-6">
-                    Paket bildiriminiz kaydedildi. Türkiye&apos;den depomuza ulaştığında
-                    sizi bilgilendireceğiz.
+                    {t("pkgReq.success.desc")}
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <button
                       onClick={() => { setSubmitted(false); setStep(1); setFormData({ name: "", email: "", phone: "", carrier: "", trackingNo: "", content: "", estimatedValue: "", notes: "" }); }}
                       className="px-6 py-2.5 border-2 border-deep-sea-teal/10 text-deep-sea-teal font-display font-semibold rounded-full hover:border-chios-purple/30 hover:text-chios-purple transition-all duration-300 cursor-pointer text-sm"
                     >
-                      Yeni İstek
+                      {t("pkgReq.newRequest")}
                     </button>
                     <Link
                       href="/register"
                       className="px-6 py-2.5 bg-chios-purple text-white font-display font-semibold rounded-full hover:bg-chios-purple-dark transition-all duration-300 cursor-pointer text-sm"
                     >
-                      Kayıt Ol & Takip Et
+                      {t("pkgReq.registerTrack")}
                     </Link>
                   </div>
                 </motion.div>
@@ -280,20 +289,20 @@ export function PackageRequest() {
                         className="space-y-4"
                       >
                         <h3 className="font-display text-lg font-semibold text-deep-sea-teal mb-4">
-                          Kişisel Bilgiler
+                          {t("pkgReq.step1.title")}
                         </h3>
                         <div>
-                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">Ad Soyad *</label>
+                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">{t("pkgReq.fullName")}</label>
                           <input
                             type="text"
                             value={formData.name}
                             onChange={(e) => updateField("name", e.target.value)}
-                            placeholder="Adınız Soyadınız"
+                            placeholder={t("pkgReq.fullNamePlaceholder")}
                             className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-mastic-white/50 text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/40 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">E-posta *</label>
+                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">{t("pkgReq.email")}</label>
                           <input
                             type="email"
                             value={formData.email}
@@ -303,7 +312,7 @@ export function PackageRequest() {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">Telefon</label>
+                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">{t("pkgReq.phone")}</label>
                           <input
                             type="tel"
                             value={formData.phone}
@@ -325,10 +334,10 @@ export function PackageRequest() {
                         className="space-y-4"
                       >
                         <h3 className="font-display text-lg font-semibold text-deep-sea-teal mb-4">
-                          Kargo Bilgileri
+                          {t("pkgReq.step2.title")}
                         </h3>
                         <div>
-                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">Kargo Firması *</label>
+                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">{t("pkgReq.carrier")}</label>
                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                             {carriers.map((c) => (
                               <button
@@ -347,27 +356,27 @@ export function PackageRequest() {
                           </div>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">Takip Numarası *</label>
+                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">{t("pkgReq.trackingNo")}</label>
                           <input
                             type="text"
                             value={formData.trackingNo}
                             onChange={(e) => updateField("trackingNo", e.target.value)}
-                            placeholder="Kargo takip numaranız"
+                            placeholder={t("pkgReq.trackingPlaceholder")}
                             className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-mastic-white/50 text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/40 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">Paket İçeriği *</label>
+                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">{t("pkgReq.content")}</label>
                           <textarea
                             value={formData.content}
                             onChange={(e) => updateField("content", e.target.value)}
-                            placeholder="Paketinizin içinde ne var?"
+                            placeholder={t("pkgReq.contentPlaceholder")}
                             rows={3}
                             className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-mastic-white/50 text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/40 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200 resize-none"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">Tahmini Değer (€)</label>
+                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">{t("pkgReq.estimatedValue")}</label>
                           <input
                             type="text"
                             value={formData.estimatedValue}
@@ -389,51 +398,51 @@ export function PackageRequest() {
                         className="space-y-4"
                       >
                         <h3 className="font-display text-lg font-semibold text-deep-sea-teal mb-4">
-                          Özet & Onay
+                          {t("pkgReq.step3.title")}
                         </h3>
 
                         {/* Summary */}
                         <div className="bg-mastic-white/80 rounded-2xl p-5 space-y-3 border border-deep-sea-teal/5">
                           <div className="flex justify-between text-sm">
-                            <span className="text-deep-sea-teal/50">Ad Soyad</span>
+                            <span className="text-deep-sea-teal/50">{t("pkgReq.summaryName")}</span>
                             <span className="font-medium text-deep-sea-teal">{formData.name}</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-deep-sea-teal/50">E-posta</span>
+                            <span className="text-deep-sea-teal/50">{t("pkgReq.summaryEmail")}</span>
                             <span className="font-medium text-deep-sea-teal">{formData.email}</span>
                           </div>
                           {formData.phone && (
                             <div className="flex justify-between text-sm">
-                              <span className="text-deep-sea-teal/50">Telefon</span>
+                              <span className="text-deep-sea-teal/50">{t("pkgReq.summaryPhone")}</span>
                               <span className="font-medium text-deep-sea-teal">{formData.phone}</span>
                             </div>
                           )}
                           <div className="border-t border-deep-sea-teal/5 pt-3 flex justify-between text-sm">
-                            <span className="text-deep-sea-teal/50">Kargo</span>
+                            <span className="text-deep-sea-teal/50">{t("pkgReq.summaryCarrier")}</span>
                             <span className="font-medium text-deep-sea-teal">{formData.carrier}</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-deep-sea-teal/50">Takip No</span>
+                            <span className="text-deep-sea-teal/50">{t("pkgReq.summaryTracking")}</span>
                             <span className="font-medium text-deep-sea-teal font-mono text-xs">{formData.trackingNo}</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-deep-sea-teal/50">İçerik</span>
+                            <span className="text-deep-sea-teal/50">{t("pkgReq.summaryContent")}</span>
                             <span className="font-medium text-deep-sea-teal max-w-[200px] text-right">{formData.content}</span>
                           </div>
                           {formData.estimatedValue && (
                             <div className="flex justify-between text-sm">
-                              <span className="text-deep-sea-teal/50">Tahmini Değer</span>
+                              <span className="text-deep-sea-teal/50">{t("pkgReq.summaryValue")}</span>
                               <span className="font-medium text-deep-sea-teal">€{formData.estimatedValue}</span>
                             </div>
                           )}
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">Notlar</label>
+                          <label className="block text-sm font-medium text-deep-sea-teal/70 mb-1.5">{t("pkgReq.notes")}</label>
                           <textarea
                             value={formData.notes}
                             onChange={(e) => updateField("notes", e.target.value)}
-                            placeholder="Eklemek istediğiniz bir not var mı?"
+                            placeholder={t("pkgReq.notesPlaceholder")}
                             rows={2}
                             className="w-full px-4 py-3 rounded-xl border border-deep-sea-teal/10 bg-mastic-white/50 text-deep-sea-teal placeholder:text-deep-sea-teal/30 focus:outline-none focus:border-chios-purple/40 focus:ring-2 focus:ring-chios-purple/10 transition-all duration-200 resize-none"
                           />
@@ -445,9 +454,7 @@ export function PackageRequest() {
                               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                             </svg>
                             <p className="text-xs text-chios-purple/70 leading-relaxed">
-                              Paket bildiriminiz depomuzda işleme alınacaktır. Kayıt olarak
-                              paketlerinizi panelden takip edebilir, konsolidasyon ve teslimat
-                              seçeneklerinden yararlanabilirsiniz.
+                              {t("pkgReq.info")}
                             </p>
                           </div>
                         </div>
@@ -465,7 +472,7 @@ export function PackageRequest() {
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M19 12H5M12 19l-7-7 7-7" />
                         </svg>
-                        Geri
+                        {t("pkgReq.back")}
                       </button>
                     ) : (
                       <div />
@@ -483,7 +490,7 @@ export function PackageRequest() {
                             : "bg-deep-sea-teal/5 text-deep-sea-teal/30 cursor-not-allowed"
                         }`}
                       >
-                        Devam
+                        {t("pkgReq.continue")}
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M5 12h14M12 5l7 7-7 7" />
                         </svg>
@@ -498,7 +505,7 @@ export function PackageRequest() {
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                           <path d="M20 6L9 17l-5-5" />
                         </svg>
-                        İsteği Gönder
+                        {t("pkgReq.submit")}
                       </motion.button>
                     )}
                   </div>

@@ -1,27 +1,19 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { createHash, randomInt } from "crypto";
-
-const VALID_PLANS = ["TEMEL", "PRO", "PREMIUM"];
-
-function generateChiosBoxId(): string {
-  const num = randomInt(1000, 9999);
-  return `CBX-${num}`;
-}
-
-// Server-side Supabase admin client (uses service_role key)
-function getAdminClient() {
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!key) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key);
-}
+import { getAdminClient } from "@/lib/supabase-admin";
+import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+import { VALID_PLANS, generateChiosBoxId } from "@/lib/constants";
 
 export async function POST(request: Request) {
+  // Rate limit: 5 registrations per IP per hour
+  const ip = getClientIp(request);
+  const rl = rateLimit(`register:${ip}`, 5, 60 * 60 * 1000);
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
+
   const body = await request.json();
   const { name, email, password, plan } = body;
 
   if (!name || !email || !password) {
-    return NextResponse.json({ error: "Eksik bilgi" }, { status: 400 });
+    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
   // Validate plan against allowlist
@@ -39,9 +31,9 @@ export async function POST(request: Request) {
 
   if (signUpError) {
     if (signUpError.message.includes("already registered") || signUpError.message.includes("already exists")) {
-      return NextResponse.json({ error: "Bu e-posta adresi zaten kayıtlı" }, { status: 409 });
+      return NextResponse.json({ error: "This email is already registered" }, { status: 409 });
     }
-    return NextResponse.json({ error: "Kayıt başarısız" }, { status: 400 });
+    return NextResponse.json({ error: "Registration failed" }, { status: 400 });
   }
 
   const supabaseUserId = signUpData.user.id;
@@ -54,7 +46,7 @@ export async function POST(request: Request) {
     .single();
 
   if (existingUser) {
-    return NextResponse.json({ error: "Bu hesap zaten kayıtlı" }, { status: 409 });
+    return NextResponse.json({ error: "This account is already registered" }, { status: 409 });
   }
 
   // 3. Generate ChiosBox ID and address
@@ -84,7 +76,7 @@ export async function POST(request: Request) {
     .single();
 
   if (insertError) {
-    return NextResponse.json({ error: "Kayıt oluşturulamadı" }, { status: 500 });
+    return NextResponse.json({ error: "Registration could not be created" }, { status: 500 });
   }
 
   return NextResponse.json({ user: userRow }, { status: 201 });

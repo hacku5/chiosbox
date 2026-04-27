@@ -73,7 +73,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       const data = await res.json();
       if (!res.ok) {
-        return { error: data.error || "Kayıt başarısız" };
+        return { error: data.error || "Registration failed" };
       }
 
       // Now sign in on the client side to get the session
@@ -83,7 +83,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ user: data.user, isAuthenticated: true });
       return {};
     } catch {
-      return { error: "Bir hata oluştu" };
+      return { error: "An error occurred" };
     }
   },
 

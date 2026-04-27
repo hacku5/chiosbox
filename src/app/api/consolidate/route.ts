@@ -18,14 +18,14 @@ export async function POST(request: Request) {
     .single();
 
   if (!appUser) {
-    return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
   const body = await request.json();
   const { package_ids } = body;
 
   if (!Array.isArray(package_ids) || package_ids.length < 2) {
-    return NextResponse.json({ error: "En az 2 paket seçilmeli" }, { status: 400 });
+    return NextResponse.json({ error: "At least 2 packages must be selected" }, { status: 400 });
   }
 
   const admin = getAdminClient();
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     .eq("status", "DEPODA");
 
   if (fetchErr || !packages || packages.length !== package_ids.length) {
-    return NextResponse.json({ error: "Seçilen paketlerin tamamı depoda olmalı" }, { status: 400 });
+    return NextResponse.json({ error: "All selected packages must be in warehouse" }, { status: 400 });
   }
 
   // Check if any are already invoiced
@@ -52,6 +52,10 @@ export async function POST(request: Request) {
   const alreadyInvoiced = new Set((existingItems || []).map((i) => i.package_id));
   const uninvoicedPackages = packages.filter((p) => !alreadyInvoiced.has(p.id));
 
+  if (uninvoicedPackages.length === 0) {
+    return NextResponse.json({ error: "All selected packages are already invoiced" }, { status: 400 });
+  }
+
   // Calculate fees
   const acceptTotal = uninvoicedPackages.length * FEES.ACCEPT;
   const consolidationFee = FEES.CONSOLIDATION;
@@ -60,20 +64,7 @@ export async function POST(request: Request) {
   // Generate a master box ID
   const masterBoxId = `MBX-${Date.now().toString(36).toUpperCase()}`;
 
-  // Update packages: set master_box_id and status to BIRLESTIRILDI
-  const { error: updateErr } = await admin
-    .from("packages")
-    .update({
-      master_box_id: masterBoxId,
-      status: "BIRLESTIRILDI",
-    })
-    .in("id", package_ids);
-
-  if (updateErr) {
-    return NextResponse.json({ error: updateErr.message }, { status: 500 });
-  }
-
-  // Create invoice
+  // Step 1: Create invoice FIRST (before modifying packages)
   const { data: invoice, error: invErr } = await admin
     .from("invoices")
     .insert({
@@ -88,20 +79,16 @@ export async function POST(request: Request) {
     .single();
 
   if (invErr) {
-    return NextResponse.json({ error: invErr.message }, { status: 500 });
+    return NextResponse.json({ error: "Invoice could not be created" }, { status: 500 });
   }
 
-  // Create invoice items for each package
-  const invoiceItems = [];
-  for (const pkg of uninvoicedPackages) {
-    invoiceItems.push({
-      invoice_id: invoice.id,
-      package_id: pkg.id,
-      fee_type: "accept",
-      amount: FEES.ACCEPT,
-    });
-  }
-  // Add consolidation fee item linked to first package
+  // Step 2: Create invoice items
+  const invoiceItems = uninvoicedPackages.map((pkg) => ({
+    invoice_id: invoice.id,
+    package_id: pkg.id,
+    fee_type: "accept",
+    amount: FEES.ACCEPT,
+  }));
   invoiceItems.push({
     invoice_id: invoice.id,
     package_id: uninvoicedPackages[0].id,
@@ -109,7 +96,29 @@ export async function POST(request: Request) {
     amount: FEES.CONSOLIDATION,
   });
 
-  await admin.from("invoice_items").insert(invoiceItems);
+  const { error: itemsErr } = await admin.from("invoice_items").insert(invoiceItems);
+
+  if (itemsErr) {
+    // Rollback: delete the invoice we just created
+    await admin.from("invoices").delete().eq("id", invoice.id);
+    return NextResponse.json({ error: "Invoice items could not be created" }, { status: 500 });
+  }
+
+  // Step 3: Update packages LAST (only after invoice + items are safe)
+  const { error: updateErr } = await admin
+    .from("packages")
+    .update({
+      master_box_id: masterBoxId,
+      status: "BIRLESTIRILDI",
+    })
+    .in("id", package_ids);
+
+  if (updateErr) {
+    // Rollback: delete invoice items and invoice
+    await admin.from("invoice_items").delete().eq("invoice_id", invoice.id);
+    await admin.from("invoices").delete().eq("id", invoice.id);
+    return NextResponse.json({ error: "Packages could not be updated" }, { status: 500 });
+  }
 
   return NextResponse.json({
     success: true,

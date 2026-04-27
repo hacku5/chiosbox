@@ -2,13 +2,16 @@
 
 import { motion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
+import { useTranslation } from "@/hooks/use-translation";
 
-const stats = [
-  { value: 2400, suffix: "+", label: "Aktif Kullanıcı", icon: "users" },
-  { value: 18000, suffix: "+", label: "Teslim Edilen Paket", icon: "package" },
-  { value: 99.2, suffix: "%", label: "Memnuniyet Oranı", icon: "star" },
-  { value: 5, suffix: " gün", label: "Ortalama Teslimat", icon: "clock" },
-];
+function useStats(t: (key: string) => string) {
+  return [
+    { value: 2400, suffix: "+", label: t("trust.stat1.label"), icon: "users" },
+    { value: 18000, suffix: "+", label: t("trust.stat2.label"), icon: "package" },
+    { value: 99.2, suffix: "%", label: t("trust.stat3.label"), icon: "star" },
+    { value: 5, suffix: ` ${t("trust.stat4.suffix")}`, label: t("trust.stat4.label"), icon: "clock" },
+  ];
+}
 
 function AnimatedCounter({ value, suffix, inView }: { value: number; suffix: string; inView: boolean }) {
   const [display, setDisplay] = useState(0);
@@ -34,75 +37,79 @@ function AnimatedCounter({ value, suffix, inView }: { value: number; suffix: str
   );
 }
 
-const badges = [
-  {
-    title: "Yunanistan IKE Tescilli",
-    description: "Resmi olarak kayıtlı şirket",
-    color: "#5D3FD3",
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-chios-purple">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-        <polyline points="9 22 9 12 15 12 15 22" />
-      </svg>
-    ),
-  },
-  {
-    title: "SSL 256-bit Şifreleme",
-    description: "Verileriniz güvende",
-    color: "#22C55E",
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-success-green">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      </svg>
-    ),
-  },
-  {
-    title: "Stripe Ödeme Altyapısı",
-    description: "Güvenli online ödeme",
-    color: "#F97316",
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-accent-orange">
-        <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-        <line x1="1" y1="10" x2="23" y2="10" />
-      </svg>
-    ),
-  },
-  {
-    title: "AB Uyumlu",
-    description: "Avrupa Birliği düzenlemelerine uygun",
-    color: "#004953",
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-deep-sea-teal">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="2" y1="12" x2="22" y2="12" />
-        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-      </svg>
-    ),
-  },
-];
+function useBadges(t: (key: string) => string) {
+  return [
+    {
+      title: t("trust.badge1.title"),
+      description: t("trust.badge1.desc"),
+      color: "#5D3FD3",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-chios-purple">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        </svg>
+      ),
+    },
+    {
+      title: t("trust.badge2.title"),
+      description: t("trust.badge2.desc"),
+      color: "#22C55E",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-success-green">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+      ),
+    },
+    {
+      title: t("trust.badge3.title"),
+      description: t("trust.badge3.desc"),
+      color: "#F97316",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-accent-orange">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+          <line x1="1" y1="10" x2="23" y2="10" />
+        </svg>
+      ),
+    },
+    {
+      title: t("trust.badge4.title"),
+      description: t("trust.badge4.desc"),
+      color: "#004953",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-deep-sea-teal">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+        </svg>
+      ),
+    },
+  ];
+}
 
-const testimonials = [
-  {
-    name: "Ayşe K.",
-    location: "İstanbul",
-    text: "Artık Türkiye'den aldığım her şeyi ChiosBox üzerinden yönetiyorum. Birleştirme özelliği sayesinde kargo maliyetlerim yarı yarıya düştü.",
-    rating: 5,
-  },
-  {
-    name: "Mehmet B.",
-    location: "Ankara",
-    text: "Panel çok kolay kullanılıyor. Paketlerimin fotoğrafını görüyorum, ne zaman geleceğini biliyorum. Harika bir hizmet!",
-    rating: 5,
-  },
-  {
-    name: "Elif S.",
-    location: "İzmir",
-    text: "QR kod ile teslim almak çok pratik. Ofise gittim, kodu gösterdim, 2 dakikada paketimi aldım. Kesinlikle tavsiye ediyorum.",
-    rating: 5,
-  },
-];
+function useTestimonials(t: (key: string) => string) {
+  return [
+    {
+      name: "Ayşe K.",
+      location: "İstanbul",
+      text: t("trust.testimonial1.text"),
+      rating: 5,
+    },
+    {
+      name: "Mehmet B.",
+      location: "Ankara",
+      text: t("trust.testimonial2.text"),
+      rating: 5,
+    },
+    {
+      name: "Elif S.",
+      location: "İzmir",
+      text: t("trust.testimonial3.text"),
+      rating: 5,
+    },
+  ];
+}
 
-function StatCard({ stat, index }: { stat: (typeof stats)[0]; index: number }) {
+function StatCard({ stat, index }: { stat: { value: number; suffix: string; label: string; icon: string }; index: number }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
 
@@ -128,8 +135,12 @@ function StatCard({ stat, index }: { stat: (typeof stats)[0]; index: number }) {
 }
 
 export function Trust() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const stats = useStats(t);
+  const badges = useBadges(t);
+  const testimonials = useTestimonials(t);
 
   return (
     <section id="guven" className="py-24 relative overflow-hidden">
@@ -151,14 +162,13 @@ export function Trust() {
             animate={isInView ? { scale: 1, opacity: 1 } : {}}
             transition={{ delay: 0.1, duration: 0.4 }}
           >
-            Güvenilir & Şeffaf
+            {t("trust.tag")}
           </motion.span>
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-deep-sea-teal">
-            Bize Güvenin
+            {t("trust.title")}
           </h2>
           <p className="mt-3 text-deep-sea-teal/60 max-w-lg mx-auto">
-            Binlerce kullanıcı ChiosBox ile Türkiye&apos;den Avrupa&apos;ya güvenle
-            alışveriş yapıyor.
+            {t("trust.description")}
           </p>
         </motion.div>
 
@@ -213,7 +223,7 @@ export function Trust() {
   );
 }
 
-function TestimonialCard({ testimonial: t, index }: { testimonial: (typeof testimonials)[0]; index: number }) {
+function TestimonialCard({ testimonial: tc, index }: { testimonial: { name: string; location: string; text: string; rating: number }; index: number }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
 
@@ -233,7 +243,7 @@ function TestimonialCard({ testimonial: t, index }: { testimonial: (typeof testi
       </svg>
 
       <div className="flex gap-0.5 mb-3">
-        {Array.from({ length: t.rating }).map((_, si) => (
+        {Array.from({ length: tc.rating }).map((_, si) => (
           <motion.svg
             key={si}
             width="16"
@@ -251,20 +261,20 @@ function TestimonialCard({ testimonial: t, index }: { testimonial: (typeof testi
         ))}
       </div>
       <p className="text-sm text-deep-sea-teal/70 leading-relaxed mb-4">
-        &ldquo;{t.text}&rdquo;
+        &ldquo;{tc.text}&rdquo;
       </p>
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-full bg-chios-purple/10 flex items-center justify-center">
           <span className="text-xs font-semibold text-chios-purple">
-            {t.name[0]}
+            {tc.name[0]}
           </span>
         </div>
         <div>
           <div className="text-sm font-semibold text-deep-sea-teal">
-            {t.name}
+            {tc.name}
           </div>
           <div className="text-xs text-deep-sea-teal/40">
-            {t.location}
+            {tc.location}
           </div>
         </div>
       </div>

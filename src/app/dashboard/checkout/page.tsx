@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface InvoiceItem {
   fee_type: string;
@@ -22,6 +23,7 @@ interface Invoice {
 }
 
 export default function CheckoutPage() {
+  const { t } = useTranslation();
   const [step, setStep] = useState<"review" | "paying" | "success">("review");
   const [qrReady, setQrReady] = useState(false);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -33,7 +35,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     fetch("/api/invoices")
       .then((res) => {
-        if (!res.ok) throw new Error("Fatura yüklenemedi");
+        if (!res.ok) throw new Error(t("checkout.error.loadFailed"));
         return res.json();
       })
       .then((data: Invoice[]) => {
@@ -43,7 +45,7 @@ export default function CheckoutPage() {
         setLoading(false);
       })
       .catch((err) => {
-        setError(err instanceof Error ? err.message : "Bir hata oluştu");
+        setError(err instanceof Error ? err.message : t("checkout.error.generic"));
         setLoading(false);
       });
   }, []);
@@ -90,17 +92,17 @@ export default function CheckoutPage() {
     }
     // Fallback to fee totals
     const items = [];
-    if (inv.accept_fee > 0) items.push({ label: "Kabul Ücreti", amount: inv.accept_fee });
-    if (inv.consolidation_fee > 0) items.push({ label: "Konsolidasyon Ücreti", amount: inv.consolidation_fee });
-    if (inv.demurrage_fee > 0) items.push({ label: "Gecikme Ücreti", amount: inv.demurrage_fee });
+    if (inv.accept_fee > 0) items.push({ label: t("checkout.fee.accept"), amount: inv.accept_fee });
+    if (inv.consolidation_fee > 0) items.push({ label: t("checkout.fee.consolidation"), amount: inv.consolidation_fee });
+    if (inv.demurrage_fee > 0) items.push({ label: t("checkout.fee.demurrage"), amount: inv.demurrage_fee });
     return items;
   };
 
   const feeTypeLabel = (type: string) => {
     switch (type) {
-      case "accept": return "Kabul Ücreti";
-      case "consolidation": return "Birleştirme";
-      case "demurrage": return "Gecikme Ücreti";
+      case "accept": return t("checkout.fee.accept");
+      case "consolidation": return t("checkout.fee.consolidationShort");
+      case "demurrage": return t("checkout.fee.demurrage");
       default: return type;
     }
   };
@@ -118,7 +120,7 @@ export default function CheckoutPage() {
               className="flex flex-col items-center justify-center min-h-[400px]"
             >
               <div className="w-10 h-10 border-4 border-chios-purple/20 border-t-chios-purple rounded-full animate-spin mb-4" />
-              <p className="text-sm text-deep-sea-teal/50">Faturalar yükleniyor...</p>
+              <p className="text-sm text-deep-sea-teal/50">{t("checkout.loading")}</p>
             </motion.div>
           )}
 
@@ -137,7 +139,7 @@ export default function CheckoutPage() {
                 </svg>
               </div>
               <h2 className="font-display text-lg font-semibold text-deep-sea-teal mb-1">{error}</h2>
-              <p className="text-sm text-deep-sea-teal/50">Lütfen daha sonra tekrar deneyin</p>
+              <p className="text-sm text-deep-sea-teal/50">{t("checkout.error.tryLater")}</p>
             </motion.div>
           )}
 
@@ -154,9 +156,9 @@ export default function CheckoutPage() {
                   <line x1="1" y1="10" x2="23" y2="10" />
                 </svg>
               </div>
-              <h2 className="font-display text-xl font-semibold text-deep-sea-teal mb-2">Bekleyen Fatura Yok</h2>
+              <h2 className="font-display text-xl font-semibold text-deep-sea-teal mb-2">{t("checkout.empty.title")}</h2>
               <p className="text-sm text-deep-sea-teal/50 max-w-sm">
-                Şu anda ödemeniz gereken fatura bulunmuyor. Paketleriniz depoya ulaştığında fatura oluşturulacaktır.
+                {t("checkout.empty.description")}
               </p>
             </motion.div>
           )}
@@ -170,10 +172,10 @@ export default function CheckoutPage() {
               transition={{ duration: 0.4 }}
             >
               <h1 className="font-display text-2xl font-bold text-deep-sea-teal mb-2">
-                Ödeme Özeti
+                {t("checkout.summary.title")}
               </h1>
               <p className="text-sm text-deep-sea-teal/50 mb-6">
-                {invoices.length} bekleyen fatura
+                {t("checkout.summary.pendingCount", { count: invoices.length })}
               </p>
 
               <div className="space-y-4 mb-6">
@@ -229,7 +231,7 @@ export default function CheckoutPage() {
               <div className="bg-deep-sea-teal/[0.03] rounded-2xl p-4 mb-6">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-deep-sea-teal/60">
-                    {selectedInvoices.length} fatura seçildi
+                    {t("checkout.summary.selectedCount", { count: selectedInvoices.length })}
                   </span>
                   <span className="font-display text-xl font-bold text-deep-sea-teal">
                     €{grandTotal.toFixed(2)}
@@ -243,12 +245,12 @@ export default function CheckoutPage() {
                 className="w-full py-4 bg-chios-purple text-white font-display font-semibold text-lg rounded-xl hover:bg-chios-purple-dark transition-all duration-200 shadow-lg shadow-chios-purple/20 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 {selectedInvoices.length === invoices.length
-                  ? `Tümünü Öde — €${grandTotal.toFixed(2)}`
-                  : `Seçilileri Öde — €${grandTotal.toFixed(2)}`}
+                  ? t("checkout.payAll", { amount: grandTotal.toFixed(2) })
+                  : t("checkout.paySelected", { amount: grandTotal.toFixed(2) })}
               </button>
 
               <p className="mt-4 text-xs text-center text-deep-sea-teal/30">
-                Stripe güvenli ödeme altyapısı ile korunmaktadır
+                {t("checkout.secureNote")}
               </p>
             </motion.div>
           )}
@@ -275,10 +277,10 @@ export default function CheckoutPage() {
                 />
               </div>
               <p className="font-display text-lg font-semibold text-deep-sea-teal">
-                Ödeme İşleniyor...
+                {t("checkout.processing.title")}
               </p>
               <p className="text-sm text-deep-sea-teal/40 mt-1">
-                Lütfen bekleyin
+                {t("checkout.processing.subtitle")}
               </p>
             </motion.div>
           )}
@@ -312,7 +314,7 @@ export default function CheckoutPage() {
                 transition={{ delay: 0.5 }}
                 className="font-display text-2xl font-bold text-deep-sea-teal"
               >
-                Ödeme Başarılı!
+                {t("checkout.success.title")}
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0 }}
@@ -320,7 +322,7 @@ export default function CheckoutPage() {
                 transition={{ delay: 0.7 }}
                 className="text-sm text-deep-sea-teal/50 mt-2 mb-8"
               >
-                Teslimat QR kodunuz oluşturuluyor
+                {t("checkout.success.subtitle")}
               </motion.p>
 
               <AnimatePresence>
@@ -376,7 +378,7 @@ export default function CheckoutPage() {
                   className="mt-6 flex items-center gap-2"
                 >
                   <div className="w-2 h-2 rounded-full bg-success-green animate-pulse" />
-                  <span className="text-sm font-medium text-success-green">Teslimata Hazır</span>
+                  <span className="text-sm font-medium text-success-green">{t("checkout.success.ready")}</span>
                 </motion.div>
               )}
             </motion.div>

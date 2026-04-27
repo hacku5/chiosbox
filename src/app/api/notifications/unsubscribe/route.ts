@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   const { endpoint } = body;
 
   if (!endpoint) {
-    return NextResponse.json({ error: "Endpoint gerekli" }, { status: 400 });
+    return NextResponse.json({ error: "Endpoint is required" }, { status: 400 });
   }
 
   // Only delete own subscription
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     .eq("user_id", appUser.id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Operation failed" }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });
