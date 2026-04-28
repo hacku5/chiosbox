@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import withSerwistInit from "@serwist/next";
 
 const cspHeader = [
   "default-src 'self'",
@@ -12,6 +13,12 @@ const cspHeader = [
   "base-uri 'self'",
   "form-action 'self'",
 ].join("; ");
+
+const withSerwist = withSerwistInit({
+  swSrc: "src/sw.ts",
+  swDest: "public/sw.js",
+  disable: process.env.NODE_ENV === "development",
+});
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -34,4 +41,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSerwist(nextConfig);
