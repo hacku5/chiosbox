@@ -1,43 +1,33 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { requireAuth } from "@/lib/auth-guard";
+import { pushSubscriptionSchema, validateBody } from "@/lib/validation";
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-
-  const { data: { user: authUser } } = await supabase.auth.getUser();
-  if (!authUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { data: appUser } = await supabase
-    .from("users")
-    .select("id")
-    .eq("supabase_user_id", authUser.id)
-    .single();
-
-  if (!appUser) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const { user, error } = await requireAuth();
+  if (error) return error;
 
   const body = await request.json();
-  const { endpoint, keys } = body;
-
-  if (!endpoint || !keys?.p256dh || !keys?.auth) {
-    return NextResponse.json({ error: "Missing data" }, { status: 400 });
+  const parsed = validateBody(pushSubscriptionSchema, body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
 
-  const { error } = await supabase
+  const supabase = await createClient();
+  const { data, error: upsertErr } = await supabase
     .from("push_subscriptions")
     .upsert({
-      user_id: appUser.id,
-      endpoint,
-      p256dh: keys.p256dh,
-      auth: keys.auth,
-    }, { onConflict: "user_id,endpoint" });
+      user_id: user.id,
+      endpoint: parsed.data.endpoint,
+      p256dh: parsed.data.keys.p256dh,
+      auth: parsed.data.keys.auth,
+    }, { onConflict: "user_id, endpoint" })
+    .select()
+    .single();
 
-  if (error) {
-    return NextResponse.json({ error: "Operation failed" }, { status: 500 });
+  if (upsertErr) {
+    return NextResponse.json({ error: "Subscription failed" }, { status: 500 });
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true }, { status: 201 });
 }
