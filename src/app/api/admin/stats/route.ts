@@ -2,10 +2,15 @@ import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin } from "@/lib/admin-guard";
 import { FEES } from "@/lib/fees";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
-export async function GET() {
+export async function GET(request: Request) {
   const { error } = await requireAdmin();
   if (error) return error;
+
+  // Rate limit: admin tier (60 req/min)
+  const rl = checkRateLimit(request, "ADMIN", "admin:stats");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const supabase = getAdminClient();
 

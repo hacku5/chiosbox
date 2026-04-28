@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
-import { requireAdmin } from "@/lib/admin-guard";
+import { requireAdmin, auditLog } from "@/lib/admin-guard";
+import { validateBody, adminLanguageSchema } from "@/lib/validation";
+import { z } from "zod";
+
+const languageCodeSchema = z.string().min(2).max(10).trim().toLowerCase();
+const languageUpdateSchema = adminLanguageSchema.partial().extend({
+  code: languageCodeSchema,
+});
 
 // List all languages
 export async function GET() {
@@ -23,16 +30,16 @@ export async function GET() {
 
 // Add a new language
 export async function POST(request: Request) {
-  const { error } = await requireAdmin();
+  const { user, error } = await requireAdmin();
   if (error) return error;
 
   const body = await request.json();
-  const { code, name, flag } = body;
-
-  if (!code || !name) {
-    return NextResponse.json({ error: "Code and name are required" }, { status: 400 });
+  const parsed = validateBody(adminLanguageSchema, body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
 
+  const { code, name, flag } = parsed.data;
   const supabase = getAdminClient();
 
   const { data, error: insertError } = await supabase
@@ -48,21 +55,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Failed to add language" }, { status: 500 });
   }
 
+  auditLog("language.create", user.id, `language:${code}`, { name, flag });
   return NextResponse.json({ language: data }, { status: 201 });
 }
 
 // Update a language (toggle enabled/default, rename)
 export async function PATCH(request: Request) {
-  const { error } = await requireAdmin();
+  const { user, error } = await requireAdmin();
   if (error) return error;
 
   const body = await request.json();
-  const { code, is_enabled, is_default, name, flag } = body;
-
-  if (!code) {
-    return NextResponse.json({ error: "Language code is required" }, { status: 400 });
+  const parsed = validateBody(languageUpdateSchema, body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
 
+  const { code, is_enabled, is_default, name, flag } = parsed.data;
   const supabase = getAdminClient();
 
   // If setting as default, unset other defaults first
@@ -90,12 +98,13 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Failed to update language" }, { status: 500 });
   }
 
+  auditLog("language.update", user.id, `language:${code}`, { updates });
   return NextResponse.json({ language: data });
 }
 
 // Delete a language
 export async function DELETE(request: Request) {
-  const { error } = await requireAdmin();
+  const { user, error } = await requireAdmin();
   if (error) return error;
 
   const { searchParams } = new URL(request.url);
@@ -105,24 +114,33 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Language code is required" }, { status: 400 });
   }
 
+  const codeParsed = languageCodeSchema.safeParse(code);
+  if (!codeParsed.success) {
+    return NextResponse.json({ error: "Invalid language code" }, { status: 400 });
+  }
+
   const supabase = getAdminClient();
 
   // Check if it's the default language
   const { data: lang } = await supabase
     .from("languages")
     .select("is_default")
-    .eq("code", code)
+    .eq("code", codeParsed.data)
     .single();
 
   if (lang?.is_default) {
     return NextResponse.json({ error: "Default language cannot be deleted" }, { status: 400 });
   }
 
-  const { error: deleteError } = await supabase.from("languages").delete().eq("code", code);
+  const { error: deleteError } = await supabase
+    .from("languages")
+    .delete()
+    .eq("code", codeParsed.data);
 
   if (deleteError) {
     return NextResponse.json({ error: "Failed to delete language" }, { status: 500 });
   }
 
+  auditLog("language.delete", user.id, `language:${codeParsed.data}`);
   return NextResponse.json({ success: true });
 }
