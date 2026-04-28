@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
-import { requireAdmin } from "@/lib/admin-guard";
+import { requireAdmin, auditLog } from "@/lib/admin-guard";
+import { adminInvoiceSchema, validateBody } from "@/lib/validation";
 import { FEES } from "@/lib/fees";
 import { sendPushToUser } from "@/lib/send-notification";
 
@@ -13,15 +14,16 @@ export async function GET(request: Request) {
 
   const status = searchParams.get("status");
   const search = searchParams.get("search");
-  const page = Math.max(1, parseInt(searchParams.get("page") || "1") || 1);
-  const limit = Math.min(Math.max(1, parseInt(searchParams.get("limit") || "20") || 20), 100);
-  const offset = (page - 1) * limit;
+  const page = Math.max(1, Number(searchParams.get("page")) || 1);
+  const limit = Math.min(100, Math.max(1, Number(searchParams.get("limit")) || 20));
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
 
   let query = supabase
     .from("invoices")
     .select("*, users!inner(name, chios_box_id, email)", { count: "exact" })
     .order("created_at", { ascending: false })
-    .range(offset, offset + limit - 1);
+    .range(from, to);
 
   if (status) {
     query = query.eq("status", status);
@@ -34,7 +36,7 @@ export async function GET(request: Request) {
   const { data, error: queryError, count } = await query;
 
   if (queryError) {
-    return NextResponse.json({ error: queryError.message }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch invoices" }, { status: 500 });
   }
 
   // Fetch invoice items with package info for all invoices
@@ -75,21 +77,23 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { error } = await requireAdmin("invoices");
+  const { user, error } = await requireAdmin("invoices");
   if (error) return error;
 
   const supabase = getAdminClient();
   const body = await request.json();
 
-  if (!body.user_id) {
-    return NextResponse.json({ error: "A customer must be selected" }, { status: 400 });
+  // Validate common fields with zod
+  const parsed = validateBody(adminInvoiceSchema, body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
 
   // Verify user exists
   const { data: targetUser } = await supabase
     .from("users")
     .select("id")
-    .eq("id", body.user_id)
+    .eq("id", parsed.data.user_id)
     .single();
 
   if (!targetUser) {
@@ -103,7 +107,7 @@ export async function POST(request: Request) {
       .from("packages")
       .select("*")
       .in("id", body.package_ids)
-      .eq("user_id", body.user_id);
+      .eq("user_id", parsed.data.user_id);
 
     if (fetchErr || !packages || packages.length === 0) {
       return NextResponse.json({ error: "Selected packages not found" }, { status: 400 });
@@ -157,7 +161,7 @@ export async function POST(request: Request) {
     const { data: invoice, error: invErr } = await supabase
       .from("invoices")
       .insert({
-        user_id: body.user_id,
+        user_id: parsed.data.user_id,
         accept_fee: totalAccept,
         consolidation_fee: consolidationFee,
         demurrage_fee: totalDemurrage,
@@ -168,7 +172,7 @@ export async function POST(request: Request) {
       .single();
 
     if (invErr) {
-      return NextResponse.json({ error: invErr.message }, { status: 500 });
+      return NextResponse.json({ error: "Invoice creation failed" }, { status: 500 });
     }
 
     // Insert invoice items
@@ -180,11 +184,17 @@ export async function POST(request: Request) {
     await supabase.from("invoice_items").insert(itemsToInsert);
 
     // Push notification
-    sendPushToUser(body.user_id, {
+    sendPushToUser(parsed.data.user_id, {
       title: "New Invoice",
       body: `€${total.toFixed(2)} you have an invoice`,
       url: "/dashboard/checkout",
     }).catch(() => {});
+
+    await auditLog("invoice:create", user.id, invoice.id, {
+      target_user: parsed.data.user_id,
+      package_ids: body.package_ids,
+      total,
+    });
 
     return NextResponse.json({ ...invoice, items: itemsToInsert }, { status: 201 });
   }
@@ -199,7 +209,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Total amount must be greater than zero" }, { status: 400 });
   }
 
-  // Reasonable upper bound: €5000 per invoice
+  // Reasonable upper bound: EUR5000 per invoice
   if (total > 5000) {
     return NextResponse.json({ error: "Total amount too high" }, { status: 400 });
   }
@@ -207,7 +217,7 @@ export async function POST(request: Request) {
   const { data, error: insertError } = await supabase
     .from("invoices")
     .insert({
-      user_id: body.user_id,
+      user_id: parsed.data.user_id,
       accept_fee: acceptFee,
       consolidation_fee: consolidationFee,
       demurrage_fee: demurrageFee,
@@ -218,15 +228,20 @@ export async function POST(request: Request) {
     .single();
 
   if (insertError) {
-    return NextResponse.json({ error: insertError.message }, { status: 500 });
+    return NextResponse.json({ error: "Invoice creation failed" }, { status: 500 });
   }
 
   // Push notification
-  sendPushToUser(body.user_id, {
+  sendPushToUser(parsed.data.user_id, {
     title: "New Invoice",
     body: `€${total.toFixed(2)} you have an invoice`,
     url: "/dashboard/checkout",
   }).catch(() => {});
+
+  await auditLog("invoice:create", user.id, data.id, {
+    target_user: parsed.data.user_id,
+    total,
+  });
 
   return NextResponse.json(data, { status: 201 });
 }

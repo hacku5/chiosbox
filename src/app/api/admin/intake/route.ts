@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
-import { requireAdmin } from "@/lib/admin-guard";
+import { requireAdmin, auditLog } from "@/lib/admin-guard";
+import { adminIntakeSchema, validateBody } from "@/lib/validation";
 import { FEES } from "@/lib/fees";
 import { sendPushToUser } from "@/lib/send-notification";
 
@@ -8,13 +9,14 @@ export async function POST(request: Request) {
   const { user, error } = await requireAdmin("intake");
   if (error) return error;
 
-  const supabase = getAdminClient();
   const body = await request.json();
-  const { trackingNo, shelfLocation } = body;
-
-  if (!trackingNo || !shelfLocation) {
-    return NextResponse.json({ error: "Missing information" }, { status: 400 });
+  const parsed = validateBody(adminIntakeSchema, body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
+
+  const { trackingNo, shelfLocation } = parsed.data;
+  const supabase = getAdminClient();
 
   // Find the package by tracking number
   const { data: pkg, error: findError } = await supabase
@@ -47,7 +49,7 @@ export async function POST(request: Request) {
     .single();
 
   if (updateError) {
-    return NextResponse.json({ error: updateError.message }, { status: 500 });
+    return NextResponse.json({ error: "Intake failed" }, { status: 500 });
   }
 
   // Auto-create invoice for this package
@@ -66,6 +68,7 @@ export async function POST(request: Request) {
 
   if (invoiceError) {
     console.error(`[INTAKE] Invoice creation failed for package ${pkg.id}:`, invoiceError.message);
+    await auditLog("intake:create", user.id, pkg.id, { trackingNo });
     return NextResponse.json({
       ...data,
       _warning: "Invoice could not be created. Please create it manually.",
@@ -88,6 +91,8 @@ export async function POST(request: Request) {
     body: `${pkg.content} depoda kabul edildi`,
     url: "/dashboard/packages",
   }).catch(() => {});
+
+  await auditLog("intake:create", user.id, pkg.id, { trackingNo });
 
   return NextResponse.json(data, { status: 200 });
 }
