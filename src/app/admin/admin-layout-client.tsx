@@ -99,7 +99,7 @@ export function AdminLayoutClient({
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push("/");
   };
 
   const desktopBottom = (
