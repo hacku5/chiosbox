@@ -1,274 +1,199 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useTranslation } from "@/hooks/use-translation";
+
+/* CSS keyframe animations injected once */
+const bentoStyles = `
+/* 1. Package route dash animation */
+.bento-path {
+  stroke-dasharray: 6 6;
+  animation: moveBentoDash 15s linear infinite;
+}
+@keyframes moveBentoDash {
+  to { stroke-dashoffset: -100; }
+}
+
+/* Sliding package */
+.bento-package {
+  animation: slidePackage 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes slidePackage {
+  0%, 15%  { left: 10%; transform: scale(0); opacity: 0; }
+  20%, 40% { left: 10%; transform: scale(1); opacity: 1; }
+  50%, 80% { left: 85%; transform: scale(1); opacity: 1; }
+  85%, 100%{ left: 85%; transform: scale(0); opacity: 0; }
+}
+
+/* Brand slider */
+.brand-slider-container {
+  height: 2.5rem; width: 2.5rem;
+  overflow: hidden; position: relative;
+}
+.brand-slider {
+  display: flex; flex-direction: column;
+  animation: slideBrands 9s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+}
+.brand-slide {
+  height: 2.5rem; width: 2.5rem;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+@keyframes slideBrands {
+  0%, 25%  { transform: translateY(0); }
+  33%, 58% { transform: translateY(-2.5rem); }
+  66%, 91% { transform: translateY(-5rem); }
+  100%     { transform: translateY(0); }
+}
+
+/* 2. Progress ring */
+.progress-ring {
+  stroke-dasharray: 100;
+  animation: fillRing 6s ease-in-out infinite;
+}
+@keyframes fillRing {
+  0%, 10%  { stroke-dashoffset: 100; }
+  50%, 90% { stroke-dashoffset: 0; }
+  100%     { stroke-dashoffset: 100; }
+}
+
+/* 3. Ferry waves & boat */
+.wave-layer-1 { animation: waveMove1 3s ease-in-out infinite alternate; }
+.wave-layer-2 { animation: waveMove2 2s ease-in-out infinite alternate-reverse; }
+.ferry-boat   { animation: boatRock 3s ease-in-out infinite alternate; }
+@keyframes waveMove1 {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-15px); }
+}
+@keyframes waveMove2 {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(15px); }
+}
+@keyframes boatRock {
+  0%   { transform: translateY(0) rotate(-2deg); }
+  100% { transform: translateY(-4px) rotate(2deg); }
+}
+`;
 
 export function HeroAnimation() {
+  const { t } = useTranslation();
+
   return (
-    <svg
-      viewBox="0 0 440 380"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-full max-w-lg"
-    >
-      <defs>
-        <linearGradient id="wave-grad-1" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#004953" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="#004953" stopOpacity="0.05" />
-        </linearGradient>
-        <linearGradient id="wave-grad-2" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#004953" stopOpacity="0.1" />
-          <stop offset="100%" stopColor="#004953" stopOpacity="0.02" />
-        </linearGradient>
-        <linearGradient id="box-grad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#5D3FD3" />
-          <stop offset="100%" stopColor="#7B6AE0" />
-        </linearGradient>
-        <linearGradient id="box-grad-2" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#FFCF7E" />
-          <stop offset="100%" stopColor="#F97316" stopOpacity="0.8" />
-        </linearGradient>
-        <linearGradient id="shield-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#5D3FD3" />
-          <stop offset="100%" stopColor="#4A2FB5" />
-        </linearGradient>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="3" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
+    <div className="w-full max-w-lg">
+      <style>{bentoStyles}</style>
 
-      {/* Sky gradient */}
-      <rect width="440" height="380" rx="24" fill="#F9F9F7" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-[160px]">
+        {/* BENTO BOX 1: Route (Full Width) */}
+        <div className="sm:col-span-2 row-span-1 bg-white border border-zinc-200/60 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-center">
+          <h3 className="text-xs font-bold tracking-widest text-zinc-400 uppercase mb-6 relative z-10">
+            {t("bento.route.title")}
+          </h3>
 
-      {/* Subtle gradient background shapes */}
-      <circle cx="100" cy="100" r="120" fill="#5D3FD3" opacity="0.03" />
-      <circle cx="350" cy="120" r="80" fill="#FFCF7E" opacity="0.04" />
+          <div className="relative w-full h-16 flex items-center px-4">
+            {/* Background line */}
+            <div className="absolute left-10 right-10 h-0.5 bg-zinc-100 rounded-full" />
 
-      {/* Ocean waves - deep layer */}
-      <path
-        d="M0 290C50 275 100 300 170 285C240 270 310 295 380 280C410 273 440 285 440 285V380H0V290Z"
-        fill="url(#wave-grad-1)"
-      >
-        <animate
-          attributeName="d"
-          dur="5s"
-          repeatCount="indefinite"
-          values="M0 290C50 275 100 300 170 285C240 270 310 295 380 280C410 273 440 285 440 285V380H0V290Z;M0 285C50 300 100 275 170 290C240 300 310 275 380 290C410 295 440 285 440 285V380H0V285Z;M0 290C50 275 100 300 170 285C240 270 310 295 380 280C410 273 440 285 440 285V380H0V290Z"
-        />
-      </path>
+            {/* Animated dashed line */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
+              <line x1="10%" y1="50%" x2="90%" y2="50%" stroke="#818cf8" strokeWidth="2" className="bento-path" strokeLinecap="round" />
+            </svg>
 
-      {/* Ocean waves - front layer */}
-      <path
-        d="M0 310C60 295 120 320 200 305C280 290 340 315 440 300V380H0V310Z"
-        fill="url(#wave-grad-2)"
-      >
-        <animate
-          attributeName="d"
-          dur="3.5s"
-          repeatCount="indefinite"
-          values="M0 310C60 295 120 320 200 305C280 290 340 315 440 300V380H0V310Z;M0 305C60 320 120 295 200 310C280 320 340 295 440 310V380H0V305Z;M0 310C60 295 120 320 200 305C280 290 340 315 440 300V380H0V310Z"
-        />
-      </path>
+            {/* Start point (EU Store) */}
+            <div className="absolute left-[10%] -translate-x-1/2 flex flex-col items-center gap-2 bg-white px-2">
+              <div className="brand-slider-container rounded-full bg-white shadow-sm border border-zinc-200 z-10">
+                <div className="brand-slider">
+                  <div className="brand-slide">
+                    <span className="font-bold text-[10px] tracking-tight text-zinc-900 mt-1">amazon</span>
+                  </div>
+                  <div className="brand-slide">
+                    <span className="font-bold text-[12px] tracking-tighter">
+                      <span className="text-[#e53238]">e</span>
+                      <span className="text-[#0064d2]">b</span>
+                      <span className="text-[#f5af02]">a</span>
+                      <span className="text-[#86b817]">y</span>
+                    </span>
+                  </div>
+                  <div className="brand-slide">
+                    <span className="font-serif font-bold text-[9px] tracking-widest text-zinc-900 uppercase mt-0.5">ZARA</span>
+                  </div>
+                </div>
+              </div>
+              <span className="text-[10px] font-bold text-zinc-900">{t("bento.route.euStore")}</span>
+            </div>
 
-      {/* Foam / wave highlights */}
-      <path
-        d="M0 308C40 302 80 314 130 306C180 298 230 312 290 304C350 296 400 310 440 302"
-        stroke="#004953"
-        strokeWidth="1"
-        opacity="0.06"
-        fill="none"
-      >
-        <animate
-          attributeName="d"
-          dur="4s"
-          repeatCount="indefinite"
-          values="M0 308C40 302 80 314 130 306C180 298 230 312 290 304C350 296 400 310 440 302;M0 304C40 312 80 300 130 308C180 316 230 302 290 310C350 318 400 304 440 312;M0 308C40 302 80 314 130 306C180 298 230 312 290 304C350 296 400 310 440 302"
-        />
-      </path>
+            {/* End point (Chios Warehouse) */}
+            <div className="absolute left-[85%] -translate-x-1/2 flex flex-col items-center gap-2 bg-white px-2">
+              <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center z-10 border-2 border-white">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <span className="text-[10px] font-bold text-zinc-900">{t("bento.route.warehouse")}</span>
+            </div>
 
-      {/* Turkey landmass (left) */}
-      <g opacity="0.5">
-        <path
-          d="M10 280C10 280 25 255 50 248C75 241 100 258 115 265C130 272 120 285 100 290C80 295 30 292 10 288Z"
-          fill="#004953"
-          opacity="0.1"
-        />
-        {/* Buildings */}
-        <rect x="30" y="255" width="18" height="20" rx="2" fill="#004953" opacity="0.08" />
-        <rect x="55" y="260" width="14" height="15" rx="2" fill="#004953" opacity="0.06" />
-        <rect x="75" y="258" width="12" height="17" rx="2" fill="#004953" opacity="0.07" />
-        <text x="55" y="292" textAnchor="middle" fontSize="7" fill="#004953" opacity="0.25" fontFamily="sans-serif" fontWeight="600">TÜRKİYE</text>
-      </g>
+            {/* Sliding package */}
+            <div className="bento-package absolute z-20 flex items-center justify-center -translate-x-1/2">
+              <div className="bg-indigo-600 text-white p-2 rounded-lg shadow-lg shadow-indigo-600/30">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      {/* Chios island (right) */}
-      <g>
-        {/* Island shadow */}
-        <ellipse cx="340" cy="295" rx="65" ry="16" fill="#004953" opacity="0.05" />
+        {/* BENTO BOX 2: 14-Day Storage */}
+        <div className="sm:col-span-1 row-span-1 bg-[#09090b] text-white border border-zinc-800 rounded-[2rem] p-6 shadow-xl relative overflow-hidden flex flex-col justify-between group">
+          <div className="absolute -right-6 -top-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl" />
+          <h3 className="text-xs font-bold tracking-widest text-zinc-500 uppercase relative z-10">
+            {t("bento.storage.title")}
+          </h3>
 
-        {/* Main building */}
-        <rect x="305" y="248" width="70" height="48" rx="6" fill="white" stroke="#004953" strokeWidth="1" opacity="0.95" />
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="relative w-16 h-16 flex items-center justify-center">
+              <svg className="absolute inset-0 w-full h-full -rotate-90">
+                <circle cx="32" cy="32" r="28" fill="none" stroke="#27272a" strokeWidth="4" />
+                <circle cx="32" cy="32" r="28" fill="none" stroke="#10b981" strokeWidth="4" strokeLinecap="round" className="progress-ring" pathLength={100} />
+              </svg>
+              <span className="text-2xl font-black text-emerald-400">14</span>
+            </div>
+            <div>
+              <p className="text-lg font-bold text-white">{t("bento.storage.days")}</p>
+              <p className="text-xs text-zinc-400 font-medium">{t("bento.storage.subtitle")}</p>
+            </div>
+          </div>
+        </div>
 
-        {/* Roof accent */}
-        <path d="M305 254C305 251 307 248 310 248H370C373 248 375 251 375 254" stroke="#5D3FD3" strokeWidth="1.5" opacity="0.3" />
+        {/* BENTO BOX 3: Ferry Delivery */}
+        <div className="sm:col-span-1 row-span-1 bg-sky-50 border border-sky-100/50 rounded-[2rem] p-6 shadow-sm relative overflow-hidden flex flex-col justify-between">
+          <h3 className="text-xs font-bold tracking-widest text-sky-600/70 uppercase relative z-10">
+            {t("bento.delivery.title")}
+          </h3>
 
-        {/* Windows - animated */}
-        {[
-          { x: 314, delay: 0 },
-          { x: 333, delay: 0.7 },
-          { x: 352, delay: 1.4 },
-        ].map((w, i) => (
-          <g key={i}>
-            <rect x={w.x} y="256" width="13" height="15" rx="2.5" fill="#5D3FD3" opacity="0.25" />
-            <rect x={w.x} y="256" width="13" height="15" rx="2.5" fill="#5D3FD3" opacity="0.12">
-              <animate attributeName="opacity" values="0.12;0.35;0.12" dur="3s" begin={`${w.delay}s`} repeatCount="indefinite" />
-            </rect>
-            {/* Window cross */}
-            <line x1={w.x + 6.5} y1={256} x2={w.x + 6.5} y2={256 + 15} stroke="white" strokeWidth="0.8" opacity="0.4" />
-          </g>
-        ))}
+          <div className="flex flex-col gap-1 relative z-10">
+            <p className="text-lg font-bold text-sky-950">{t("bento.delivery.headline")}</p>
+            <p className="text-xs text-sky-700/80 font-medium">{t("bento.delivery.subtitle")}</p>
+          </div>
 
-        {/* Door */}
-        <rect x="332" y="280" width="16" height="16" rx="3" fill="#5D3FD3" opacity="0.4" />
-        <circle cx="344" cy="289" r="1.2" fill="white" opacity="0.6" />
+          {/* Ferry & wave animation */}
+          <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none">
+            {/* Wave 2 (back) */}
+            <svg className="absolute bottom-2 w-[150%] wave-layer-2 text-sky-200" viewBox="0 0 200 40" preserveAspectRatio="none">
+              <path d="M0,20 Q50,0 100,20 T200,20 L200,40 L0,40 Z" fill="currentColor" />
+            </svg>
 
-        {/* Chios label */}
-        <text x="340" y="310" textAnchor="middle" fontSize="8" fill="#004953" opacity="0.3" fontFamily="sans-serif" fontWeight="700" letterSpacing="2">CHIOS</text>
+            {/* Ferry boat */}
+            <div className="ferry-boat absolute bottom-6 right-8 text-sky-900 bg-white p-2.5 rounded-full shadow-lg shadow-sky-900/10 border border-sky-100">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                <path d="M2 12h20M4 12v-4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M2 12c0 2.2 1.8 4 4 4h12c2.2 0 4-1.8 4-4" />
+              </svg>
+            </div>
 
-        {/* Shield icon - pulsing */}
-        <g filter="url(#glow)">
-          <motion.g
-            animate={{ opacity: [0.6, 1, 0.6] }}
-            transition={{ duration: 3, repeat: Infinity }}
-          >
-            <path
-              d="M385 230L403 240V256C403 268 395 278 385 281C375 278 367 268 367 256V240L385 230Z"
-              fill="url(#shield-grad)"
-              opacity="0.75"
-            />
-            <path d="M378 255L382 260L393 249" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          </motion.g>
-        </g>
-      </g>
-
-      {/* Dashed connection path */}
-      <path
-        d="M110 265C160 240 220 255 305 270"
-        stroke="#5D3FD3"
-        strokeWidth="1.5"
-        strokeDasharray="8 5"
-        opacity="0.15"
-      >
-        <animate attributeName="strokeDashoffset" values="0;26" dur="2s" repeatCount="indefinite" />
-      </path>
-
-      {/* Package 1 - main, flying across */}
-      <g>
-        <animateTransform
-          attributeName="transform"
-          type="translate"
-          values="0,0; 100,-30; 195,10"
-          dur="4.5s"
-          repeatCount="indefinite"
-        />
-        {/* Shadow */}
-        <ellipse cx="105" cy="280" rx="18" ry="4" fill="#004953" opacity="0.05">
-          <animate attributeName="rx" values="18;12;18" dur="4.5s" repeatCount="indefinite" />
-        </ellipse>
-        {/* Box */}
-        <rect x="85" y="240" width="36" height="30" rx="4" fill="url(#box-grad)" />
-        <path d="M85 255H121" stroke="white" strokeWidth="1.5" opacity="0.4" />
-        <path d="M103 240V270" stroke="white" strokeWidth="1.5" opacity="0.4" />
-        <rect x="90" y="245" width="10" height="8" rx="1.5" fill="white" opacity="0.2" />
-        {/* Tape */}
-        <rect x="99" y="240" width="6" height="30" fill="white" opacity="0.08" />
-      </g>
-
-      {/* Package 2 - smaller, following */}
-      <g>
-        <animateTransform
-          attributeName="transform"
-          type="translate"
-          values="0,0; 80,-22; 160,5"
-          dur="5s"
-          repeatCount="indefinite"
-        />
-        <rect x="130" y="262" width="26" height="22" rx="3" fill="url(#box-grad-2)" />
-        <path d="M130 273H156" stroke="#004953" strokeWidth="1" opacity="0.2" />
-        <path d="M143 262V284" stroke="#004953" strokeWidth="1" opacity="0.2" />
-      </g>
-
-      {/* Small plane */}
-      <g>
-        <animateTransform
-          attributeName="transform"
-          type="translate"
-          values="0,0; -100,-40; -180,-15"
-          dur="4s"
-          repeatCount="indefinite"
-        />
-        <path
-          d="M380 90L400 100H388L380 112L372 100H360L380 90Z"
-          fill="#5D3FD3"
-          opacity="0.55"
-        />
-        <line x1="370" y1="102" x2="340" y2="106" stroke="#5D3FD3" strokeWidth="1" opacity="0.2" strokeDasharray="4 3">
-          <animate attributeName="strokeDashoffset" values="0;14" dur="0.5s" repeatCount="indefinite" />
-        </line>
-      </g>
-
-      {/* Speed lines */}
-      {[
-        { x1: 140, y1: 250, x2: 165, y2: 250, delay: "0s" },
-        { x1: 160, y1: 260, x2: 190, y2: 260, delay: "0.3s" },
-        { x1: 150, y1: 245, x2: 175, y2: 245, delay: "0.6s" },
-      ].map((line, i) => (
-        <line key={i} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} stroke="#5D3FD3" strokeWidth="1" strokeLinecap="round" opacity="0">
-          <animate attributeName="opacity" values="0;0.2;0" dur="2s" begin={line.delay} repeatCount="indefinite" />
-        </line>
-      ))}
-
-      {/* Floating particles */}
-      {[
-        { cx: 70, cy: 120, r: 3, dur: "2.5s", color: "#5D3FD3" },
-        { cx: 150, cy: 90, r: 2, dur: "3s", color: "#5D3FD3" },
-        { cx: 260, cy: 140, r: 2.5, dur: "2.8s", color: "#5D3FD3" },
-        { cx: 380, cy: 110, r: 2, dur: "3.2s", color: "#FFCF7E" },
-        { cx: 100, cy: 180, r: 1.5, dur: "2.6s", color: "#5D3FD3" },
-        { cx: 200, cy: 160, r: 1.8, dur: "3.1s", color: "#004953" },
-        { cx: 310, cy: 130, r: 2.2, dur: "2.9s", color: "#FFCF7E" },
-      ].map((p, i) => (
-        <circle key={i} cx={p.cx} cy={p.cy} r={p.r} fill={p.color} opacity="0.12">
-          <animate attributeName="opacity" values="0.06;0.25;0.06" dur={p.dur} repeatCount="indefinite" />
-          <animateTransform attributeName="transform" type="translate" values="0,0; 0,-12; 0,0" dur={p.dur} repeatCount="indefinite" />
-        </circle>
-      ))}
-
-      {/* Sparkle / star effects */}
-      {[
-        { cx: 50, cy: 80, dur: "2s" },
-        { cx: 200, cy: 60, dur: "2.5s" },
-        { cx: 330, cy: 85, dur: "1.8s" },
-        { cx: 130, cy: 50, dur: "2.2s" },
-      ].map((s, i) => (
-        <g key={`star-${i}`} opacity="0.25">
-          <line x1={s.cx - 5} y1={s.cy} x2={s.cx + 5} y2={s.cy} stroke="#5D3FD3" strokeWidth="1.5" strokeLinecap="round">
-            <animate attributeName="opacity" values="0;0.6;0" dur={s.dur} repeatCount="indefinite" />
-          </line>
-          <line x1={s.cx} y1={s.cy - 5} x2={s.cx} y2={s.cy + 5} stroke="#5D3FD3" strokeWidth="1.5" strokeLinecap="round">
-            <animate attributeName="opacity" values="0;0.6;0" dur={s.dur} repeatCount="indefinite" />
-          </line>
-        </g>
-      ))}
-
-      {/* Route label bubble */}
-      <g>
-        <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite" />
-        <rect x="175" y="195" width="70" height="24" rx="12" fill="white" stroke="#5D3FD3" strokeWidth="0.8" opacity="0.8" />
-        <text x="210" y="211" textAnchor="middle" fontSize="8" fill="#5D3FD3" fontFamily="sans-serif" fontWeight="600">TR → GR</text>
-      </g>
-    </svg>
+            {/* Wave 1 (front) */}
+            <svg className="absolute bottom-0 w-[150%] wave-layer-1 text-sky-300/80" viewBox="0 0 200 30" preserveAspectRatio="none">
+              <path d="M0,15 Q50,30 100,15 T200,15 L200,30 L0,30 Z" fill="currentColor" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

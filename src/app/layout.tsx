@@ -40,7 +40,7 @@ export default async function RootLayout({
   const lang = cookieStore.get("lang")?.value || "en";
 
   return (
-    <html lang={lang} className={`${rubik.variable} ${nunitoSans.variable}`}>
+    <html lang={lang} data-scroll-behavior="smooth" className={`${rubik.variable} ${nunitoSans.variable}`}>
       <body className="antialiased font-sans">
         <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
       </body>

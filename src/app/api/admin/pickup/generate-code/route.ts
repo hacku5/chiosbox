@@ -57,7 +57,7 @@ export async function POST(request: Request) {
   sendPushToUser(pkg.user_id, {
     title: "Your Delivery Code is Ready",
     body: "Open the app to get your code",
-    url: "/dashboard",
+    url: "/user",
   }).catch(() => {});
 
   // Return the plain code only to the admin who generated it (for display on screen)

@@ -83,7 +83,7 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL("/admin", request.url));
       }
     } catch { /* fall through to default */ }
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/user", request.url));
   }
 
   // Redirect authenticated admins away from admin login
@@ -101,8 +101,8 @@ export async function proxy(request: NextRequest) {
     } catch { /* fall through */ }
   }
 
-  // Protect dashboard routes
-  if (pathname.startsWith("/dashboard") && !user) {
+  // Protect user routes
+  if (pathname.startsWith("/user") && !user) {
     const redirectUrl = new URL("/login", request.url);
     redirectUrl.searchParams.set("redirectedFrom", pathname);
     return NextResponse.redirect(redirectUrl);
@@ -123,7 +123,7 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/dashboard/:path*",
+    "/user/:path*",
     "/admin/:path*",
     "/login",
     "/register",

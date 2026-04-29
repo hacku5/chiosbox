@@ -59,12 +59,12 @@ export default function AdminDashboardPage() {
   }, []);
 
   const quickActions = [
-    { label: t("action.kabul"), href: "/admin/intake", permission: "intake" as const, color: "bg-chios-purple" },
-    { label: t("action.teslimat"), href: "/admin/pickup", permission: "pickup" as const, color: "bg-deep-sea-teal" },
-    { label: t("action.gecikme"), href: "/admin/demurrage", permission: "demurrage" as const, color: "bg-accent-orange" },
-    { label: t("action.paketler"), href: "/admin/packages", permission: "packages" as const, color: "bg-success-green" },
-    { label: t("action.faturalar"), href: "/admin/invoices", permission: "invoices" as const, color: "bg-chios-purple-light" },
-    { label: t("action.musteriler"), href: "/admin/customers", permission: "customers" as const, color: "bg-deep-sea-teal" },
+    { label: t("action.intake"), href: "/admin/intake", permission: "intake" as const, color: "bg-chios-purple" },
+    { label: t("actions.delivery"), href: "/admin/pickup", permission: "pickup" as const, color: "bg-deep-sea-teal" },
+    { label: t("action.delay"), href: "/admin/demurrage", permission: "demurrage" as const, color: "bg-accent-orange" },
+    { label: t("action.packages"), href: "/admin/packages", permission: "packages" as const, color: "bg-success-green" },
+    { label: t("action.invoices"), href: "/admin/invoices", permission: "invoices" as const, color: "bg-chios-purple-light" },
+    { label: t("action.customers"), href: "/admin/customers", permission: "customers" as const, color: "bg-deep-sea-teal" },
   ].filter((a) =>
     isSuperAdmin(adminUser.permissions) || hasPermission(adminUser.permissions, a.permission)
   );

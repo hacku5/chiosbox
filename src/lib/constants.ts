@@ -13,3 +13,4 @@ export function generateChiosBoxId(): string {
   const rand = Math.random().toString(36).substring(2, 4).toUpperCase();
   return `CBX-${timestamp}${rand}`;
 }
+

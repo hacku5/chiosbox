@@ -9,7 +9,7 @@ import { useTranslation } from "@/hooks/use-translation";
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectedFrom = searchParams.get("redirectedFrom") || "/dashboard";
+  const redirectedFrom = searchParams.get("redirectedFrom") || "/user";
   const { t } = useTranslation();
 
   const [email, setEmail] = useState("");

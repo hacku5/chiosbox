@@ -26,12 +26,9 @@ export function LanguageSwitcher() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-sm hover:bg-deep-sea-teal/5 transition-colors cursor-pointer"
+        className="flex items-center gap-1 px-2 py-1.5 rounded-xl text-sm hover:bg-deep-sea-teal/5 transition-colors cursor-pointer"
       >
-        <span>{current?.flag || "🌐"}</span>
-        <span className="text-deep-sea-teal/70 font-medium uppercase text-xs">
-          {lang}
-        </span>
+        <span className="text-lg leading-none">{current?.flag || "🌐"}</span>
         <svg
           className={`w-3 h-3 text-deep-sea-teal/40 transition-transform ${open ? "rotate-180" : ""}`}
           fill="none"

@@ -51,19 +51,29 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   login: async (email, password) => {
+    set({ loading: true });
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { error: error.message };
+    if (error) {
+      set({ loading: false });
+      return { error: error.message };
+    }
+
+    // Wait a tick for session cookies to propagate
+    await new Promise((r) => setTimeout(r, 100));
 
     const res = await fetch("/api/user");
     if (res.ok) {
       const data = await res.json();
-      set({ user: data, isAuthenticated: true });
+      set({ user: data, isAuthenticated: true, loading: false });
+      return {};
     }
-    return {};
+
+    set({ user: null, isAuthenticated: false, loading: false });
+    return { error: "Failed to load user data" };
   },
 
   register: async (name, email, password, plan) => {
-    // Everything goes through our API route — server handles signUp + user insert
+    set({ loading: true });
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
@@ -73,16 +83,29 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       const data = await res.json();
       if (!res.ok) {
+        set({ loading: false });
         return { error: data.error || "Registration failed" };
       }
 
       // Now sign in on the client side to get the session
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      if (signInError) return { error: signInError.message };
+      if (signInError) {
+        set({ loading: false });
+        return { error: signInError.message };
+      }
 
-      set({ user: data.user, isAuthenticated: true });
+      // Wait for session cookies to propagate, then fetch full user data
+      await new Promise((r) => setTimeout(r, 100));
+      const userRes = await fetch("/api/user");
+      if (userRes.ok) {
+        const userData = await userRes.json();
+        set({ user: userData, isAuthenticated: true, loading: false });
+      } else {
+        set({ user: data.user, isAuthenticated: true, loading: false });
+      }
       return {};
     } catch {
+      set({ loading: false });
       return { error: "An error occurred" };
     }
   },

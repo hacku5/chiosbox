@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { getAdminClient } from "@/lib/supabase-admin";
-import { FEES } from "@/lib/fees";
+import { getAcceptFee, getConsolidationFee } from "@/lib/fees";
+import { isTourRequest, tourMockResponse } from "@/lib/tour-guard";
 
 export async function POST(request: Request) {
+  if (isTourRequest(request)) {
+    return tourMockResponse({ master_box_id: `MBX-TOUR-${Date.now().toString(36).toUpperCase()}`, total: 0 });
+  }
+
   const supabase = await createClient();
   const { data: { user: authUser } } = await supabase.auth.getUser();
 
@@ -57,8 +62,8 @@ export async function POST(request: Request) {
   }
 
   // Calculate fees
-  const acceptTotal = uninvoicedPackages.length * FEES.ACCEPT;
-  const consolidationFee = FEES.CONSOLIDATION;
+  const [acceptRate, consolidationFee] = await Promise.all([getAcceptFee(), getConsolidationFee()]);
+  const acceptTotal = uninvoicedPackages.length * acceptRate;
   const total = acceptTotal + consolidationFee;
 
   // Generate a master box ID
@@ -87,13 +92,13 @@ export async function POST(request: Request) {
     invoice_id: invoice.id,
     package_id: pkg.id,
     fee_type: "accept",
-    amount: FEES.ACCEPT,
+    amount: acceptRate,
   }));
   invoiceItems.push({
     invoice_id: invoice.id,
     package_id: uninvoicedPackages[0].id,
     fee_type: "consolidation",
-    amount: FEES.CONSOLIDATION,
+    amount: consolidationFee,
   });
 
   const { error: itemsErr } = await admin.from("invoice_items").insert(invoiceItems);

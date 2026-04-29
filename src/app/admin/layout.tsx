@@ -30,7 +30,7 @@ export default async function AdminLayout({
     .single();
 
   if (!appUser?.is_admin) {
-    redirect("/dashboard");
+    redirect("/user");
   }
 
   return (

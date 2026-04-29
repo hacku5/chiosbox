@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { isTourRequest, tourMockResponse } from "@/lib/tour-guard";
 
 export async function GET() {
   const supabase = await createClient();
@@ -61,6 +62,10 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
+  if (isTourRequest(request)) {
+    return tourMockResponse({ qr_code: "QR-CBX-TOUR-001" });
+  }
+
   const supabase = await createClient();
 
   const { data: { user: authUser } } = await supabase.auth.getUser();

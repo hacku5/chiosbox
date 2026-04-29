@@ -57,10 +57,11 @@ export async function POST(request: Request) {
   const expiresAt = new Date(now);
   expiresAt.setMonth(expiresAt.getMonth() + 1);
 
-  // 4. Insert user row — only safe fields
+  // 4. Insert user row — use Supabase Auth UUID as primary key
   const { data: userRow, error: insertError } = await supabase
     .from("users")
     .insert({
+      id: supabaseUserId,
       supabase_user_id: supabaseUserId,
       email,
       name,

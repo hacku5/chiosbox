@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer";
 
 export function ClientLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isAppRoute = pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
+  const isAppRoute = pathname.startsWith("/user") || pathname.startsWith("/admin");
 
   return (
     <TranslationProvider>

@@ -152,6 +152,7 @@ const permissionLabelsFn = (t: (key: string) => string): Record<Permission, stri
   packages: t("perm.packages"),
   invoices: t("perm.invoices"),
   customers: t("perm.customers"),
+  settings: t("perm.settings"),
 });
 
 function EditUserModal({ user, onClose, onUpdated, t }: {

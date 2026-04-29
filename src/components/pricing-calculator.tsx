@@ -1,28 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import Link from "next/link";
 import { useTranslation } from "@/hooks/use-translation";
 
-const BASE_FEE = 4; // € per package
-const CONSOLIDATION_FEE = 8; // € one-time
-const FREE_STORAGE_DAYS = 14;
-const DAILY_DEMURRAGE = 1.5; // € per day after free period
+// Defaults (fallback if API unreachable)
+const DEFAULTS = {
+  BASE_FEE: 4,
+  CONSOLIDATION_FEE: 8,
+  FREE_STORAGE_DAYS: 14,
+  DAILY_DEMURRAGE: 1.5,
+  PLAN_TEMEL: 9.99,
+  PLAN_PREMIUM: 24.99,
+};
 
-function calculateCost(packages: number, storageDays: number) {
-  const acceptFee = packages * BASE_FEE;
-  const demurrageDays = Math.max(0, storageDays - FREE_STORAGE_DAYS);
-  const demurrageFee = demurrageDays * DAILY_DEMURRAGE;
+function calculateCost(
+  packages: number,
+  storageDays: number,
+  fees: typeof DEFAULTS
+) {
+  const acceptFee = packages * fees.BASE_FEE;
+  const demurrageDays = Math.max(0, storageDays - fees.FREE_STORAGE_DAYS);
+  const demurrageFee = demurrageDays * fees.DAILY_DEMURRAGE;
   const withoutConsolidation = acceptFee + demurrageFee;
-  const withConsolidation = acceptFee + CONSOLIDATION_FEE + demurrageFee;
-  const savings = packages > 1 ? (packages * BASE_FEE) - withConsolidation : 0;
+  const withConsolidation = acceptFee + fees.CONSOLIDATION_FEE + demurrageFee;
+  const savings = packages > 1 ? packages * fees.BASE_FEE - withConsolidation : 0;
 
   return {
     acceptFee,
     demurrageFee,
-    consolidationFee: CONSOLIDATION_FEE,
+    consolidationFee: fees.CONSOLIDATION_FEE,
     totalWithoutConsolidation: withoutConsolidation,
     totalWithConsolidation: withConsolidation,
     savings: Math.max(0, savings),
@@ -65,10 +74,29 @@ export function PricingCalculator() {
   const { t } = useTranslation();
   const [packages, setPackages] = useState(3);
   const [storageDays, setStorageDays] = useState(10);
+  const [fees, setFees] = useState(DEFAULTS);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });
 
-  const cost = calculateCost(packages, storageDays);
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.settings) {
+          setFees({
+            BASE_FEE: Number(data.settings.fee_accept) || DEFAULTS.BASE_FEE,
+            CONSOLIDATION_FEE: Number(data.settings.fee_consolidation) || DEFAULTS.CONSOLIDATION_FEE,
+            FREE_STORAGE_DAYS: Number(data.settings.free_storage_days) || DEFAULTS.FREE_STORAGE_DAYS,
+            DAILY_DEMURRAGE: Number(data.settings.fee_daily_demurrage) || DEFAULTS.DAILY_DEMURRAGE,
+            PLAN_TEMEL: Number(data.settings.plan_price_temel) || DEFAULTS.PLAN_TEMEL,
+            PLAN_PREMIUM: Number(data.settings.plan_price_premium) || DEFAULTS.PLAN_PREMIUM,
+          });
+        }
+      })
+      .catch(() => {/* use defaults */});
+  }, []);
+
+  const cost = calculateCost(packages, storageDays, fees);
 
   return (
     <section id="fiyat" className="py-24 relative overflow-hidden">
@@ -187,7 +215,7 @@ export function PricingCalculator() {
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-white/60">
-                    {t("pricing.fee.accept")} ({packages} {t("pricing.fee.acceptUnit", { fee: String(BASE_FEE) })})
+                    {t("pricing.fee.accept")} ({packages} {t("pricing.fee.acceptUnit", { fee: String(fees.BASE_FEE) })})
                   </span>
                   <span className="font-medium">€{cost.acceptFee.toFixed(2)}</span>
                 </div>
@@ -198,7 +226,7 @@ export function PricingCalculator() {
                 {cost.demurrageFee > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-white/60">
-                      {t("pricing.demurrageFeeLabel", { days: String(storageDays - FREE_STORAGE_DAYS), fee: String(DAILY_DEMURRAGE) })}
+                      {t("pricing.demurrageFeeLabel", { days: String(storageDays - fees.FREE_STORAGE_DAYS), fee: String(fees.DAILY_DEMURRAGE) })}
                     </span>
                     <span className="font-medium text-sunset-gold">
                       €{cost.demurrageFee.toFixed(2)}
@@ -288,7 +316,7 @@ export function PricingCalculator() {
               {t("pricing.basic.name")}
             </div>
             <div className="mt-2 flex items-baseline gap-1">
-              <span className="text-4xl font-display font-bold text-chios-purple">€9.99</span>
+              <span className="text-4xl font-display font-bold text-chios-purple">€{fees.PLAN_TEMEL.toFixed(2)}</span>
               <span className="text-sm text-deep-sea-teal/40">{t("pricing.month")}</span>
             </div>
             <p className="mt-2 text-sm text-deep-sea-teal/50">
@@ -339,7 +367,7 @@ export function PricingCalculator() {
                 {t("pricing.premium.name")}
               </div>
               <div className="mt-2 flex items-baseline gap-1">
-                <span className="text-4xl font-display font-bold text-white">€24.99</span>
+                <span className="text-4xl font-display font-bold text-white">€{fees.PLAN_PREMIUM.toFixed(2)}</span>
                 <span className="text-sm text-white/50">{t("pricing.month")}</span>
               </div>
               <p className="mt-2 text-sm text-white/60">

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { sanitizeRequired, sanitizeText } from "@/lib/sanitize";
+import { isTourRequest, tourMockResponse } from "@/lib/tour-guard";
 
 export async function GET() {
   const supabase = await createClient();
@@ -35,6 +36,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  if (isTourRequest(request)) {
+    return tourMockResponse({ id: `tour-${Date.now()}` });
+  }
+
   const supabase = await createClient();
 
   const { data: { user: authUser } } = await supabase.auth.getUser();

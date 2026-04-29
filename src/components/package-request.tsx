@@ -11,11 +11,10 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
       {[1, 2, 3].map((step) => (
         <div key={step} className="flex items-center gap-2">
           <motion.div
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-display font-bold transition-colors duration-300 ${
-              step <= currentStep
-                ? "bg-chios-purple text-white"
-                : "bg-deep-sea-teal/5 text-deep-sea-teal/30"
-            }`}
+            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-display font-bold transition-colors duration-300 ${step <= currentStep
+              ? "bg-chios-purple text-white"
+              : "bg-deep-sea-teal/5 text-deep-sea-teal/30"
+              }`}
             animate={step === currentStep ? { scale: [1, 1.1, 1] } : {}}
             transition={{ duration: 0.3 }}
           >
@@ -77,8 +76,368 @@ export function PackageRequest() {
     setSubmitted(true);
   };
 
+  const svgCss = `
+
+        /* SVG İçin Özel Animasyon Stilleri */
+        .package-request-svg {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            background-color: #ffffff;
+        }
+
+        /* Çizgilerin (Yazı) sırayla belirmesi */
+        .f-line {
+            stroke-dasharray: 1;
+            stroke-dashoffset: 1;
+        }
+
+        .l1 {
+            animation: drawLine1 8s infinite;
+        }
+
+        .l2 {
+            animation: drawLine2 8s infinite;
+        }
+
+        .l3 {
+            animation: drawLine3 8s infinite;
+        }
+
+        .l4 {
+            animation: drawLine4 8s infinite;
+        }
+
+        .l5 {
+            animation: drawLine5 8s infinite;
+        }
+
+        /* Form içeriklerinin (Çizgiler ve Buton) kaybolması */
+        .form-content {
+            animation: fadeForm 8s infinite;
+        }
+
+        /* Buton tıklama efekti */
+        .form-btn {
+            transform-origin: 195px 245px;
+            animation: btnClick 8s infinite;
+        }
+
+        /* Fare imleci hareketi */
+        .cursor {
+            animation: cursorMove 8s infinite;
+        }
+
+        /* Başarı ikonu animasyonu */
+        .success-group {
+            transform-origin: 200px 170px;
+            animation: successPop 8s infinite;
+        }
+
+        /* Başarı onay işareti çizimi */
+        .s-check {
+            stroke-dasharray: 1;
+            stroke-dashoffset: 1;
+            animation: drawCheck 8s infinite;
+        }
+
+        /* Dış çerçevenin yeşile dönmesi */
+        .doc-frame {
+            animation: frameColor 8s infinite;
+        }
+
+        /* Deniz dalgası animasyonları */
+        .wave-bg {
+            animation: moveWave 5s linear infinite;
+        }
+
+        .wave-fg {
+            animation: moveWaveReverse 3.5s linear infinite;
+        }
+
+        /* Bot animasyonu */
+        .boat {
+            animation: boatBob 3s ease-in-out infinite;
+            transform-origin: 200px 335px;
+        }
+
+        /* Keyframes - Animasyon Senaryosu (Toplam 8 Saniye) */
+
+        @keyframes drawLine1 {
+
+            0%,
+            5% {
+                stroke-dashoffset: 1;
+            }
+
+            10%,
+            70% {
+                stroke-dashoffset: 0;
+            }
+
+            75%,
+            100% {
+                stroke-dashoffset: 1;
+            }
+        }
+
+        @keyframes drawLine2 {
+
+            0%,
+            10% {
+                stroke-dashoffset: 1;
+            }
+
+            15%,
+            70% {
+                stroke-dashoffset: 0;
+            }
+
+            75%,
+            100% {
+                stroke-dashoffset: 1;
+            }
+        }
+
+        @keyframes drawLine3 {
+
+            0%,
+            15% {
+                stroke-dashoffset: 1;
+            }
+
+            20%,
+            70% {
+                stroke-dashoffset: 0;
+            }
+
+            75%,
+            100% {
+                stroke-dashoffset: 1;
+            }
+        }
+
+        @keyframes drawLine4 {
+
+            0%,
+            20% {
+                stroke-dashoffset: 1;
+            }
+
+            25%,
+            70% {
+                stroke-dashoffset: 0;
+            }
+
+            75%,
+            100% {
+                stroke-dashoffset: 1;
+            }
+        }
+
+        @keyframes drawLine5 {
+
+            0%,
+            25% {
+                stroke-dashoffset: 1;
+            }
+
+            30%,
+            70% {
+                stroke-dashoffset: 0;
+            }
+
+            75%,
+            100% {
+                stroke-dashoffset: 1;
+            }
+        }
+
+        @keyframes fadeForm {
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            55%,
+            85% {
+                opacity: 0;
+            }
+
+            90%,
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes btnClick {
+
+            0%,
+            42% {
+                transform: scale(1);
+                fill: #c4b5fd;
+            }
+
+            45% {
+                transform: scale(0.92);
+                fill: #8b5cf6;
+            }
+
+            /* Tıklanma anı */
+            48%,
+            100% {
+                transform: scale(1);
+                fill: #c4b5fd;
+            }
+        }
+
+        @keyframes cursorMove {
+
+            0%,
+            30% {
+                transform: translate(280px, 320px);
+                opacity: 0;
+            }
+
+            33% {
+                opacity: 1;
+            }
+
+            42% {
+                transform: translate(195px, 245px);
+                opacity: 1;
+            }
+
+            /* Butona varış */
+            45% {
+                transform: translate(195px, 245px) scale(0.85);
+                opacity: 1;
+            }
+
+            /* Tıklama */
+            48% {
+                transform: translate(195px, 245px) scale(1);
+                opacity: 1;
+            }
+
+            /* Bırakma */
+            52% {
+                transform: translate(195px, 245px);
+                opacity: 0;
+            }
+
+            /* Kaybolma */
+            100% {
+                transform: translate(280px, 320px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes successPop {
+
+            0%,
+            52% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            57% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            60%,
+            85% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            90%,
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes drawCheck {
+
+            0%,
+            58% {
+                stroke-dashoffset: 1;
+            }
+
+            63%,
+            85% {
+                stroke-dashoffset: 0;
+            }
+
+            90%,
+            100% {
+                stroke-dashoffset: 1;
+            }
+        }
+
+        @keyframes frameColor {
+
+            0%,
+            52% {
+                stroke: #8b5cf6;
+            }
+
+            /* Mor */
+            55%,
+            85% {
+                stroke: #10b981;
+            }
+
+            /* Yeşil */
+            90%,
+            100% {
+                stroke: #8b5cf6;
+            }
+
+            /* Tekrar Mor */
+        }
+
+        @keyframes moveWave {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-100px);
+            }
+        }
+
+        @keyframes moveWaveReverse {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(100px);
+            }
+        }
+
+        @keyframes boatBob {
+
+            0%,
+            100% {
+                transform: translate(200px, 335px) rotate(-3deg);
+            }
+
+            50% {
+                transform: translate(200px, 327px) rotate(4deg);
+            }
+        }  
+    `;
+
   return (
     <section id="paket-istegi" className="py-24 relative overflow-hidden">
+      <style>{svgCss}</style>
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-mastic-white via-white to-chios-purple/[0.02]" />
       <div className="absolute top-20 right-0 w-80 h-80 bg-chios-purple/[0.03] rounded-full blur-3xl" />
@@ -115,96 +474,73 @@ export function PackageRequest() {
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            <svg viewBox="0 0 280 320" fill="none" className="w-full max-w-xs">
-              <defs>
-                <linearGradient id="form-grad-1" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#5D3FD3" />
-                  <stop offset="100%" stopColor="#7B6AE0" />
-                </linearGradient>
-                <linearGradient id="form-grad-2" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#004953" stopOpacity="0.1" />
-                  <stop offset="100%" stopColor="#004953" stopOpacity="0.02" />
-                </linearGradient>
-              </defs>
+            <svg className="package-request-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+              <circle cx="90" cy="120" r="2.5" fill="#fde047" opacity="0.7" />
+              <circle cx="310" cy="160" r="3" fill="#fde047" opacity="0.6" />
+              <circle cx="100" cy="240" r="2" fill="#fde047" opacity="0.8" />
 
-              {/* Background shape */}
-              <rect width="280" height="320" rx="20" fill="#F9F9F7" />
+              <rect className="doc-frame" x="120" y="80" width="160" height="210" rx="16" fill="#ffffff" strokeWidth="3" />
 
-              {/* Wave */}
-              <path d="M0 260C40 250 80 270 140 258C200 246 240 262 280 255V320H0V260Z" fill="url(#form-grad-2)">
-                <animate attributeName="d" dur="4s" repeatCount="indefinite"
-                  values="M0 260C40 250 80 270 140 258C200 246 240 262 280 255V320H0V260Z;M0 255C40 265 80 250 140 262C200 270 240 252 280 260V320H0V255Z;M0 260C40 250 80 270 140 258C200 246 240 262 280 255V320H0V260Z" />
-              </path>
 
-              {/* Clipboard */}
-              <rect x="80" y="50" width="120" height="160" rx="10" fill="white" stroke="#5D3FD3" strokeWidth="1.5" opacity="0.9" />
-              <rect x="115" y="42" width="50" height="16" rx="8" fill="#5D3FD3" opacity="0.3" />
-              <circle cx="140" cy="50" r="4" fill="#5D3FD3" opacity="0.5" />
+              <rect x="175" y="72" width="50" height="16" rx="8" fill="#c4b5fd" />
 
-              {/* Form lines */}
-              {[
-                { y: 80, w: 80 },
-                { y: 100, w: 60 },
-                { y: 120, w: 70 },
-                { y: 140, w: 50 },
-                { y: 160, w: 65 },
-              ].map((line, i) => (
-                <motion.rect
-                  key={i}
-                  x="95"
-                  y={line.y}
-                  width={line.w}
-                  height="6"
-                  rx="3"
-                  fill="#5D3FD3"
-                  opacity="0.08"
-                  initial={{ scaleX: 0, originX: 0 }}
-                  animate={isInView ? { scaleX: 1 } : {}}
-                  transition={{ delay: 0.5 + i * 0.1, duration: 0.4 }}
-                />
-              ))}
+              <g className="form-content">
+                <line className="f-line l1" x1="145" y1="120" x2="220" y2="120" stroke="#e5e7eb" strokeWidth="6"
+                  strokeLinecap="round" pathLength="1" />
+                <line className="f-line l2" x1="145" y1="145" x2="255" y2="145" stroke="#e5e7eb" strokeWidth="6"
+                  strokeLinecap="round" pathLength="1" />
+                <line className="f-line l3" x1="145" y1="170" x2="230" y2="170" stroke="#e5e7eb" strokeWidth="6"
+                  strokeLinecap="round" pathLength="1" />
+                <line className="f-line l4" x1="145" y1="195" x2="200" y2="195" stroke="#e5e7eb" strokeWidth="6"
+                  strokeLinecap="round" pathLength="1" />
+                <line className="f-line l5" x1="145" y1="220" x2="245" y2="220" stroke="#e5e7eb" strokeWidth="6"
+                  strokeLinecap="round" pathLength="1" />
 
-              {/* Submit button on form */}
-              <motion.rect
-                x="95"
-                y="180"
-                width="90"
-                height="18"
-                rx="9"
-                fill="url(#form-grad-1)"
-                opacity="0.6"
-                initial={{ scaleX: 0, originX: 0 }}
-                animate={isInView ? { scaleX: 1 } : {}}
-                transition={{ delay: 1, duration: 0.4 }}
-              />
 
-              {/* Flying package */}
-              <g>
-                <animateTransform attributeName="transform" type="translate"
-                  values="0,0; -20,-40; -35,-15" dur="5s" repeatCount="indefinite" />
-                <rect x="200" y="200" width="30" height="24" rx="3" fill="url(#form-grad-1)" />
-                <path d="M200 212H230" stroke="white" strokeWidth="1" opacity="0.4" />
-                <path d="M215 200V224" stroke="white" strokeWidth="1" opacity="0.4" />
+                <rect className="form-btn" x="145" y="245" width="80" height="24" rx="12" />
+
+
+                <rect x="235" y="243" width="28" height="28" rx="6" fill="#8b5cf6" />
+                <line x1="249" y1="249" x2="249" y2="265" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+                <line x1="241" y1="257" x2="257" y2="257" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
               </g>
 
-              {/* Arrow pointing down to form */}
-              <motion.g
-                animate={{ y: [0, 5, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <path d="M140 230V245M135 240L140 245L145 240" stroke="#5D3FD3" strokeWidth="1.5" opacity="0.3" />
-              </motion.g>
+              <g className="success-group">
+                <circle cx="200" cy="170" r="45" fill="#10b981" />
+                <path className="s-check" d="M180 170 L195 185 L225 150" stroke="#ffffff" strokeWidth="7" fill="none"
+                  strokeLinecap="round" strokeLinejoin="round" pathLength="1" />
 
-              {/* Sparkles */}
-              {[
-                { cx: 60, cy: 80, dur: "2s" },
-                { cx: 230, cy: 120, dur: "2.5s" },
-                { cx: 50, cy: 200, dur: "1.8s" },
-              ].map((s, i) => (
-                <circle key={i} cx={s.cx} cy={s.cy} r="2" fill="#FFCF7E" opacity="0.4">
-                  <animate attributeName="opacity" values="0.1;0.6;0.1" dur={s.dur} repeatCount="indefinite" />
-                </circle>
-              ))}
+                <line x1="165" y1="235" x2="235" y2="235" stroke="#10b981" strokeWidth="6" strokeLinecap="round" />
+              </g>
+
+
+              <g className="cursor">
+                <path d="M0 0 L16 6 L10 11 L15 21 L11 23 L6 13 L0 19 Z" fill="#1f2937" stroke="#ffffff" strokeWidth="2"
+                  strokeLinejoin="round" />
+              </g>
+
+              <g className="wave-bg-group">
+                <path className="wave-bg"
+                  d="M 0 340 Q 25 325, 50 340 T 100 340 T 150 340 T 200 340 T 250 340 T 300 340 T 350 340 T 400 340 T 450 340 T 500 340 V 400 H 0 Z"
+                  fill="#e0f2fe" opacity="0.8" />
+              </g>
+
+              <g className="boat">
+                <polygon points="0,-25 15,0 0,0" fill="#a78bfa" />
+
+                <polygon points="0,-32 -20,0 0,0" fill="#c4b5fd" />
+
+                <polygon points="-30,0 30,0 15,10 -20,10" fill="#ffffff" />
+
+                <polygon points="-20,0 0,10 20,0" fill="#ede9fe" />
+              </g>
+
+
+              <g className="wave-fg-group">
+                <path className="wave-fg"
+                  d="M -200 350 Q -175 335, -150 350 T -100 350 T -50 350 T 0 350 T 50 350 T 100 350 T 150 350 T 200 350 T 250 350 T 300 350 T 350 350 T 400 350 T 450 350 T 500 350 V 400 H -200 Z"
+                  fill="#bae6fd" opacity="0.9" />
+              </g>
             </svg>
 
             <div className="mt-6 text-center">
@@ -344,11 +680,10 @@ export function PackageRequest() {
                                 key={c}
                                 type="button"
                                 onClick={() => updateField("carrier", c)}
-                                className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all duration-200 cursor-pointer ${
-                                  formData.carrier === c
-                                    ? "border-chios-purple/40 bg-chios-purple/5 text-chios-purple"
-                                    : "border-deep-sea-teal/10 text-deep-sea-teal/50 hover:border-deep-sea-teal/20"
-                                }`}
+                                className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all duration-200 cursor-pointer ${formData.carrier === c
+                                  ? "border-chios-purple/40 bg-chios-purple/5 text-chios-purple"
+                                  : "border-deep-sea-teal/10 text-deep-sea-teal/50 hover:border-deep-sea-teal/20"
+                                  }`}
                               >
                                 {c}
                               </button>
@@ -484,11 +819,10 @@ export function PackageRequest() {
                         disabled={!canNext()}
                         whileHover={canNext() ? { scale: 1.02 } : {}}
                         whileTap={canNext() ? { scale: 0.98 } : {}}
-                        className={`flex items-center gap-2 px-6 py-2.5 text-sm font-display font-semibold rounded-full transition-all duration-300 cursor-pointer ${
-                          canNext()
-                            ? "bg-chios-purple text-white shadow-lg shadow-chios-purple/20 hover:shadow-xl"
-                            : "bg-deep-sea-teal/5 text-deep-sea-teal/30 cursor-not-allowed"
-                        }`}
+                        className={`flex items-center gap-2 px-6 py-2.5 text-sm font-display font-semibold rounded-full transition-all duration-300 cursor-pointer ${canNext()
+                          ? "bg-chios-purple text-white shadow-lg shadow-chios-purple/20 hover:shadow-xl"
+                          : "bg-deep-sea-teal/5 text-deep-sea-teal/30 cursor-not-allowed"
+                          }`}
                       >
                         {t("pkgReq.continue")}
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

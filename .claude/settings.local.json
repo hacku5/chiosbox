@@ -50,7 +50,20 @@
       "Bash(rtk tsc *)",
       "mcp__plugin_context-mode_context-mode__ctx_execute",
       "Bash(rtk next *)",
-      "Bash(rtk grep *)"
+      "Bash(rtk grep *)",
+      "Bash(tailscale status *)",
+      "Bash(tailscale funnel *)",
+      "Bash(taskkill //F //PID 32412)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //F //PID 2028)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'keys: {len\\(d.get\\(\\\\\"entries\\\\\",{}\\)\\)}'\\)\")",
+      "Bash(taskkill //F //PID 10024)",
+      "Bash(npm ls *)",
+      "Bash(where tsx *)",
+      "Bash(C:\\\\Users\\\\MySir\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\superpowers\\\\5.0.7\\\\skills\\\\brainstorming\\\\scripts\\\\start-server.sh *)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(dir .env* /b)",
+      "Bash(findstr /i \"SUPABASE\")"
     ]
   },
   "spinnerTipsEnabled": true

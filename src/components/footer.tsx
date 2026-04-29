@@ -107,7 +107,7 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="/gizlilik"
+                  href="/policies/privacy"
                   className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
                 >
                   {t("footer.privacy")}
@@ -115,10 +115,18 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/kullanim-kosullari"
+                  href="/policies/terms"
                   className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
                 >
                   {t("footer.terms")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/policies/kvkk"
+                  className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
+                >
+                  {t("footer.kvkk")}
                 </Link>
               </li>
             </ul>

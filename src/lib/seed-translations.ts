@@ -76,11 +76,11 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "pricing.storage1": "1 gün",
     "pricing.storage30": "30 gün",
     "pricing.freeStorage": "İlk 14 gün ücretsiz depolama",
-    "pricing.acceptFeeInfo": "Paket başı kabul ücreti €{BASE_FEE}",
+    "pricing.acceptFeeInfo": "Paket başı kabul ücreti €4",
     "pricing.monthlyCost": "Aylık Tahmini Maliyet",
-    "pricing.acceptFee": "Kabul Ücreti ({packages} paket × €{BASE_FEE})",
+    "pricing.acceptFee": "Kabul Ücreti",
     "pricing.consolidationFee": "Konsolidasyon Ücreti",
-    "pricing.demurrageFee": "Gecikme Ücreti ({days} gün × €{DAILY_DEMURRAGE})",
+    "pricing.demurrageFee": "Gecikme Ücreti",
     "pricing.total": "Toplam",
     "pricing.savings": "Birleştirerek ~€{amount} tasarruf edebilirsiniz!",
     "pricing.planTitle": "Size Uygun Paketi Seçin",
@@ -105,7 +105,7 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "pricing.premium.cta": "Premium Paketi Seç",
     "pricing.month": "/ay",
     "pricing.mostPopular": "En Popüler",
-    "pricing.fee.accept": "Kabul Ücreti ({packages} paket × €{BASE_FEE})",
+    "pricing.fee.accept": "Kabul Ücreti",
     "pricing.fee.storage14": "14 gün ücretsiz depolama",
     "pricing.fee.acceptInfo": "Paket başı kabul ücreti €4",
     "pricing.fee.acceptUnit": "× €{fee}",
@@ -214,9 +214,9 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Admin actions
     "action.kabul": "Kabul",
-    "action.teslimat": "Teslimat",
-    "action.gecikme": "Gecikme",
-    "action.paketler": "Paketler",
+    "actions.delivery": "Teslimat",
+    "action.delay": "Gecikme",
+    "action.packages": "Paketler",
     "action.faturalar": "Faturalar",
     "action.musteriler": "Müşteriler",
 
@@ -394,6 +394,7 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "perm.packages": "Paket Listesi",
     "perm.invoices": "Fatura Yönetimi",
     "perm.customers": "Müşteri Yönetimi",
+    "perm.settings": "Sistem Ayarları",
 
     // Error & Loading
     "error.root.title": "Bir şeyler ters gitti",
@@ -593,6 +594,151 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "profile.notificationsEnabling": "Ayarlanıyor...",
     "profile.notificationsEnable": "Bildirimleri Aç",
     "profile.logout": "Çıkış Yap",
+    "profile.changePassword": "Şifre Değiştir",
+    "profile.changePasswordDescription": "Güvenliğiniz için şifrenizi buradan değiştirebilirsiniz.",
+    "profile.currentPassword": "Mevcut şifre",
+    "profile.newPassword": "Yeni şifre",
+    "profile.confirmPassword": "Yeni şifre (tekrar)",
+    "profile.passwordChanged": "Şifreniz başarıyla değiştirildi!",
+    "profile.passwordRequired": "Tüm şifre alanlarını doldurun.",
+    "profile.passwordMinLength": "Şifre en az 6 karakter olmalıdır.",
+    "profile.passwordMismatch": "Şifreler eşleşmiyor.",
+    "profile.passwordChangeFailed": "Şifre değiştirme başarısız oldu.",
+    "profile.addressLabel": "Adres",
+    "profile.addressPlaceholder": "Adresinizi girin",
+
+    // Tour Guide — common
+    "tour.start": "Tur Rehberini Başlat",
+    "tour.next": "İleri",
+    "tour.back": "Geri",
+    "tour.finish": "Bitir",
+    "tour.skip": "Atla",
+    "tour.close": "Kapat",
+    "tour.helpTooltip": "Tur Rehberi",
+
+    // Tour — Dashboard Welcome (step 0)
+    "tour.step.dashboardWelcome.title": "Hoşgeldiniz",
+    "tour.step.dashboardWelcome.content": "ChiosBox'a hoş geldiniz! Bu sizin kontrol paneliniz. Üstte ChiosBox ID'niz ve teslimat adresiniz görünür. 'Adresimi Kopyala' butonu ile adresinizi kopyalayın ve Türk online mağazalarında alışveriş yaparken teslimat adresi olarak kullanın.",
+
+    // Tour — Dashboard Packages (step 1)
+    "tour.step.dashboardPackages.title": "Aktif Paketler",
+    "tour.step.dashboardPackages.content": "Son eklenen paketleriniz durum etiketleriyle burada listelenir. Henüz paket bildirmediyseniz boş durum mesajı görünür. Tüm paketlerinizi görmek için 'Tümünü Gör' bağlantısına tıklayın.",
+
+    // Tour — Dashboard Storage (step 2) — {fee} = daily demurrage
+    "tour.step.dashboardStorage.title": "Depolama Süresi",
+    "tour.step.dashboardStorage.content": "Paketleriniz 14 gün ücretsiz saklanır. Sonrasında günlük {fee} depolama ücreti uygulanır. Kalan sürenizi buradan takip edin — süreniz dolmadan ödeme yaparak veya paketinizi birleştirerek ekstra ücretten kaçının.",
+
+    // Tour — Dashboard Package Stats (step 3)
+    "tour.step.dashboardPackageStats.title": "Paket İstatistikleri",
+    "tour.step.dashboardPackageStats.content": "Depodaki ve yoldaki paket sayılarınızı burada görebilirsiniz. Bu kartlar size anlık durum özeti sunar — kaç paketiniz depoda bekliyor, kaç paket yolda hemen görün.",
+
+    // Tour — Dashboard Invoice (step 4)
+    "tour.step.dashboardInvoice.title": "Bekleyen Fatura",
+    "tour.step.dashboardInvoice.content": "Ödenmemiş faturanız varsa burada görünür. Kabul ücreti, konsolidasyon ücreti ve depolama fazlası gibi kalemlerin toplamını görebilirsiniz. 'Şimdi Öde' butonu ile hızlıca ödeme yapabilirsiniz.",
+
+    // Tour — Dashboard Actions (step 5)
+    "tour.step.dashboardActions.title": "Hızlı İşlemler",
+    "tour.step.dashboardActions.content": "Sık kullanılan işlemlere hızlı erişim. 'Adresimi Kopyala' ile ChiosBox adresinizi kopyalayın — bunu online alışverişlerde teslimat adresi olarak kullanacaksınız. 'Şimdi Öde' ile bekleyen faturalarınızı ödeyebilirsiniz.",
+
+    // Tour — Packages Overview (step 6)
+    "tour.step.packagesOverview.title": "Paketlerim Sayfası",
+    "tour.step.packagesOverview.content": "Tüm bildirdiğiniz paketler bu sayfada listelenir. Arama ve filtreleme ile paketlerinizi hızlıca bulun. Her paket kartında durum etiketi, kargo firması, takip numarası ve içerik bilgisi görünür.",
+
+    // Tour — Actions Page (step 7)
+    "tour.step.actionsPage.title": "Paket Bildirimi",
+    "tour.step.actionsPage.content": "Online alışverişinizden sonra satıcı kargoya verdiğinde bir takip numarası oluşur. O numarayı buraya girerek paketinizi ChiosBox sistemine eklersiniz. Böylece paketiniz depoya ulaştığında sizi bilgilendirebiliriz. Hadi formu adım adım dolduralım!",
+
+    // Tour — Tracking Input (step 8)
+    "tour.step.tracking.title": "Takip Numarası",
+    "tour.step.tracking.content": "Satıcınızdan aldığınız kargo takip numarasını buraya girin. Numarayı girdiğinizde kargo firması otomatik algılanır. Örneğin: TR-2026-0044 gibi bir numara kullanabilirsiniz.",
+
+    // Tour — Carrier Select (step 9)
+    "tour.step.carrier.title": "Kargo Firması",
+    "tour.step.carrier.content": "Paketinizi hangi kargo firmasının getirdiğini seçin. Takip numarasından otomatik algılanmadıysa listeden seçebilir veya 'Diğer' ile manuel girebilirsiniz.",
+
+    // Tour — Content Input (step 10)
+    "tour.step.contentInput.title": "İçerik Bilgisi",
+    "tour.step.contentInput.content": "Paketinizin içinde ne olduğunu kısaca yazın. Bu bilgi gümrük ve depo işlemleri için gereklidir. Örneğin: 'Nike Air Max 90' veya 'Elektronik aksesuar' gibi.",
+
+    // Tour — Submit (step 11)
+    "tour.step.submit.title": "Paket Bildir",
+    "tour.step.submit.content": "Tüm bilgileri girdikten sonra bu butona tıklayarak paketinizi ChiosBox'a bildirin. Demo modunda form doldurulacak ve 3. paket listenize eklenecek.",
+
+    // Tour — Package Card (step 12)
+    "tour.step.packageCard.title": "Paket Kartı",
+    "tour.step.packageCard.content": "Yeni bildirdiğiniz paket artık listede! Her paket kartında durum etiketi (bekleniyor, yolda, depoda, teslim edildi), kargo firması, takip numarası ve içerik özeti görünür. Detayları görmek için karta tıklayın.",
+
+    // Tour — Package Detail (step 13)
+    "tour.step.packageDetail.title": "Paket Detayları",
+    "tour.step.packageDetail.content": "Pakete tıkladığınızda detay modalı açılır. Burada depo varış tarihi, kalan ücretsiz saklama süresi, raf konumu ve depo fotoğrafını görebilirsiniz. Ödeme yapmadan önce bilgilerinizi buradan kontrol edebilirsiniz.",
+
+    // Tour — Package Chat (step 14)
+    "tour.step.packageChat.title": "Destek Chat",
+    "tour.step.packageChat.content": "Paket detayından destek ekibimizle canlı sohbet başlatabilirsiniz. Paketinizle ilgili sorularınızı sorabilir, fotoğraf talep edebilir veya özel not bırakabilirsiniz. Admin ekibimiz en kısa sürede yanıt verir.",
+
+    // Tour — Checkout Pay (step 15)
+    "tour.step.checkoutPay.title": "Fatura Ödeme",
+    "tour.step.checkoutPay.content": "Bekleyen faturalarınızı buradan görüntüleyebilir ve ödeyebilirsiniz. Kabul ücreti, konsolidasyon ücreti ve depolama fazlası ücretleri detaylı olarak listelenir. Ödeme onayından sonra teslim QR kodunuz oluşturulur.",
+
+    // Tour — Profile Info (step 16)
+    "tour.step.profileInfo.title": "Kişisel Bilgiler",
+    "tour.step.profileInfo.content": "Adınız, e-posta adresiniz, telefon numaranız ve ChiosBox ID'niz burada görünür. Düzenle butonu ile bilgilerinizi güncelleyebilir, kaydet butonu ile değişiklikleri kaydedebilirsiniz.",
+
+    // Tour — Profile Address (step 17)
+    "tour.step.profileAddress.title": "ChiosBox Teslimat Adresi",
+    "tour.step.profileAddress.content": "Bu adres Sakız Adası'ndaki depomuzun adresidir. Türk online mağazalarından alışveriş yaparken teslimat adresi olarak bu adresi kullanın. 'Adresi Kopyala' butonu ile hızlıca kopyalayabilirsiniz.",
+
+    // Tour — Profile Password (step 18)
+    "tour.step.profilePassword.title": "Şifre Değiştirme",
+    "tour.step.profilePassword.content": "Güvenliğiniz için şifrenizi buradan değiştirebilirsiniz. Mevcut şifrenizi girin, yeni şifrenizi belirleyin ve onaylayın.",
+
+    // Tour — Profile Subscription (step 19)
+    "tour.step.profileSubscription.title": "Üyelik Bilgisi",
+    "tour.step.profileSubscription.content": "Mevcut planınız ve abonelik durumunuz burada görünür. Plan adı (Basic Plan) ve durum (Aktif/Pasif) bilgilerini kontrol edebilirsiniz.",
+
+    // Tour — Profile Extras (step 20)
+    "tour.step.profileExtras.title": "Ayarlar ve Bildirimler",
+    "tour.step.profileExtras.content": "Bildirimleri açarak paket güncellemelerini anında alın. Turu yeniden başlatmak için '?' butonunu kullanabilirsiniz. Çıkış yapmak için alttaki butona tıklayın.",
+
+    // Tour — Consolidate Left (step 21)
+    "tour.step.consolidateLeft.title": "Birleştirmeye Uygun Paketler",
+    "tour.step.consolidateLeft.content": "Sol panelde depoda bekleyen paketleriniz listelenir. Konsolidasyon kutusuna eklemek istediğiniz paketleri seçin. Birden fazla paketi tek kutuda birleştirerek uluslararası kargo maliyetlerinden tasarruf edin.",
+
+    // Tour — Consolidate Right (step 22)
+    "tour.step.consolidateRight.title": "Master Kutu",
+    "tour.step.consolidateRight.content": "Seçtiğiniz paketler master box'a transfer olur. Paket birleştirildiğinde konsolidasyon ücreti eklenir ama ayrı ayrı göndermekten çok daha ucuzdur. Farkı fiyat karşılaştırmasında görebilirsiniz.",
+
+    // Tour — Consolidate Confirm (step 23)
+    "tour.step.consolidateConfirm.title": "Birleştirme Onayı",
+    "tour.step.consolidateConfirm.content": "Paketlerinizi seçtikten sonra bu butona tıklayarak konsolidasyon talebinizi gönderin. Onay sonrası faturanıza konsolidasyon ücreti eklenir. Bu adım opsiyoneldir — paketleri tek tek de gönderebilirsiniz.",
+
+    // Tour — Checkout Overview (step 24)
+    "tour.step.checkout.title": "Fatura ve Ödeme",
+    "tour.step.checkout.content": "Ödeme yapmadan önce faturalarınızı inceleyin. Kabul ücreti, konsolidasyon ücreti, depo fazlası ücreti gibi kalemleri ve paket bazlı dökümü görebilirsiniz. Toplam tutarı kontrol edin.",
+
+    // Tour — Checkout Pay Final (step 25)
+    "tour.step.checkoutPayFinal.title": "Ödeme Yap",
+    "tour.step.checkoutPayFinal.content": "Her şey hazır! Bu butona tıklayarak faturanızı ödeyin. Ödeme onayından sonra teslim QR kodunuz oluşturulur. Bu QR kodu ChiosBox teslimat noktasında göstererek paketlerinizi alabilirsiniz. Tur tamamlandı!",
+
+    // Order Flow Simulation
+    "tour.orderFlow.title": "Sipariş & Kargo Süreci",
+    "tour.orderFlow.step1.title": "Alışveriş Zamanı!",
+    "tour.orderFlow.step1.content": "Türkiye'deki herhangi bir online mağazadan (Trendyol, Hepsiburada, Amazon vb.) alışveriş yapın. ChiosBox adresinizi teslimat adresi olarak kullanın — biz sizin için Sakız Adası'nda teslim alırız!",
+    "tour.orderFlow.step2.title": "Ürünü Seç ve Satın Al",
+    "tour.orderFlow.step2.content": "İstediğiniz ürünü seçin, sepete ekleyin ve siparişi tamamlayın. Ödeme adımında teslimat adresi olarak ChiosBox adresinizi girin. Satıcı adresi görünce Sakız Adası'na gönderecek.",
+    "tour.orderFlow.step3.title": "Satıcı Kargoya Verdi!",
+    "tour.orderFlow.step3.content": "Satıcı siparişinizi kargoya verdiğinde bir takip numarası oluşur. Bu numarayı kargo firmasıyla birlikte not edin — ChiosBox'a bildirmeniz gerekecek.",
+    "tour.orderFlow.step4.title": "Takip Numarası Hazır",
+    "tour.orderFlow.step4.content": "Kargo firması ve takip numaranız belli oldu! Bir sonraki adımda bu numarayı ChiosBox sistemine girerek paketinizi takibe alacağız.",
+    "tour.orderFlow.step5.title": "Paket Bildirebilirsiniz!",
+    "tour.orderFlow.step5.content": "Şimdi takip numaranızı ve kargo firmasını girerek paketinizi ChiosBox sistemine ekleyebilirsiniz. Hadi devam edelim!",
+    "tour.orderFlow.next": "Sonraki",
+    "tour.orderFlow.finish": "Tamam, Anladım!",
+
+    // Tour — Mock Chat Messages
+    "tour.mockChat.msg1": "Merhaba! Paketiniz depomuza ulaştı, raflama işlemi yapılıyor.",
+    "tour.mockChat.msg2": "Teşekkürler, fotoğrafı görebilir miyim?",
+    "tour.mockChat.msg3": "Tabii, fotoğraf panelinizde görünüyor olmalı. Raflama tamamlandı, A-12 rafına yerleştirildi.",
 
     // Actions (Package Report)
     "actions.carrier.other": "Diğer",
@@ -733,6 +879,17 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "islandScene.arrived.title": "Sakız Adası Depomuzda",
     "islandScene.arrived.description": "Konsolide edin, tasarruf edin, kapınıza teslim edelim.",
 
+    // Bento Grid (Hero Animation)
+    "bento.route.title": "Kesintisiz Lojistik",
+    "bento.route.euStore": "AB Mağazası",
+    "bento.route.warehouse": "Sakız Deposu",
+    "bento.storage.title": "Bekleme Süresi",
+    "bento.storage.days": "Gün Ücretsiz",
+    "bento.storage.subtitle": "Depolama Hakkı",
+    "bento.delivery.title": "Kolay Teslimat",
+    "bento.delivery.headline": "Adaya Geçin",
+    "bento.delivery.subtitle": "Hafta sonu feribotla al.",
+
     // Admin Customer Detail
     "adminCustomers.backToList": "Müşterilere Dön",
     "adminCustomers.package": "Paket",
@@ -789,6 +946,40 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "adminLanguages.delete": "Sil",
     "adminLanguages.remove": "Kaldır",
     "adminLanguages.noLanguagesYet": "Henüz dil eklenmemiş",
+
+    // Admin Policies
+    "admin.policies": "Politikalar",
+    "adminPolicies.title": "Yasal Politikalar",
+    "adminPolicies.description": "Kullanıcı sözleşmesi, gizlilik politikası ve KVKK metinlerini yönetin.",
+
+    // Admin Settings
+    "admin.settings": "Ayarlar",
+    "adminSettings.title": "Sistem Ayarları",
+    "adminSettings.description": "Ücretler, plan fiyatları, limitler ve iş kurallarını yönetin. Değişiklikler anında geçerli olur.",
+    "adminSettings.saving": "Kaydediliyor...",
+    "adminSettings.saveChanges": "{count} Değişikliği Kaydet",
+    "adminSettings.saved": "{count} ayar kaydedildi.",
+    "adminSettings.saveFailed": "Kaydetme başarısız.",
+    "adminSettings.empty": "Bu kategoride ayar bulunamadı.",
+    "adminSettings.catFees": "Ücretler",
+    "adminSettings.catPlans": "Planlar",
+    "adminSettings.catLimits": "Limitler",
+    "adminSettings.catBusiness": "İş Kuralları",
+    "adminSettings.catRateLimits": "Rate Limitler",
+    "adminSettings.warningTitle": "Dikkat",
+    "adminSettings.warningText": "Ücret ve plan değişiklikleri yeni işlemleri etkiler. Mevcut faturalar kendi tutarlarıyla korunur. Değişiklik yapmadan önce emin olun.",
+    "adminPolicies.titleLabel": "Başlık",
+    "adminPolicies.titlePlaceholder": "Politika başlığı",
+    "adminPolicies.contentLabel": "İçerik",
+    "adminPolicies.contentPlaceholder": "HTML içeriğini buraya yazın...",
+    "adminPolicies.contentHint": "HTML formatında içerik girebilirsiniz. Etiketler desteklenir.",
+    "adminPolicies.save": "Kaydet",
+    "adminPolicies.saving": "Kaydediliyor...",
+    "adminPolicies.saved": "Başarıyla kaydedildi",
+    "adminPolicies.saveFailed": "Kaydetme başarısız",
+    "adminPolicies.published": "Yayında",
+    "adminPolicies.draft": "Taslak",
+    "footer.kvkk": "KVKK Aydınlatma Metni",
   },
 
   en: {
@@ -865,11 +1056,11 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "pricing.storage1": "1 day",
     "pricing.storage30": "30 days",
     "pricing.freeStorage": "First 14 days free storage",
-    "pricing.acceptFeeInfo": "Accept fee per package €{BASE_FEE}",
+    "pricing.acceptFeeInfo": "Accept fee per package €4",
     "pricing.monthlyCost": "Estimated Monthly Cost",
-    "pricing.acceptFee": "Accept Fee ({packages} packages × €{BASE_FEE})",
+    "pricing.acceptFee": "Accept Fee",
     "pricing.consolidationFee": "Consolidation Fee",
-    "pricing.demurrageFee": "Late Fee ({days} days × €{DAILY_DEMURRAGE})",
+    "pricing.demurrageFee": "Late Fee",
     "pricing.total": "Total",
     "pricing.savings": "You can save ~€{amount} by consolidating!",
     "pricing.planTitle": "Choose the Plan That Suits You",
@@ -894,7 +1085,7 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "pricing.premium.cta": "Choose Premium Plan",
     "pricing.month": "/month",
     "pricing.mostPopular": "Most Popular",
-    "pricing.fee.accept": "Accept Fee ({packages} packages × €{BASE_FEE})",
+    "pricing.fee.accept": "Accept Fee",
     "pricing.fee.storage14": "14 days free storage",
     "pricing.fee.acceptInfo": "Accept fee per package €4",
     "pricing.fee.acceptUnit": "× €{fee}",
@@ -1003,9 +1194,9 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Admin actions
     "action.kabul": "Intake",
-    "action.teslimat": "Delivery",
-    "action.gecikme": "Delay",
-    "action.paketler": "Packages",
+    "actions.delivery": "Delivery",
+    "action.delay": "Delay",
+    "action.packages": "Packages",
     "action.faturalar": "Invoices",
     "action.musteriler": "Customers",
 
@@ -1183,6 +1374,7 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "perm.packages": "Package List",
     "perm.invoices": "Invoice Management",
     "perm.customers": "Customer Management",
+    "perm.settings": "System Settings",
 
     // Error & Loading
     "error.root.title": "Something went wrong",
@@ -1382,6 +1574,151 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "profile.notificationsEnabling": "Setting up...",
     "profile.notificationsEnable": "Enable Notifications",
     "profile.logout": "Log Out",
+    "profile.changePassword": "Change Password",
+    "profile.changePasswordDescription": "You can change your password here for security.",
+    "profile.currentPassword": "Current password",
+    "profile.newPassword": "New password",
+    "profile.confirmPassword": "New password (confirm)",
+    "profile.passwordChanged": "Password changed successfully!",
+    "profile.passwordRequired": "Please fill in all password fields.",
+    "profile.passwordMinLength": "Password must be at least 6 characters.",
+    "profile.passwordMismatch": "Passwords do not match.",
+    "profile.passwordChangeFailed": "Password change failed.",
+    "profile.addressLabel": "Address",
+    "profile.addressPlaceholder": "Enter your address",
+
+    // Tour Guide — common
+    "tour.start": "Start Tour Guide",
+    "tour.next": "Next",
+    "tour.back": "Back",
+    "tour.finish": "Finish",
+    "tour.skip": "Skip",
+    "tour.close": "Close",
+    "tour.helpTooltip": "Tour Guide",
+
+    // Tour — Dashboard Welcome (step 0)
+    "tour.step.dashboardWelcome.title": "Welcome",
+    "tour.step.dashboardWelcome.content": "Welcome to ChiosBox! This is your dashboard. Your ChiosBox ID and delivery address appear at the top. Use the 'Copy My Address' button to copy your address for use in Turkish online stores.",
+
+    // Tour — Dashboard Packages (step 1)
+    "tour.step.dashboardPackages.title": "Active Packages",
+    "tour.step.dashboardPackages.content": "Your recently added packages are listed here with status badges. If you haven't reported any packages yet, an empty state message appears. Click 'View All' to see all your packages.",
+
+    // Tour — Dashboard Storage (step 2) — {fee} = daily demurrage
+    "tour.step.dashboardStorage.title": "Storage Duration",
+    "tour.step.dashboardStorage.content": "Your packages are stored free for 14 days. After that, a daily storage fee of {fee} applies. Track your remaining time here — pay before time runs out or consolidate to avoid extra charges.",
+
+    // Tour — Dashboard Package Stats (step 3)
+    "tour.step.dashboardPackageStats.title": "Package Statistics",
+    "tour.step.dashboardPackageStats.content": "See your in-warehouse and in-transit package counts here. These cards give you a real-time overview — how many packages are waiting in the warehouse, how many are on their way.",
+
+    // Tour — Dashboard Invoice (step 4)
+    "tour.step.dashboardInvoice.title": "Pending Invoice",
+    "tour.step.dashboardInvoice.content": "If you have an unpaid invoice, it appears here. You can see the total of acceptance fees, consolidation fees, and demurrage charges. Use the 'Pay Now' button to pay quickly.",
+
+    // Tour — Dashboard Actions (step 5)
+    "tour.step.dashboardActions.title": "Quick Actions",
+    "tour.step.dashboardActions.content": "Quick access to frequent actions. 'Copy My Address' copies your ChiosBox address — use it as your delivery address when shopping online. 'Pay Now' lets you pay pending invoices.",
+
+    // Tour — Packages Overview (step 6)
+    "tour.step.packagesOverview.title": "My Packages Page",
+    "tour.step.packagesOverview.content": "All your reported packages are listed on this page. Use search and filters to find packages quickly. Each card shows status, carrier, tracking number, and contents.",
+
+    // Tour — Actions Page (step 7)
+    "tour.step.actionsPage.title": "Report a Package",
+    "tour.step.actionsPage.content": "After your online purchase, when the seller ships your order, a tracking number is generated. Enter that number here to add the package to your ChiosBox account. This way we can notify you when it arrives at the warehouse. Let's fill out the form step by step!",
+
+    // Tour — Tracking Input (step 8)
+    "tour.step.tracking.title": "Tracking Number",
+    "tour.step.tracking.content": "Enter the shipping tracking number you received from the seller. The carrier is often detected automatically from the number format. For example: TR-2026-0044.",
+
+    // Tour — Carrier Select (step 9)
+    "tour.step.carrier.title": "Shipping Carrier",
+    "tour.step.carrier.content": "Select which carrier is delivering your package. If not auto-detected from the tracking number, choose from the list or select 'Other' to enter manually.",
+
+    // Tour — Content Input (step 10)
+    "tour.step.contentInput.title": "Content Description",
+    "tour.step.contentInput.content": "Briefly describe what's inside your package. This information is needed for customs and warehouse processing. For example: 'Nike Air Max 90' or 'Electronic accessories'.",
+
+    // Tour — Submit (step 11)
+    "tour.step.submit.title": "Submit Package Report",
+    "tour.step.submit.content": "Once all fields are filled, click this button to report your package to ChiosBox. In demo mode, the form will be filled and the 3rd package will be added to your list.",
+
+    // Tour — Package Card (step 12)
+    "tour.step.packageCard.title": "Package Card",
+    "tour.step.packageCard.content": "Your newly reported package is now in the list! Each package card shows a status badge (awaiting, in transit, in warehouse, delivered), carrier, tracking number, and content summary. Click the card for details.",
+
+    // Tour — Package Detail (step 13)
+    "tour.step.packageDetail.title": "Package Details",
+    "tour.step.packageDetail.content": "Clicking a package opens the detail modal. Here you can see warehouse arrival date, remaining free storage days, shelf location, and a warehouse photo. Review your package info here before making any payments.",
+
+    // Tour — Package Chat (step 14)
+    "tour.step.packageChat.title": "Support Chat",
+    "tour.step.packageChat.content": "From the package detail, you can start a live chat with our support team. Ask questions about your package, request photos, or leave special notes. Our admin team responds as soon as possible.",
+
+    // Tour — Checkout Pay (step 15)
+    "tour.step.checkoutPay.title": "Invoice Payment",
+    "tour.step.checkoutPay.content": "View and pay your pending invoices here. Acceptance fees, consolidation fees, and demurrage charges are listed in detail. After payment confirmation, your delivery QR code is generated.",
+
+    // Tour — Profile Info (step 16)
+    "tour.step.profileInfo.title": "Personal Information",
+    "tour.step.profileInfo.content": "Your name, email, phone number, and ChiosBox ID appear here. Use the Edit button to update your information and the Save button to save changes.",
+
+    // Tour — Profile Address (step 17)
+    "tour.step.profileAddress.title": "ChiosBox Delivery Address",
+    "tour.step.profileAddress.content": "This is the address of our warehouse on Chios Island. Use this address as your delivery address when shopping from Turkish online stores. The 'Copy Address' button copies it to your clipboard instantly.",
+
+    // Tour — Profile Password (step 18)
+    "tour.step.profilePassword.title": "Change Password",
+    "tour.step.profilePassword.content": "You can change your password here for security. Enter your current password, set a new one, and confirm.",
+
+    // Tour — Profile Subscription (step 19)
+    "tour.step.profileSubscription.title": "Subscription Info",
+    "tour.step.profileSubscription.content": "Your current plan and subscription status appear here. You can check the plan name (Basic Plan) and status (Active/Inactive).",
+
+    // Tour — Profile Extras (step 20)
+    "tour.step.profileExtras.title": "Settings & Notifications",
+    "tour.step.profileExtras.content": "Enable notifications to receive instant package updates. Use the '?' button to restart the tour. Click the logout button at the bottom to sign out.",
+
+    // Tour — Consolidate Left (step 21)
+    "tour.step.consolidateLeft.title": "Packages for Consolidation",
+    "tour.step.consolidateLeft.content": "Your warehouse packages are listed in the left panel. Select packages to add to the consolidation box. Combine multiple packages into one box to save on international shipping costs.",
+
+    // Tour — Consolidate Right (step 22)
+    "tour.step.consolidateRight.title": "Master Box",
+    "tour.step.consolidateRight.content": "Your selected packages transfer to the master box. A consolidation fee is added when combining, but it's much cheaper than shipping separately. You can see the difference in the price comparison.",
+
+    // Tour — Consolidate Confirm (step 23)
+    "tour.step.consolidateConfirm.title": "Consolidation Confirmation",
+    "tour.step.consolidateConfirm.content": "After selecting your packages, click this button to submit your consolidation request. A consolidation fee is added to your invoice after confirmation. This step is optional — you can also ship packages individually.",
+
+    // Tour — Checkout Overview (step 24)
+    "tour.step.checkout.title": "Invoice & Payment",
+    "tour.step.checkout.content": "Review your invoices before paying. See line items like acceptance fee, consolidation fee, and demurrage charges with per-package breakdown. Check the total amount.",
+
+    // Tour — Checkout Pay Final (step 25)
+    "tour.step.checkoutPayFinal.title": "Make Payment",
+    "tour.step.checkoutPayFinal.content": "Everything is ready! Click this button to pay your invoice. After payment confirmation, your delivery QR code is generated. Show this QR code at the ChiosBox pickup point to collect your packages. Tour complete!",
+
+    // Order Flow Simulation
+    "tour.orderFlow.title": "Order & Shipping Process",
+    "tour.orderFlow.step1.title": "Time to Shop!",
+    "tour.orderFlow.step1.content": "Shop from any Turkish online store (Trendyol, Hepsiburada, Amazon, etc.). Use your ChiosBox address as the delivery address — we'll receive it on Chios Island for you!",
+    "tour.orderFlow.step2.title": "Select & Purchase",
+    "tour.orderFlow.step2.content": "Choose your product, add to cart, and complete the order. Enter your ChiosBox address as the delivery address at checkout. The seller will ship to Chios Island.",
+    "tour.orderFlow.step3.title": "Seller Ships!",
+    "tour.orderFlow.step3.content": "When the seller ships your order, a tracking number is generated. Note it down along with the carrier name — you'll need to report it to ChiosBox.",
+    "tour.orderFlow.step4.title": "Tracking Number Ready",
+    "tour.orderFlow.step4.content": "Your carrier and tracking number are confirmed! In the next step, we'll add this package to the ChiosBox tracking system.",
+    "tour.orderFlow.step5.title": "Ready to Report!",
+    "tour.orderFlow.step5.content": "Now enter your tracking number and carrier to add the package to your ChiosBox account. Let's continue!",
+    "tour.orderFlow.next": "Next",
+    "tour.orderFlow.finish": "Got It!",
+
+    // Tour — Mock Chat Messages
+    "tour.mockChat.msg1": "Hello! Your package has arrived at our warehouse, we're processing it for shelving.",
+    "tour.mockChat.msg2": "Thanks, can I see the photo?",
+    "tour.mockChat.msg3": "Of course, the photo should be visible in your panel. Shelving complete, placed on shelf A-12.",
 
     // Actions
     "actions.carrier.other": "Other",
@@ -1522,6 +1859,17 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "islandScene.arrived.title": "At Our Chios Warehouse",
     "islandScene.arrived.description": "Consolidate, save, and we'll deliver to your door.",
 
+    // Bento Grid (Hero Animation)
+    "bento.route.title": "Seamless Logistics",
+    "bento.route.euStore": "EU Store",
+    "bento.route.warehouse": "Chios Warehouse",
+    "bento.storage.title": "Wait Time",
+    "bento.storage.days": "Days Free",
+    "bento.storage.subtitle": "Storage Right",
+    "bento.delivery.title": "Easy Delivery",
+    "bento.delivery.headline": "Cross to the Island",
+    "bento.delivery.subtitle": "Pick up by weekend ferry.",
+
     // Admin Customer Detail
     "adminCustomers.backToList": "Back to Customers",
     "adminCustomers.package": "Package",
@@ -1578,6 +1926,40 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "adminLanguages.delete": "Delete",
     "adminLanguages.remove": "Remove",
     "adminLanguages.noLanguagesYet": "No languages added yet",
+
+    // Admin Policies
+    "admin.policies": "Policies",
+    "adminPolicies.title": "Legal Policies",
+    "adminPolicies.description": "Manage terms of service, privacy policy, and KVKK disclosure texts.",
+
+    // Admin Settings
+    "admin.settings": "Settings",
+    "adminSettings.title": "System Settings",
+    "adminSettings.description": "Manage fees, plan prices, limits and business rules. Changes take effect immediately.",
+    "adminSettings.saving": "Saving...",
+    "adminSettings.saveChanges": "Save {count} Changes",
+    "adminSettings.saved": "{count} settings saved.",
+    "adminSettings.saveFailed": "Save failed.",
+    "adminSettings.empty": "No settings found in this category.",
+    "adminSettings.catFees": "Fees",
+    "adminSettings.catPlans": "Plans",
+    "adminSettings.catLimits": "Limits",
+    "adminSettings.catBusiness": "Business Rules",
+    "adminSettings.catRateLimits": "Rate Limits",
+    "adminSettings.warningTitle": "Warning",
+    "adminSettings.warningText": "Fee and plan changes affect new transactions only. Existing invoices keep their amounts. Make sure before changing.",
+    "adminPolicies.titleLabel": "Title",
+    "adminPolicies.titlePlaceholder": "Policy title",
+    "adminPolicies.contentLabel": "Content",
+    "adminPolicies.contentPlaceholder": "Write HTML content here...",
+    "adminPolicies.contentHint": "You can enter content in HTML format. Tags are supported.",
+    "adminPolicies.save": "Save",
+    "adminPolicies.saving": "Saving...",
+    "adminPolicies.saved": "Saved successfully",
+    "adminPolicies.saveFailed": "Save failed",
+    "adminPolicies.published": "Published",
+    "adminPolicies.draft": "Draft",
+    "footer.kvkk": "KVKK Disclosure",
   },
   de: {
     // Nav
@@ -1653,11 +2035,11 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "pricing.storage1": "1 Tag",
     "pricing.storage30": "30 Tage",
     "pricing.freeStorage": "Erste 14 Tage kostenlose Lagerung",
-    "pricing.acceptFeeInfo": "Annahmegebühr pro Paket €{BASE_FEE}",
+    "pricing.acceptFeeInfo": "Annahmegebühr pro Paket €4",
     "pricing.monthlyCost": "Geschätzte monatliche Kosten",
-    "pricing.acceptFee": "Annahmegebühr ({packages} Pakete × €{BASE_FEE})",
+    "pricing.acceptFee": "Annahmegebühr",
     "pricing.consolidationFee": "Konsolidierungsgebühr",
-    "pricing.demurrageFee": "Verzugsgebühr ({days} Tage × €{DAILY_DEMURRAGE})",
+    "pricing.demurrageFee": "Verzugsgebühr",
     "pricing.total": "Gesamt",
     "pricing.savings": "Sie können ~€{amount} durch Konsolidierung sparen!",
     "pricing.planTitle": "Wählen Sie den Plan, der zu Ihnen passt",
@@ -1682,7 +2064,7 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "pricing.premium.cta": "Premium-Paket wählen",
     "pricing.month": "/Monat",
     "pricing.mostPopular": "Am beliebtesten",
-    "pricing.fee.accept": "Annahmegebühr ({packages} Pakete × €{BASE_FEE})",
+    "pricing.fee.accept": "Annahmegebühr",
     "pricing.fee.storage14": "14 Tage kostenlose Lagerung",
     "pricing.fee.acceptInfo": "Annahmegebühr pro Paket €4",
     "pricing.fee.acceptUnit": "× €{fee}",
@@ -1791,9 +2173,9 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Admin actions
     "action.kabul": "Annahme",
-    "action.teslimat": "Zustellung",
-    "action.gecikme": "Verzug",
-    "action.paketler": "Pakete",
+    "actions.delivery": "Zustellung",
+    "action.delay": "Verzug",
+    "action.packages": "Pakete",
     "action.faturalar": "Rechnungen",
     "action.musteriler": "Kunden",
 
@@ -1971,6 +2353,7 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "perm.packages": "Paketliste",
     "perm.invoices": "Rechnungsverwaltung",
     "perm.customers": "Kundenverwaltung",
+    "perm.settings": "Systemeinstellungen",
 
     // Error & Loading
     "error.root.title": "Etwas ist schief gelaufen",
@@ -2170,6 +2553,16 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "profile.notificationsEnabling": "Wird eingerichtet...",
     "profile.notificationsEnable": "Benachrichtigungen aktivieren",
     "profile.logout": "Abmelden",
+    "profile.changePassword": "Passwort ändern",
+    "profile.changePasswordDescription": "Sie können Ihr Passwort hier aus Sicherheitsgründen ändern.",
+    "profile.currentPassword": "Aktuelles Passwort",
+    "profile.newPassword": "Neues Passwort",
+    "profile.confirmPassword": "Neues Passwort (bestätigen)",
+    "profile.passwordChanged": "Passwort erfolgreich geändert!",
+    "profile.passwordRequired": "Bitte füllen Sie alle Passwortfelder aus.",
+    "profile.passwordMinLength": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+    "profile.passwordMismatch": "Passwörter stimmen nicht überein.",
+    "profile.passwordChangeFailed": "Passwortänderung fehlgeschlagen.",
 
     // Actions
     "actions.carrier.other": "Andere",
@@ -2218,6 +2611,141 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "sidebar.payment": "Zahlung",
     "sidebar.profile": "Profil",
     "sidebar.logout": "Abmelden",
+    "profile.addressLabel": "Adresse",
+    "profile.addressPlaceholder": "Adresse eingeben",
+
+    // Tour Guide — common
+    "tour.start": "Tour starten",
+    "tour.next": "Weiter",
+    "tour.back": "Zurück",
+    "tour.finish": "Fertig",
+    "tour.skip": "Überspringen",
+    "tour.close": "Schließen",
+    "tour.helpTooltip": "Tourenführer",
+
+    // Tour — Dashboard Welcome (step 0)
+    "tour.step.dashboardWelcome.title": "Willkommen",
+    "tour.step.dashboardWelcome.content": "Willkommen bei ChiosBox! Dies ist Ihr Dashboard. Oben sehen Sie Ihre ChiosBox-ID und Lieferadresse. Verwenden Sie 'Adresse kopieren', um Ihre Adresse für türkische Online-Shops zu kopieren.",
+
+    // Tour — Dashboard Packages (step 1)
+    "tour.step.dashboardPackages.title": "Aktive Pakete",
+    "tour.step.dashboardPackages.content": "Ihre zuletzt hinzugefügten Pakete werden hier mit Statusanzeigen aufgelistet. Wenn Sie noch keine Pakete gemeldet haben, erscheint eine leere Statusmeldung. Klicken Sie auf 'Alle anzeigen'.",
+
+    // Tour — Dashboard Storage (step 2) — {fee} = daily demurrage
+    "tour.step.dashboardStorage.title": "Lagerdauer",
+    "tour.step.dashboardStorage.content": "Ihre Pakete werden 14 Tage kostenlos gelagert. Danach wird eine tägliche Lagergebühr von {fee} berechnet. Verfolgen Sie Ihre verbleibende Zeit hier — zahlen Sie vor Ablauf oder konsolidieren Sie, um zusätzliche Gebühren zu vermeiden.",
+
+    // Tour — Dashboard Package Stats (step 3)
+    "tour.step.dashboardPackageStats.title": "Paketstatistik",
+    "tour.step.dashboardPackageStats.content": "Sehen Sie hier Ihre Paketanzahl im Lager und unterwegs. Diese Karten geben Ihnen einen Echtzeit-Überblick — wie viele Pakete im Lager warten, wie viele unterwegs sind.",
+
+    // Tour — Dashboard Invoice (step 4)
+    "tour.step.dashboardInvoice.title": "Ausstehende Rechnung",
+    "tour.step.dashboardInvoice.content": "Wenn Sie eine unbezahlte Rechnung haben, wird sie hier angezeigt. Sie sehen die Summe der Annahme-, Konsolidierungs- und Lagergebühren. Verwenden Sie 'Jetzt zahlen' für schnelle Bezahlung.",
+
+    // Tour — Dashboard Actions (step 5)
+    "tour.step.dashboardActions.title": "Schnellaktionen",
+    "tour.step.dashboardActions.content": "Schnellzugriff auf häufige Aktionen. 'Adresse kopieren' kopiert Ihre ChiosBox-Adresse — verwenden Sie sie als Lieferadresse beim Online-Shopping. 'Jetzt zahlen' für ausstehende Rechnungen.",
+
+    // Tour — Packages Overview (step 6)
+    "tour.step.packagesOverview.title": "Meine Pakete",
+    "tour.step.packagesOverview.content": "Alle Ihre gemeldeten Pakete werden hier aufgelistet. Verwenden Sie Suche und Filter, um Pakete schnell zu finden. Jede Karte zeigt Status, Versanddienst, Sendungsnummer und Inhalt.",
+
+    // Tour — Actions Page (step 7)
+    "tour.step.actionsPage.title": "Paket melden",
+    "tour.step.actionsPage.content": "Nach Ihrem Online-Einkauf generiert der Verkäufer eine Sendungsnummer, wenn er Ihre Bestellung versendet. Geben Sie diese Nummer hier ein, um das Paket Ihrem ChiosBox-Konto hinzuzufügen. Füllen wir das Formular Schritt für Schritt aus!",
+
+    // Tour — Tracking Input (step 8)
+    "tour.step.tracking.title": "Sendungsnummer",
+    "tour.step.tracking.content": "Geben Sie die Sendungsnummer ein, die Sie vom Verkäufer erhalten haben. Der Versanddienst wird oft automatisch erkannt. Beispiel: TR-2026-0044.",
+
+    // Tour — Carrier Select (step 9)
+    "tour.step.carrier.title": "Versanddienst",
+    "tour.step.carrier.content": "Wählen Sie den Versanddienst, der Ihr Paket liefert. Falls nicht automatisch erkannt, wählen Sie aus der Liste oder geben Sie ihn unter 'Andere' manuell ein.",
+
+    // Tour — Content Input (step 10)
+    "tour.step.contentInput.title": "Inhaltsbeschreibung",
+    "tour.step.contentInput.content": "Beschreiben Sie kurz, was in Ihrem Paket enthalten ist. Diese Information wird für Zoll- und Lagerverarbeitung benötigt. Zum Beispiel: 'Nike Air Max 90' oder 'Elektronikzubehör'.",
+
+    // Tour — Submit (step 11)
+    "tour.step.submit.title": "Paket melden",
+    "tour.step.submit.content": "Sobald alle Felder ausgefüllt sind, klicken Sie auf diese Schaltfläche, um Ihr Paket bei ChiosBox zu melden. Im Demo-Modus wird das Formular ausgefüllt und das 3. Paket zu Ihrer Liste hinzugefügt.",
+
+    // Tour — Package Card (step 12)
+    "tour.step.packageCard.title": "Paketkarte",
+    "tour.step.packageCard.content": "Ihr neu gemeldetes Paket ist jetzt in der Liste! Jede Paketkarte zeigt eine Statusanzeige (erwartet, unterwegs, im Lager, geliefert), Versanddienst, Sendungsnummer und Inhaltszusammenfassung. Klicken Sie auf die Karte für Details.",
+
+    // Tour — Package Detail (step 13)
+    "tour.step.packageDetail.title": "Paketdetails",
+    "tour.step.packageDetail.content": "Wenn Sie auf ein Paket klicken, öffnet sich das Detail-Modal. Hier sehen Sie das Ankunftsdatum im Lager, die verbleibende kostenlose Lagerzeit, die Regalposition und ein Lagerfoto. Überprüfen Sie Ihre Informationen hier, bevor Sie Zahlungen vornehmen.",
+
+    // Tour — Package Chat (step 14)
+    "tour.step.packageChat.title": "Support-Chat",
+    "tour.step.packageChat.content": "Vom Paketdetail aus können Sie einen Live-Chat mit unserem Support-Team starten. Stellen Sie Fragen zu Ihrem Paket, fordern Sie Fotos an oder hinterlassen Sie besondere Hinweise. Unser Admin-Team antwortet so schnell wie möglich.",
+
+    // Tour — Checkout Pay (step 15)
+    "tour.step.checkoutPay.title": "Rechnungszahlung",
+    "tour.step.checkoutPay.content": "Sehen und bezahlen Sie hier Ihre ausstehenden Rechnungen. Annahme-, Konsolidierungs- und Lagergebühren werden detailliert aufgelistet. Nach Zahlungsbestätigung wird Ihr Lieferungs-QR-Code generiert.",
+
+    // Tour — Profile Info (step 16)
+    "tour.step.profileInfo.title": "Persönliche Informationen",
+    "tour.step.profileInfo.content": "Ihr Name, Ihre E-Mail, Telefonnummer und ChiosBox-ID werden hier angezeigt. Verwenden Sie die Schaltfläche 'Bearbeiten', um Ihre Informationen zu aktualisieren.",
+
+    // Tour — Profile Address (step 17)
+    "tour.step.profileAddress.title": "ChiosBox-Lieferadresse",
+    "tour.step.profileAddress.content": "Dies ist die Adresse unseres Lagers auf der Insel Chios. Verwenden Sie diese Adresse als Lieferadresse bei türkischen Online-Shops. Die Schaltfläche 'Adresse kopieren' kopiert sie sofort in die Zwischenablage.",
+
+    // Tour — Profile Password (step 18)
+    "tour.step.profilePassword.title": "Passwort ändern",
+    "tour.step.profilePassword.content": "Sie können Ihr Passwort hier aus Sicherheitsgründen ändern. Geben Sie Ihr aktuelles Passwort ein, setzen Sie ein neues und bestätigen Sie.",
+
+    // Tour — Profile Subscription (step 19)
+    "tour.step.profileSubscription.title": "Abonnement-Info",
+    "tour.step.profileSubscription.content": "Ihr aktueller Plan und Abonnementstatus werden hier angezeigt. Sie können den Plannamen (Basic-Plan) und den Status (Aktiv/Inaktiv) überprüfen.",
+
+    // Tour — Profile Extras (step 20)
+    "tour.step.profileExtras.title": "Einstellungen & Benachrichtigungen",
+    "tour.step.profileExtras.content": "Aktivieren Sie Benachrichtigungen, um sofortige Paketupdates zu erhalten. Verwenden Sie die '?'-Schaltfläche, um die Tour neu zu starten. Klicken Sie auf die Abmelde-Schaltfläche unten.",
+
+    // Tour — Consolidate Left (step 21)
+    "tour.step.consolidateLeft.title": "Pakete zum Konsolidieren",
+    "tour.step.consolidateLeft.content": "Ihre Lagerpakete werden im linken Panel aufgelistet. Wählen Sie Pakete für die Konsolidierungsbox aus. Kombinieren Sie mehrere Pakete in einer Box und sparen Sie bei internationalen Versandkosten.",
+
+    // Tour — Consolidate Right (step 22)
+    "tour.step.consolidateRight.title": "Master-Box",
+    "tour.step.consolidateRight.content": "Ihre ausgewählten Pakete werden in die Master-Box übertragen. Beim Kombinieren wird eine Konsolidierungsgebühr hinzugefügt, aber es ist viel günstiger als einzelne Sendungen. Den Unterschied sehen Sie im Preisvergleich.",
+
+    // Tour — Consolidate Confirm (step 23)
+    "tour.step.consolidateConfirm.title": "Konsolidierungsbestätigung",
+    "tour.step.consolidateConfirm.content": "Nach der Auswahl Ihrer Pakete klicken Sie auf diese Schaltfläche, um Ihre Konsolidierungsanfrage zu senden. Nach Bestätigung wird eine Konsolidierungsgebühr zu Ihrer Rechnung hinzugefügt. Dieser Schritt ist optional — Sie können Pakete auch einzeln versenden.",
+
+    // Tour — Checkout Overview (step 24)
+    "tour.step.checkout.title": "Rechnung & Zahlung",
+    "tour.step.checkout.content": "Überprüfen Sie Ihre Rechnungen vor der Zahlung. Sehen Sie Positionen wie Annahmegebühr, Konsolidierungsgebühr und Lagergebühren mit Paketaufschlüsselung. Prüfen Sie den Gesamtbetrag.",
+
+    // Tour — Checkout Pay Final (step 25)
+    "tour.step.checkoutPayFinal.title": "Zahlung durchführen",
+    "tour.step.checkoutPayFinal.content": "Alles bereit! Klicken Sie auf diese Schaltfläche, um Ihre Rechnung zu bezahlen. Nach Zahlungsbestätigung wird Ihr Lieferungs-QR-Code generiert. Zeigen Sie diesen QR-Code an der ChiosBox-Abholstelle, um Ihre Pakete abzuholen. Tour abgeschlossen!",
+
+    // Order Flow Simulation
+    "tour.orderFlow.title": "Bestell- & Versandprozess",
+    "tour.orderFlow.step1.title": "Einkaufen!",
+    "tour.orderFlow.step1.content": "Kaufen Sie in jedem türkischen Online-Shop ein (Trendyol, Hepsiburada, Amazon usw.). Verwenden Sie Ihre ChiosBox-Adresse als Lieferadresse — wir empfangen sie für Sie auf Chios!",
+    "tour.orderFlow.step2.title": "Auswählen & Kaufen",
+    "tour.orderFlow.step2.content": "Wählen Sie Ihr Produkt, legen Sie es in den Warenkorb und schließen Sie die Bestellung ab. Geben Sie Ihre ChiosBox-Adresse als Lieferadresse ein. Der Verkäufer versendet nach Chios.",
+    "tour.orderFlow.step3.title": "Verkäufer versendet!",
+    "tour.orderFlow.step3.content": "Wenn der Verkäufer Ihre Bestellung versendet, wird eine Sendungsnummer generiert. Notieren Sie diese zusammen mit dem Versanddienst — Sie müssen sie bei ChiosBox melden.",
+    "tour.orderFlow.step4.title": "Sendungsnummer bereit",
+    "tour.orderFlow.step4.content": "Ihr Versanddienst und Ihre Sendungsnummer sind bestätigt! Im nächsten Schritt wird das Paket zum ChiosBox-Tracking hinzugefügt.",
+    "tour.orderFlow.step5.title": "Bereit zum Melden!",
+    "tour.orderFlow.step5.content": "Geben Sie jetzt Ihre Sendungsnummer und den Versanddienst ein, um das Paket Ihrem ChiosBox-Konto hinzuzufügen. Weiter geht's!",
+    "tour.orderFlow.next": "Weiter",
+    "tour.orderFlow.finish": "Verstanden!",
+
+    // Tour — Mock Chat Messages
+    "tour.mockChat.msg1": "Hallo! Ihr Paket ist im Lager angekommen, wir bereiten die Einlagerung vor.",
+    "tour.mockChat.msg2": "Danke, kann ich das Foto sehen?",
+    "tour.mockChat.msg3": "Natürlich, das Foto sollte in Ihrem Panel sichtbar sein. Einlagerung abgeschlossen, Regal A-12 zugewiesen.",
 
     // Admin sidebar
     "admin.panel": "Panel",
@@ -2310,6 +2838,17 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "islandScene.arrived.title": "In unserem Lager auf Chios",
     "islandScene.arrived.description": "Konsolidieren Sie, sparen Sie, wir liefern an Ihre Tür.",
 
+    // Bento Grid (Hero Animation)
+    "bento.route.title": "Nahtlose Logistik",
+    "bento.route.euStore": "EU-Shop",
+    "bento.route.warehouse": "Chios-Lager",
+    "bento.storage.title": "Wartezeit",
+    "bento.storage.days": "Tage Kostenlos",
+    "bento.storage.subtitle": "Lagerrecht",
+    "bento.delivery.title": "Einfache Lieferung",
+    "bento.delivery.headline": "Zur Insel rüber",
+    "bento.delivery.subtitle": "Abholung mit Wochenendfähre.",
+
     // Admin Customer Detail
     "adminCustomers.backToList": "Zurück zu Kunden",
     "adminCustomers.package": "Paket",
@@ -2366,5 +2905,39 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "adminLanguages.delete": "Löschen",
     "adminLanguages.remove": "Entfernen",
     "adminLanguages.noLanguagesYet": "Noch keine Sprachen hinzugefügt",
+
+    // Admin Policies
+    "admin.policies": "Richtlinien",
+    "adminPolicies.title": "Rechtliche Richtlinien",
+    "adminPolicies.description": "Verwalten Sie Nutzungsbedingungen, Datenschutzerklärung und KVKK-Belehrungstexte.",
+
+    // Admin Settings
+    "admin.settings": "Einstellungen",
+    "adminSettings.title": "Systemeinstellungen",
+    "adminSettings.description": "Verwalten Sie Gebühren, Planpreise, Grenzen und Geschäftsregeln. Änderungen gelten sofort.",
+    "adminSettings.saving": "Speichern...",
+    "adminSettings.saveChanges": "{count} Änderungen Speichern",
+    "adminSettings.saved": "{count} Einstellungen gespeichert.",
+    "adminSettings.saveFailed": "Speichern fehlgeschlagen.",
+    "adminSettings.empty": "Keine Einstellungen in dieser Kategorie gefunden.",
+    "adminSettings.catFees": "Gebühren",
+    "adminSettings.catPlans": "Pläne",
+    "adminSettings.catLimits": "Grenzen",
+    "adminSettings.catBusiness": "Geschäftsregeln",
+    "adminSettings.catRateLimits": "Rate Limits",
+    "adminSettings.warningTitle": "Achtung",
+    "adminSettings.warningText": "Gebühren- und Planänderungen betreffen nur neue Transaktionen. Bestehende Rechnungen behalten ihre Beträge. Bitte sorgfältig prüfen.",
+    "adminPolicies.titleLabel": "Titel",
+    "adminPolicies.titlePlaceholder": "Richtlinientitel",
+    "adminPolicies.contentLabel": "Inhalt",
+    "adminPolicies.contentPlaceholder": "HTML-Inhalt hier schreiben...",
+    "adminPolicies.contentHint": "Sie können Inhalte im HTML-Format eingeben. Tags werden unterstützt.",
+    "adminPolicies.save": "Speichern",
+    "adminPolicies.saving": "Wird gespeichert...",
+    "adminPolicies.saved": "Erfolgreich gespeichert",
+    "adminPolicies.saveFailed": "Speichern fehlgeschlagen",
+    "adminPolicies.published": "Veröffentlicht",
+    "adminPolicies.draft": "Entwurf",
+    "footer.kvkk": "KVKK Belehrung",
   },
 };

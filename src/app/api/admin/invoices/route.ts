@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin } from "@/lib/admin-guard";
-import { FEES } from "@/lib/fees";
+import { getAcceptFee, getConsolidationFee, getFreeStorageDays, getDailyDemurrage } from "@/lib/fees";
+import { getSettingNumber } from "@/lib/system-settings";
 import { sendPushToUser } from "@/lib/send-notification";
 
 export async function GET(request: Request) {
@@ -123,23 +124,31 @@ export async function POST(request: Request) {
     }
 
     // Calculate fees per package
+    const [acceptRate, freeDays, dailyRate, consolidationRate, maxInvoice] = await Promise.all([
+      getAcceptFee(),
+      getFreeStorageDays(),
+      getDailyDemurrage(),
+      getConsolidationFee(),
+      getSettingNumber("max_invoice_amount"),
+    ]);
+
     let totalAccept = 0;
     let totalDemurrage = 0;
     const invoiceItemsData: Array<{ package_id: string; fee_type: string; amount: number }> = [];
 
     for (const pkg of uninvoicedPackages) {
       // Accept fee
-      totalAccept += FEES.ACCEPT;
+      totalAccept += acceptRate;
       invoiceItemsData.push({
         package_id: pkg.id,
         fee_type: "accept",
-        amount: FEES.ACCEPT,
+        amount: acceptRate,
       });
 
       // Demurrage fee if applicable
-      const overdueDays = Math.max(0, (pkg.storage_days_used || 0) - FEES.FREE_STORAGE_DAYS);
+      const overdueDays = Math.max(0, (pkg.storage_days_used || 0) - freeDays);
       if (overdueDays > 0) {
-        const demurrageAmount = overdueDays * FEES.DAILY_DEMURRAGE;
+        const demurrageAmount = overdueDays * dailyRate;
         totalDemurrage += demurrageAmount;
         invoiceItemsData.push({
           package_id: pkg.id,
@@ -150,10 +159,22 @@ export async function POST(request: Request) {
     }
 
     // Consolidation fee (optional, one-time per invoice)
-    const consolidationFee = body.consolidation_fee ? FEES.CONSOLIDATION : 0;
+    const consolidationFee = body.consolidation_fee ? consolidationRate : 0;
     const total = totalAccept + totalDemurrage + consolidationFee;
 
-    // Create invoice
+    if (total > maxInvoice) {
+      return NextResponse.json({ error: "Total amount exceeds maximum invoice limit" }, { status: 400 });
+    }
+
+    // Create invoice with fee snapshot
+    const feeSnapshot = {
+      fee_accept: acceptRate,
+      fee_daily_demurrage: dailyRate,
+      fee_consolidation: consolidationRate,
+      free_storage_days: freeDays,
+      calculated_at: new Date().toISOString(),
+    };
+
     const { data: invoice, error: invErr } = await supabase
       .from("invoices")
       .insert({
@@ -163,6 +184,7 @@ export async function POST(request: Request) {
         demurrage_fee: totalDemurrage,
         total,
         status: "PENDING",
+        fee_snapshot: feeSnapshot,
       })
       .select()
       .single();
@@ -183,7 +205,7 @@ export async function POST(request: Request) {
     sendPushToUser(body.user_id, {
       title: "New Invoice",
       body: `€${total.toFixed(2)} you have an invoice`,
-      url: "/dashboard/checkout",
+      url: "/user/checkout",
     }).catch(() => {});
 
     return NextResponse.json({ ...invoice, items: itemsToInsert }, { status: 201 });
@@ -199,10 +221,28 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Total amount must be greater than zero" }, { status: 400 });
   }
 
-  // Reasonable upper bound: €5000 per invoice
-  if (total > 5000) {
+  // Reasonable upper bound from system settings
+  const maxInvoiceAmount = await getSettingNumber("max_invoice_amount");
+  if (total > maxInvoiceAmount) {
     return NextResponse.json({ error: "Total amount too high" }, { status: 400 });
   }
+
+  // Capture current rates as snapshot
+  const [acceptRate, dailyRate, consolidationRate, freeDays] = await Promise.all([
+    getAcceptFee(),
+    getDailyDemurrage(),
+    getConsolidationFee(),
+    getFreeStorageDays(),
+  ]);
+
+  const feeSnapshot = {
+    fee_accept: acceptRate,
+    fee_daily_demurrage: dailyRate,
+    fee_consolidation: consolidationRate,
+    free_storage_days: freeDays,
+    manual_override: true,
+    calculated_at: new Date().toISOString(),
+  };
 
   const { data, error: insertError } = await supabase
     .from("invoices")
@@ -213,6 +253,7 @@ export async function POST(request: Request) {
       demurrage_fee: demurrageFee,
       total,
       status: "PENDING",
+      fee_snapshot: feeSnapshot,
     })
     .select()
     .single();
@@ -225,7 +266,7 @@ export async function POST(request: Request) {
   sendPushToUser(body.user_id, {
     title: "New Invoice",
     body: `€${total.toFixed(2)} you have an invoice`,
-    url: "/dashboard/checkout",
+    url: "/user/checkout",
   }).catch(() => {});
 
   return NextResponse.json(data, { status: 201 });

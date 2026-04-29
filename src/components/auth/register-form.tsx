@@ -129,11 +129,26 @@ export function RegisterForm() {
   const [cardNumber, setCardNumber] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvc, setCardCvc] = useState("");
+  const [planPrices, setPlanPrices] = useState({ temel: 9.99, premium: 24.99 });
 
   // Resend timer
   const [resendCountdown, setResendCountdown] = useState(0);
 
   const register = useAuthStore((s) => s.register);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.settings) {
+          setPlanPrices({
+            temel: Number(data.settings.plan_price_temel) || 9.99,
+            premium: Number(data.settings.plan_price_premium) || 24.99,
+          });
+        }
+      })
+      .catch(() => {/* use defaults */});
+  }, []);
 
   useEffect(() => {
     if (resendCountdown <= 0) return;
@@ -198,7 +213,7 @@ export function RegisterForm() {
     }
 
     setStep("success");
-    setTimeout(() => router.push("/dashboard"), 2000);
+    setTimeout(() => router.push("/user"), 2000);
   };
 
   const formatCardNumber = (v: string) => {
@@ -488,7 +503,7 @@ export function RegisterForm() {
             <div className="bg-chios-purple/5 rounded-2xl p-5 border border-chios-purple/10">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-deep-sea-teal/60">{planName} {t("register.steps.payment")}</span>
-                <span className="text-sm font-semibold text-deep-sea-teal">{plan === "PREMIUM" ? "€24.99" : "€9.99"}{t("register.monthSuffix")}</span>
+                <span className="text-sm font-semibold text-deep-sea-teal">{plan === "PREMIUM" ? `€${planPrices.premium.toFixed(2)}` : `€${planPrices.temel.toFixed(2)}`}{t("register.monthSuffix")}</span>
               </div>
               <div className="flex items-center justify-between text-xs text-deep-sea-teal/40">
                 <span>{t("register.freeTrialFirst")}</span>

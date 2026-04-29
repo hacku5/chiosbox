@@ -27,10 +27,9 @@ export function AdminLanguageSwitcher() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+        className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
       >
-        <span className="text-sm">{current?.flag || "🌐"}</span>
-        <span className="text-[10px] font-medium uppercase">{lang}</span>
+        <span className="text-lg leading-none">{current?.flag || "🌐"}</span>
       </button>
 
       {open && (

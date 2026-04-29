@@ -1,6 +1,6 @@
-export type Permission = "intake" | "pickup" | "demurrage" | "packages" | "invoices" | "customers";
+export type Permission = "intake" | "pickup" | "demurrage" | "packages" | "invoices" | "customers" | "settings";
 
-export const ALL_PERMISSIONS: Permission[] = ["intake", "pickup", "demurrage", "packages", "invoices", "customers"];
+export const ALL_PERMISSIONS: Permission[] = ["intake", "pickup", "demurrage", "packages", "invoices", "customers", "settings"];
 
 export function hasPermission(userPermissions: unknown, required: Permission): boolean {
   if (!Array.isArray(userPermissions)) return false;

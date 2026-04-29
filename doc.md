@@ -1,6 +1,6 @@
 # 📦 CHIOSBOX DİJİTAL PLATFORM: TASARIM VE GELİŞTİRME PLANI
 
-**Proje Özeti:** Türkiye'den AB'ye e-ticaret alışverişi yapanlar için Sakız Adası (Chios) merkezli, "Aegean Light" (Ferah Ege) tasarım diline sahip, sürtünmesiz kayıt ve akıllı paket konsolidasyon yönetimi sunan PWA tabanlı müşteri paneli ve lojistik yönetim sistemi.
+**Proje Özeti:** Avrupadan TRye e-ticaret alışverişi yapanlar için Sakız Adası (Chios) merkezli, "Aegean Light" (Ferah Ege) tasarım diline sahip, sürtünmesiz kayıt ve akıllı paket konsolidasyon yönetimi sunan PWA tabanlı müşteri paneli ve lojistik yönetim sistemi.
 
 ---
 # 🎨 CHIOSBOX ARAYÜZ TASARIM VE MİMARİ PLANI

@@ -106,7 +106,7 @@ export function Navbar() {
           ) : isAuthenticated && user ? (
             <>
               <Link
-                href="/dashboard"
+                href="/user"
                 className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-deep-sea-teal/[0.03] hover:bg-chios-purple/10 transition-colors duration-200"
               >
                 <div className="w-6 h-6 rounded-full bg-chios-purple/15 flex items-center justify-center">

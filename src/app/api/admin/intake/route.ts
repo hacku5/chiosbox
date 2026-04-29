@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin } from "@/lib/admin-guard";
-import { FEES } from "@/lib/fees";
+import { getAcceptFee } from "@/lib/fees";
 import { sendPushToUser } from "@/lib/send-notification";
 
 export async function POST(request: Request) {
@@ -51,14 +51,15 @@ export async function POST(request: Request) {
   }
 
   // Auto-create invoice for this package
+  const acceptFee = await getAcceptFee();
   const { data: invoice, error: invoiceError } = await supabase
     .from("invoices")
     .insert({
       user_id: pkg.user_id,
-      accept_fee: FEES.ACCEPT,
+      accept_fee: acceptFee,
       consolidation_fee: 0,
       demurrage_fee: 0,
-      total: FEES.ACCEPT,
+      total: acceptFee,
       status: "PENDING",
     })
     .select()
@@ -78,7 +79,7 @@ export async function POST(request: Request) {
       invoice_id: invoice.id,
       package_id: pkg.id,
       fee_type: "accept",
-      amount: FEES.ACCEPT,
+      amount: acceptFee,
     });
   }
 
@@ -86,7 +87,7 @@ export async function POST(request: Request) {
   sendPushToUser(pkg.user_id, {
     title: "Paketiniz Geldi!",
     body: `${pkg.content} depoda kabul edildi`,
-    url: "/dashboard/packages",
+    url: "/user/packages",
   }).catch(() => {});
 
   return NextResponse.json(data, { status: 200 });

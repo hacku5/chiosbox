@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin } from "@/lib/admin-guard";
-import { FEES } from "@/lib/fees";
+import { getFreeStorageDays, getDailyDemurrage } from "@/lib/fees";
 
 export async function GET(
   _request: Request,
@@ -49,12 +49,13 @@ export async function PATCH(
       return NextResponse.json({ error: "Package not found" }, { status: 404 });
     }
 
-    const overdueDays = Math.max(0, (pkg.storage_days_used || 0) - FEES.FREE_STORAGE_DAYS);
+    const [freeDays, dailyRate] = await Promise.all([getFreeStorageDays(), getDailyDemurrage()]);
+    const overdueDays = Math.max(0, (pkg.storage_days_used || 0) - freeDays);
     if (overdueDays <= 0) {
       return NextResponse.json({ error: "No days for demurrage fee" }, { status: 400 });
     }
 
-    const demurrageAmount = overdueDays * FEES.DAILY_DEMURRAGE;
+    const demurrageAmount = overdueDays * dailyRate;
 
     // Check if a demurrage invoice already exists for this package
     const { data: existingDemurrage } = await supabase
