@@ -1,34 +1,22 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
-import { sanitizeRequired, sanitizeText } from "@/lib/sanitize";
-import { isTourRequest, tourMockResponse } from "@/lib/tour-guard";
+import { sanitizeText } from "@/lib/sanitize";
+import { requireAuth } from "@/lib/auth-guard";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { createPackageSchema, validateBody } from "@/lib/validation";
 
 export async function GET() {
+  const { user, error } = await requireAuth();
+  if (error) return error;
+
   const supabase = await createClient();
-
-  const { data: { user: authUser } } = await supabase.auth.getUser();
-  if (!authUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  // Get the app user row
-  const { data: appUser } = await supabase
-    .from("users")
-    .select("id")
-    .eq("supabase_user_id", authUser.id)
-    .single();
-
-  if (!appUser) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
-
-  const { data, error } = await supabase
+  const { data, error: fetchErr } = await supabase
     .from("packages")
     .select("*")
-    .eq("user_id", appUser.id)
+    .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  if (error) {
+  if (fetchErr) {
     return NextResponse.json({ error: "Operation failed" }, { status: 500 });
   }
 
@@ -36,76 +24,53 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  if (isTourRequest(request)) {
-    return tourMockResponse({ id: `tour-${Date.now()}` });
+  const rl = checkRateLimit(request, "DEFAULT", "packages:create");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
+
+  const { user, error } = await requireAuth();
+  if (error) return error;
+
+  const body = await request.json();
+  const parsed = validateBody(createPackageSchema, body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
+
+  const { trackingNo, carrier, content, weightKg, dimensions, notes } = parsed.data;
 
   const supabase = await createClient();
 
-  const { data: { user: authUser } } = await supabase.auth.getUser();
-  if (!authUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { data: appUser } = await supabase
-    .from("users")
-    .select("id")
-    .eq("supabase_user_id", authUser.id)
-    .single();
-
-  if (!appUser) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
-
-  const body = await request.json();
-
-  const trackingNo = sanitizeRequired(body.trackingNo, 100);
-  if (!trackingNo) {
-    return NextResponse.json({ error: "Tracking number is required" }, { status: 400 });
-  }
-
-  const carrier = sanitizeRequired(body.carrier, 50);
-  if (!carrier) {
-    return NextResponse.json({ error: "Carrier is required" }, { status: 400 });
-  }
-
-  // Check for duplicate tracking number for this user
+  // Check for duplicate tracking number
   const { data: existing } = await supabase
     .from("packages")
     .select("id")
-    .eq("user_id", appUser.id)
+    .eq("user_id", user.id)
     .eq("tracking_no", trackingNo)
     .single();
 
   if (existing) {
-    return NextResponse.json({ error: "You have already reported a package with this tracking number" }, { status: 409 });
+    return NextResponse.json(
+      { error: "You have already reported a package with this tracking number" },
+      { status: 409 }
+    );
   }
 
-  // Validate weight if provided
-  let weightKg: number | null = null;
-  if (body.weightKg !== undefined && body.weightKg !== null) {
-    const parsed = Number(body.weightKg);
-    if (!isNaN(parsed) && parsed > 0 && parsed <= 1000) {
-      weightKg = parsed;
-    }
-  }
-
-  const { data, error } = await supabase
+  const { data, error: insertErr } = await supabase
     .from("packages")
     .insert({
-      user_id: appUser.id,
+      user_id: user.id,
       tracking_no: trackingNo,
       carrier,
-      content: sanitizeText(body.content, 500),
-      weight_kg: weightKg,
-      dimensions: sanitizeText(body.dimensions, 100),
-      notes: sanitizeText(body.notes, 1000),
+      content: content ? sanitizeText(content, 500) : null,
+      weight_kg: weightKg ?? null,
+      dimensions: dimensions ? sanitizeText(dimensions, 100) : null,
+      notes: notes ? sanitizeText(notes, 1000) : null,
       status: "BEKLENIYOR",
     })
     .select()
     .single();
 
-  if (error) {
+  if (insertErr) {
     return NextResponse.json({ error: "Operation failed" }, { status: 500 });
   }
 

@@ -1,58 +1,54 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { requireAuth } from "@/lib/auth-guard";
+import { uuid } from "@/lib/validation";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = await createClient();
+  const { user, error } = await requireAuth();
+  if (error) return error;
+
+  const rl = checkRateLimit(request, "DEFAULT", "package:delete");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
+
   const { id } = await params;
-
-  const { data: { user: authUser } } = await supabase.auth.getUser();
-  if (!authUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const idResult = uuid.safeParse(id);
+  if (!idResult.success) {
+    return NextResponse.json({ error: "Invalid package ID" }, { status: 400 });
   }
 
-  const { data: appUser } = await supabase
-    .from("users")
-    .select("id")
-    .eq("supabase_user_id", authUser.id)
-    .single();
+  const supabase = await createClient();
 
-  if (!appUser) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
-
-  // Verify ownership before deleting
+  // Verify ownership and status
   const { data: pkg } = await supabase
     .from("packages")
-    .select("id, user_id, status")
-    .eq("id", id)
+    .select("id, status")
+    .eq("id", idResult.data)
+    .eq("user_id", user.id)
     .single();
 
   if (!pkg) {
     return NextResponse.json({ error: "Package not found" }, { status: 404 });
   }
 
-  if (pkg.user_id !== appUser.id) {
-    return NextResponse.json({ error: "You do not have permission to delete this package" }, { status: 403 });
-  }
-
-  // Only allow deletion of packages that haven't been processed yet
   if (pkg.status !== "BEKLENIYOR") {
     return NextResponse.json(
-      { error: "Only pending packages can be deleted. Contact support for packages in warehouse." },
+      { error: "Only pending packages can be deleted" },
       { status: 400 }
     );
   }
 
-  const { error } = await supabase
+  const { error: deleteErr } = await supabase
     .from("packages")
     .delete()
-    .eq("id", id);
+    .eq("id", idResult.data)
+    .eq("user_id", user.id);
 
-  if (error) {
-    return NextResponse.json({ error: "Operation failed" }, { status: 500 });
+  if (deleteErr) {
+    return NextResponse.json({ error: "Delete failed" }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });

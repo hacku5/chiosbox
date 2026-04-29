@@ -1,11 +1,30 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
-import { requireAdmin } from "@/lib/admin-guard";
+import { requireAdmin, auditLog } from "@/lib/admin-guard";
 import { translationSeed } from "@/lib/seed-translations";
+import { z } from "zod";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
-export async function POST() {
-  const { error } = await requireAdmin();
+const seedConfirmSchema = z.object({
+  confirm: z.literal(true),
+});
+
+export async function POST(request: Request) {
+  const { user, error } = await requireAdmin();
   if (error) return error;
+
+  const rl = checkRateLimit(request, "ADMIN", "translations:seed");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
+
+  // Require explicit confirmation to prevent accidental seeding
+  const body = await request.json().catch(() => ({}));
+  const parsed = seedConfirmSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Confirmation required. Send { confirm: true } to proceed." },
+      { status: 400 }
+    );
+  }
 
   const supabase = getAdminClient();
   let total = 0;
@@ -21,13 +40,13 @@ export async function POST() {
     // Upsert in batches of 100
     for (let i = 0; i < rows.length; i += 100) {
       const batch = rows.slice(i, i + 100);
-      const { error } = await supabase
+      const { error: batchError } = await supabase
         .from("translations")
         .upsert(batch, { onConflict: "language_code,key" });
 
-      if (error) {
+      if (batchError) {
         return NextResponse.json(
-          { error: `Failed seeding ${lang} batch ${i}: ${error.message}` },
+          { error: "Failed to seed translations" },
           { status: 500 }
         );
       }
@@ -35,5 +54,7 @@ export async function POST() {
     }
   }
 
+  const langCount = Object.keys(translationSeed).length;
+  auditLog("translations.seed", user.id, `langs:${langCount}`, { total });
   return NextResponse.json({ success: true, total });
 }

@@ -1,27 +1,34 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
-import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
-import { VALID_PLANS, generateChiosBoxId } from "@/lib/constants";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { generateChiosBoxId } from "@/lib/constants";
+import { registerSchema, validateBody } from "@/lib/validation";
 
 export async function POST(request: Request) {
   // Rate limit: 5 registrations per IP per hour
-  const ip = getClientIp(request);
-  const rl = rateLimit(`register:${ip}`, 5, 60 * 60 * 1000);
+  const rl = checkRateLimit(request, "STRICT", "register");
   if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const body = await request.json();
-  const { name, email, password, plan } = body;
-
-  if (!name || !email || !password) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  const parsed = validateBody(registerSchema, body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
 
-  // Validate plan against allowlist
-  const selectedPlan = VALID_PLANS.includes(plan) ? plan : "TEMEL";
+  const { name, email, password, plan } = parsed.data;
 
   const supabase = getAdminClient();
 
-  // 1. Create auth user (server-side, bypasses email confirmation)
+  // Check if email already exists before calling admin API
+  const { data: existingAuth } = await supabase.auth.admin.listUsers();
+  const alreadyExists = existingAuth?.users?.some(
+    (u) => u.email?.toLowerCase() === email.toLowerCase()
+  );
+  if (alreadyExists) {
+    return NextResponse.json({ error: "This email is already registered" }, { status: 409 });
+  }
+
+  // Create auth user
   const { data: signUpData, error: signUpError } = await supabase.auth.admin.createUser({
     email,
     password,
@@ -38,7 +45,7 @@ export async function POST(request: Request) {
 
   const supabaseUserId = signUpData.user.id;
 
-  // 2. Check if user row already exists
+  // Check if user row already exists
   const { data: existingUser } = await supabase
     .from("users")
     .select("id")
@@ -49,7 +56,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "This account is already registered" }, { status: 409 });
   }
 
-  // 3. Generate ChiosBox ID and address
+  // Generate ChiosBox ID and address
   const chiosBoxId = generateChiosBoxId();
   const address = `${name}\nChiosBox ${chiosBoxId}\nSakız Adası Limanı No: ${chiosBoxId.split("-")[1]}\n82100 Sakız (Chios), Yunanistan`;
 
@@ -57,7 +64,7 @@ export async function POST(request: Request) {
   const expiresAt = new Date(now);
   expiresAt.setMonth(expiresAt.getMonth() + 1);
 
-  // 4. Insert user row — use Supabase Auth UUID as primary key
+  // Insert user row — NEVER return supabase_user_id to client
   const { data: userRow, error: insertError } = await supabase
     .from("users")
     .insert({
@@ -68,7 +75,7 @@ export async function POST(request: Request) {
       chios_box_id: chiosBoxId,
       address,
       tos_accepted: true,
-      plan: selectedPlan,
+      plan,
       plan_status: "active",
       plan_started_at: now.toISOString(),
       plan_expires_at: expiresAt.toISOString(),

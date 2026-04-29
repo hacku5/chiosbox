@@ -1,85 +1,86 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
-import { requireAdmin } from "@/lib/admin-guard";
-import { invalidateSettings } from "@/lib/system-settings";
+import { requireAdmin, auditLog } from "@/lib/admin-guard";
+import { adminSettingsSchema, validateBody } from "@/lib/validation";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
-/** GET: list all settings with metadata */
 export async function GET() {
-  const { error } = await requireAdmin();
-  if (error) return error;
+  const { error: authErr } = await requireAdmin();
+  if (authErr) return authErr;
 
   const supabase = getAdminClient();
-  const { data, error: dbError } = await supabase
+  const { data, error } = await supabase
     .from("system_settings")
     .select("*")
-    .order("category, key");
+    .order("key");
 
-  if (dbError) {
-    return NextResponse.json({ error: dbError.message }, { status: 500 });
+  if (error) {
+    return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });
   }
 
-  return NextResponse.json({ settings: data ?? [] });
+  return NextResponse.json(data);
 }
 
-/** PATCH: update a single setting */
 export async function PATCH(request: Request) {
-  const { error } = await requireAdmin();
+  const { user, error } = await requireAdmin();
   if (error) return error;
 
+  const rl = checkRateLimit(request, "ADMIN", "setting:update");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
+
   const body = await request.json();
-  const { key, value } = body;
-
-  if (!key || value === undefined) {
-    return NextResponse.json({ error: "key and value required" }, { status: 400 });
+  const parsed = validateBody(adminSettingsSchema, body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
 
+  const { key, value } = parsed.data;
   const supabase = getAdminClient();
-  const { error: dbError } = await supabase
-    .from("system_settings")
-    .update({ value: JSON.stringify(value), updated_at: new Date().toISOString() })
-    .eq("key", key);
 
-  if (dbError) {
-    return NextResponse.json({ error: dbError.message }, { status: 500 });
+  const { data, error: updateErr } = await supabase
+    .from("system_settings")
+    .update({ value: JSON.stringify(value) })
+    .eq("key", key)
+    .select()
+    .single();
+
+  if (updateErr) {
+    return NextResponse.json({ error: "Update failed" }, { status: 500 });
   }
 
-  // Invalidate cache so next read picks up new value
-  invalidateSettings(key);
+  await auditLog("setting:update", user.id, key, { newValue: String(value) });
 
-  return NextResponse.json({ success: true, key, value });
+  return NextResponse.json(data);
 }
 
-/** POST: bulk update multiple settings */
 export async function POST(request: Request) {
-  const { error } = await requireAdmin();
+  const { user, error } = await requireAdmin();
   if (error) return error;
 
-  const body = await request.json();
-  const { updates } = body as { updates: Array<{ key: string; value: string | number }> };
+  const rl = checkRateLimit(request, "ADMIN", "setting:bulk");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
-  if (!updates?.length) {
-    return NextResponse.json({ error: "updates array required" }, { status: 400 });
+  const body = await request.json();
+  const { updates } = body;
+
+  if (!Array.isArray(updates) || updates.length === 0) {
+    return NextResponse.json({ error: "updates array is required" }, { status: 400 });
   }
 
   const supabase = getAdminClient();
-  const now = new Date().toISOString();
 
-  const results = await Promise.all(
-    updates.map(async ({ key, value }) => {
-      const { error: dbError } = await supabase
-        .from("system_settings")
-        .update({ value: JSON.stringify(value), updated_at: now })
-        .eq("key", key);
+  const updatePromises = updates.map((u: { key: string; value: string | number }) => {
+    const parsed = adminSettingsSchema.safeParse(u);
+    if (!parsed.success) return null;
+    return supabase
+      .from("system_settings")
+      .update({ value: JSON.stringify(parsed.data.value) })
+      .eq("key", parsed.data.key);
+  });
 
-      invalidateSettings(key);
-      return { key, success: !dbError, error: dbError?.message };
-    })
-  );
+  await Promise.all(updatePromises.filter(Boolean));
 
-  const failed = results.filter((r) => !r.success);
-  if (failed.length) {
-    return NextResponse.json({ error: "Some updates failed", results }, { status: 500 });
-  }
+  await auditLog("setting:bulk_update", user.id, "bulk", { count: updates.length });
 
-  return NextResponse.json({ success: true, updated: results.length });
+  return NextResponse.json({ success: true });
 }

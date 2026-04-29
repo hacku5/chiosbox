@@ -1,55 +1,49 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { lang } from "@/lib/validation";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const lang = searchParams.get("lang");
+  const langParam = searchParams.get("lang");
 
-  const supabase = await createClient();
-
-  if (lang) {
-    // Return all translations for a specific language
+  // If no lang param, return languages list
+  if (!langParam) {
+    const supabase = await createClient();
     const { data, error } = await supabase
-      .from("translations")
-      .select("key, value")
-      .eq("language_code", lang);
+      .from("languages")
+      .select("code, name, flag, is_default, is_enabled")
+      .eq("is_enabled", true)
+      .order("code");
 
     if (error) {
-      return NextResponse.json({ error: "Failed to load translations" }, { status: 500 });
+      return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
     }
 
-    const entries: Record<string, string> = {};
-    for (const row of data || []) {
-      entries[row.key] = row.value;
-    }
-
-    return NextResponse.json(
-      { lang, entries },
-      {
-        headers: {
-          "Cache-Control": "public, max-age=300, stale-while-revalidate=600",
-        },
-      }
-    );
+    return NextResponse.json({ languages: data });
   }
 
-  // No lang param — return available languages
+  // Validate lang param
+  const langResult = lang.safeParse(langParam);
+  if (!langResult.success) {
+    return NextResponse.json({ error: "Invalid language code" }, { status: 400 });
+  }
+
+  const supabase = await createClient();
   const { data, error } = await supabase
-    .from("languages")
-    .select("code, name, flag, is_default, is_enabled")
-    .eq("is_enabled", true)
-    .order("is_default", { ascending: false });
+    .from("translations")
+    .select("key, text")
+    .eq("language", langResult.data);
 
   if (error) {
-    return NextResponse.json({ error: "Failed to load languages" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
   }
 
-  return NextResponse.json(
-    { languages: data },
-    {
-      headers: {
-        "Cache-Control": "public, max-age=300, stale-while-revalidate=600",
-      },
-    }
-  );
+  const entries: Record<string, string> = {};
+  for (const row of data ?? []) {
+    entries[row.key] = row.text;
+  }
+
+  const response = NextResponse.json({ entries });
+  response.headers.set("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
+  return response;
 }

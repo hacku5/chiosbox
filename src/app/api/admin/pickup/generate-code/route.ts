@@ -1,26 +1,31 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
-import { requireAdmin } from "@/lib/admin-guard";
+import { requireAdmin, auditLog } from "@/lib/admin-guard";
 import { sendPushToUser } from "@/lib/send-notification";
 import { randomInt, createHash } from "crypto";
-import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { validateBody } from "@/lib/validation";
+import { z } from "zod";
+
+const generateCodeSchema = z.object({
+  packageId: z.string().uuid(),
+});
 
 export async function POST(request: Request) {
-  // Rate limit: 30 code generations per admin per minute
-  const ip = getClientIp(request);
-  const rl = rateLimit(`pickup-code:${ip}`, 30, 60 * 1000);
+  const rl = checkRateLimit(request, "ADMIN", "pickup:generate");
   if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const { user, error } = await requireAdmin("pickup");
   if (error) return error;
 
-  const supabase = getAdminClient();
   const body = await request.json();
-  const { packageId } = body;
-
-  if (!packageId) {
-    return NextResponse.json({ error: "Package ID is required" }, { status: 400 });
+  const parsed = validateBody(generateCodeSchema, body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
+
+  const { packageId } = parsed.data;
+  const supabase = getAdminClient();
 
   // Verify package exists and belongs to a user
   const { data: pkg, error: fetchErr } = await supabase
@@ -50,7 +55,7 @@ export async function POST(request: Request) {
     .eq("id", packageId);
 
   if (updateErr) {
-    return NextResponse.json({ error: updateErr.message }, { status: 500 });
+    return NextResponse.json({ error: "Failed to generate code" }, { status: 500 });
   }
 
   // Push notification — don't leak the code in notification
@@ -59,6 +64,8 @@ export async function POST(request: Request) {
     body: "Open the app to get your code",
     url: "/user",
   }).catch(() => {});
+
+  auditLog("pickup.code_generated", user.id, `package:${packageId}`);
 
   // Return the plain code only to the admin who generated it (for display on screen)
   return NextResponse.json({ success: true, code, expiresAt });

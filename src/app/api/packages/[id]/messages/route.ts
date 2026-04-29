@@ -1,117 +1,103 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
-import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+import { requireAuth } from "@/lib/auth-guard";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { sanitizeRequired } from "@/lib/sanitize";
+import { uuid, messageSchema, validateBody } from "@/lib/validation";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { user, error } = await requireAuth();
+  if (error) return error;
+
   const { id } = await params;
+  const idResult = uuid.safeParse(id);
+  if (!idResult.success) {
+    return NextResponse.json({ error: "Invalid package ID" }, { status: 400 });
+  }
+
   const supabase = await createClient();
 
-  const { data: { user: authUser } } = await supabase.auth.getUser();
-  if (!authUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { data: appUser } = await supabase
-    .from("users")
-    .select("id, is_admin")
-    .eq("supabase_user_id", authUser.id)
+  // Verify ownership (admins bypass via admin check)
+  const { data: pkg } = await supabase
+    .from("packages")
+    .select("id, user_id")
+    .eq("id", idResult.data)
     .single();
 
-  if (!appUser) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  if (!pkg) {
+    return NextResponse.json({ error: "Package not found" }, { status: 404 });
   }
 
-  // Verify the package belongs to this user (or user is admin)
-  if (!appUser.is_admin) {
-    const { data: pkg } = await supabase
-      .from("packages")
-      .select("id")
-      .eq("id", id)
-      .eq("user_id", appUser.id)
+  // Allow admin access
+  if (pkg.user_id !== user.id) {
+    const { data: adminCheck } = await supabase
+      .from("users")
+      .select("is_admin")
+      .eq("id", user.id)
       .single();
 
-    if (!pkg) {
-      return NextResponse.json({ error: "Package not found" }, { status: 404 });
+    if (!adminCheck?.is_admin) {
+      return NextResponse.json({ error: "Not authorized" }, { status: 403 });
     }
   }
 
-  const { data, error } = await supabase
+  const { data: messages, error: fetchErr } = await supabase
     .from("package_messages")
-    .select("*, users(name)")
-    .eq("package_id", id)
+    .select("*")
+    .eq("package_id", idResult.data)
     .order("created_at", { ascending: true });
 
-  if (error) {
-    return NextResponse.json({ error: "Operation failed" }, { status: 500 });
+  if (fetchErr) {
+    return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(messages);
 }
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Rate limit: 20 messages per IP per minute
-  const ip = getClientIp(request);
-  const rl = rateLimit(`msg:${ip}`, 20, 60 * 1000);
+  const rl = checkRateLimit(request, "STRICT", "messages:send");
   if (!rl.success) return rateLimitResponse(rl.resetAt);
 
+  const { user, error } = await requireAuth();
+  if (error) return error;
+
   const { id } = await params;
-  const supabase = await createClient();
-
-  const { data: { user: authUser } } = await supabase.auth.getUser();
-  if (!authUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { data: appUser } = await supabase
-    .from("users")
-    .select("id, is_admin")
-    .eq("supabase_user_id", authUser.id)
-    .single();
-
-  if (!appUser) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  const idResult = uuid.safeParse(id);
+  if (!idResult.success) {
+    return NextResponse.json({ error: "Invalid package ID" }, { status: 400 });
   }
 
   const body = await request.json();
-  const message = sanitizeRequired(body.message, 2000);
-  if (!message) {
+  const parsed = validateBody(messageSchema, body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
+  }
+
+  const cleanMessage = sanitizeRequired(parsed.data.message, 2000);
+  if (!cleanMessage) {
     return NextResponse.json({ error: "Message cannot be empty" }, { status: 400 });
   }
 
-  // Verify the package belongs to this user (or user is admin)
-  if (!appUser.is_admin) {
-    const { data: pkg } = await supabase
-      .from("packages")
-      .select("id")
-      .eq("id", id)
-      .eq("user_id", appUser.id)
-      .single();
+  const supabase = await createClient();
 
-    if (!pkg) {
-      return NextResponse.json({ error: "Package not found" }, { status: 404 });
-    }
-  }
-
-  const { data, error } = await supabase
+  const { data, error: insertErr } = await supabase
     .from("package_messages")
     .insert({
-      package_id: id,
-      user_id: appUser.id,
-      message,
-      is_admin: appUser.is_admin,
+      package_id: idResult.data,
+      sender_id: user.id,
+      message: cleanMessage,
     })
-    .select("*, users(name)")
+    .select()
     .single();
 
-  if (error) {
-    return NextResponse.json({ error: "Operation failed" }, { status: 500 });
+  if (insertErr) {
+    return NextResponse.json({ error: "Failed to send" }, { status: 500 });
   }
 
   return NextResponse.json(data, { status: 201 });

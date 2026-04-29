@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin } from "@/lib/admin-guard";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const VALID_STATUSES = ["PAID", "CANCELLED", "PENDING"];
 
@@ -16,6 +17,9 @@ export async function PATCH(
 ) {
   const { error } = await requireAdmin("invoices");
   if (error) return error;
+
+  const rl = checkRateLimit(request, "ADMIN", "invoice:update");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const { id } = await params;
   const supabase = getAdminClient();

@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin } from "@/lib/admin-guard";
-import { getFreeStorageDays } from "@/lib/fees";
+import { FEES } from "@/lib/fees";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
-export async function GET() {
+export async function GET(request: Request) {
   const { error } = await requireAdmin();
   if (error) return error;
+
+  // Rate limit: admin tier (60 req/min)
+  const rl = checkRateLimit(request, "ADMIN", "admin:stats");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const supabase = getAdminClient();
 
@@ -19,11 +24,10 @@ export async function GET() {
   let demurrageCount = 0;
   let totalDemurrage = 0;
 
-  const freeStorageDays = await getFreeStorageDays();
   for (const pkg of packages || []) {
     totalPackages++;
     statusCounts[pkg.status] = (statusCounts[pkg.status] || 0) + 1;
-    if ((pkg.storage_days_used || 0) > freeStorageDays) {
+    if ((pkg.storage_days_used || 0) > FEES.FREE_STORAGE_DAYS) {
       demurrageCount++;
       totalDemurrage += Number(pkg.demurrage_fee) || 0;
     }

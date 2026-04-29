@@ -1,20 +1,26 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
-import { requireAdmin } from "@/lib/admin-guard";
-import { getAcceptFee } from "@/lib/fees";
+import { requireAdmin, auditLog } from "@/lib/admin-guard";
+import { adminIntakeSchema, validateBody } from "@/lib/validation";
+import { FEES } from "@/lib/fees";
 import { sendPushToUser } from "@/lib/send-notification";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   const { user, error } = await requireAdmin("intake");
   if (error) return error;
 
-  const supabase = getAdminClient();
-  const body = await request.json();
-  const { trackingNo, shelfLocation } = body;
+  const rl = checkRateLimit(request, "ADMIN", "intake:create");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
-  if (!trackingNo || !shelfLocation) {
-    return NextResponse.json({ error: "Missing information" }, { status: 400 });
+  const body = await request.json();
+  const parsed = validateBody(adminIntakeSchema, body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
+
+  const { trackingNo, shelfLocation } = parsed.data;
+  const supabase = getAdminClient();
 
   // Find the package by tracking number
   const { data: pkg, error: findError } = await supabase
@@ -47,19 +53,18 @@ export async function POST(request: Request) {
     .single();
 
   if (updateError) {
-    return NextResponse.json({ error: updateError.message }, { status: 500 });
+    return NextResponse.json({ error: "Intake failed" }, { status: 500 });
   }
 
   // Auto-create invoice for this package
-  const acceptFee = await getAcceptFee();
   const { data: invoice, error: invoiceError } = await supabase
     .from("invoices")
     .insert({
       user_id: pkg.user_id,
-      accept_fee: acceptFee,
+      accept_fee: FEES.ACCEPT,
       consolidation_fee: 0,
       demurrage_fee: 0,
-      total: acceptFee,
+      total: FEES.ACCEPT,
       status: "PENDING",
     })
     .select()
@@ -67,6 +72,7 @@ export async function POST(request: Request) {
 
   if (invoiceError) {
     console.error(`[INTAKE] Invoice creation failed for package ${pkg.id}:`, invoiceError.message);
+    await auditLog("intake:create", user.id, pkg.id, { trackingNo });
     return NextResponse.json({
       ...data,
       _warning: "Invoice could not be created. Please create it manually.",
@@ -79,7 +85,7 @@ export async function POST(request: Request) {
       invoice_id: invoice.id,
       package_id: pkg.id,
       fee_type: "accept",
-      amount: acceptFee,
+      amount: FEES.ACCEPT,
     });
   }
 
@@ -87,8 +93,10 @@ export async function POST(request: Request) {
   sendPushToUser(pkg.user_id, {
     title: "Paketiniz Geldi!",
     body: `${pkg.content} depoda kabul edildi`,
-    url: "/user/packages",
+    url: "/dashboard/packages",
   }).catch(() => {});
+
+  await auditLog("intake:create", user.id, pkg.id, { trackingNo });
 
   return NextResponse.json(data, { status: 200 });
 }

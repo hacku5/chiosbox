@@ -1,40 +1,31 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { requireAuth } from "@/lib/auth-guard";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
+  const { user, error } = await requireAuth();
+  if (error) return error;
 
-  const { data: { user: authUser } } = await supabase.auth.getUser();
-  if (!authUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { data: appUser } = await supabase
-    .from("users")
-    .select("id")
-    .eq("supabase_user_id", authUser.id)
-    .single();
-
-  if (!appUser) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const rl = checkRateLimit(request, "DEFAULT", "notifications:unsubscribe");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const body = await request.json();
   const { endpoint } = body;
 
-  if (!endpoint) {
+  if (!endpoint || typeof endpoint !== "string") {
     return NextResponse.json({ error: "Endpoint is required" }, { status: 400 });
   }
 
-  // Only delete own subscription
-  const { error } = await supabase
+  const supabase = await createClient();
+  const { error: deleteErr } = await supabase
     .from("push_subscriptions")
     .delete()
-    .eq("endpoint", endpoint)
-    .eq("user_id", appUser.id);
+    .eq("user_id", user.id)
+    .eq("endpoint", endpoint);
 
-  if (error) {
-    return NextResponse.json({ error: "Operation failed" }, { status: 500 });
+  if (deleteErr) {
+    return NextResponse.json({ error: "Unsubscribe failed" }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });

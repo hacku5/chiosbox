@@ -1,7 +1,24 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
-import { requireAdmin } from "@/lib/admin-guard";
-import { getFreeStorageDays, getDailyDemurrage } from "@/lib/fees";
+import { requireAdmin, auditLog } from "@/lib/admin-guard";
+import { FEES } from "@/lib/fees";
+import { uuid as uuidSchema } from "@/lib/validation";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+
+const PACKAGE_STATUSES = [
+  "BEKLENIYOR", "YOLDA", "DEPODA", "HAZIR",
+  "BIRLESTIRILDI", "TESLIM_EDILDI", "IPTAL",
+];
+
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  BEKLENIYOR: ["YOLDA", "IPTAL"],
+  YOLDA: ["DEPODA", "IPTAL"],
+  DEPODA: ["HAZIR", "BIRLESTIRILDI", "IPTAL"],
+  HAZIR: ["TESLIM_EDILDI", "DEPODA"],
+  BIRLESTIRILDI: ["TESLIM_EDILDI", "DEPODA"],
+  IPTAL: ["BEKLENIYOR"],
+  TESLIM_EDILDI: [],
+};
 
 export async function GET(
   _request: Request,
@@ -11,12 +28,19 @@ export async function GET(
   if (error) return error;
 
   const { id } = await params;
+
+  // Validate UUID
+  const idParsed = uuidSchema.safeParse(id);
+  if (!idParsed.success) {
+    return NextResponse.json({ error: "Invalid package ID" }, { status: 400 });
+  }
+
   const supabase = getAdminClient();
 
   const { data, error: queryError } = await supabase
     .from("packages")
     .select("*, users!inner(name, chios_box_id, email)")
-    .eq("id", id)
+    .eq("id", idParsed.data)
     .single();
 
   if (queryError || !data) {
@@ -30,10 +54,20 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { error } = await requireAdmin("packages");
+  const { user, error } = await requireAdmin("packages");
   if (error) return error;
 
+  const rl = checkRateLimit(request, "ADMIN", "package:admin_update");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
+
   const { id } = await params;
+
+  // Validate UUID
+  const idParsed = uuidSchema.safeParse(id);
+  if (!idParsed.success) {
+    return NextResponse.json({ error: "Invalid package ID" }, { status: 400 });
+  }
+
   const supabase = getAdminClient();
   const body = await request.json();
 
@@ -42,20 +76,19 @@ export async function PATCH(
     const { data: pkg, error: fetchErr } = await supabase
       .from("packages")
       .select("*")
-      .eq("id", id)
+      .eq("id", idParsed.data)
       .single();
 
     if (fetchErr || !pkg) {
       return NextResponse.json({ error: "Package not found" }, { status: 404 });
     }
 
-    const [freeDays, dailyRate] = await Promise.all([getFreeStorageDays(), getDailyDemurrage()]);
-    const overdueDays = Math.max(0, (pkg.storage_days_used || 0) - freeDays);
+    const overdueDays = Math.max(0, (pkg.storage_days_used || 0) - FEES.FREE_STORAGE_DAYS);
     if (overdueDays <= 0) {
       return NextResponse.json({ error: "No days for demurrage fee" }, { status: 400 });
     }
 
-    const demurrageAmount = overdueDays * dailyRate;
+    const demurrageAmount = overdueDays * FEES.DAILY_DEMURRAGE;
 
     // Check if a demurrage invoice already exists for this package
     const { data: existingDemurrage } = await supabase
@@ -69,18 +102,21 @@ export async function PATCH(
     );
 
     if (hasActiveDemurrage) {
-      return NextResponse.json({ error: "A pending demurrage invoice already exists for this package" }, { status: 409 });
+      return NextResponse.json(
+        { error: "A pending demurrage invoice already exists for this package" },
+        { status: 409 }
+      );
     }
 
     const { data, error: updateErr } = await supabase
       .from("packages")
       .update({ demurrage_fee: demurrageAmount })
-      .eq("id", id)
+      .eq("id", idParsed.data)
       .select()
       .single();
 
     if (updateErr) {
-      return NextResponse.json({ error: updateErr.message }, { status: 500 });
+      return NextResponse.json({ error: "Failed to update package" }, { status: 500 });
     }
 
     // Create a demurrage invoice
@@ -107,6 +143,10 @@ export async function PATCH(
       });
     }
 
+    auditLog("package.demurrage", user.id, `package:${idParsed.data}`, {
+      overdueDays,
+      demurrageAmount,
+    });
     return NextResponse.json(data);
   }
 
@@ -118,31 +158,21 @@ export async function PATCH(
 
   // Validate status transitions
   if (updateData.status) {
-    const allowedStatuses = ["BEKLENIYOR", "YOLDA", "DEPODA", "HAZIR", "BIRLESTIRILDI", "TESLIM_EDILDI", "IPTAL"];
-    if (!allowedStatuses.includes(updateData.status as string)) {
+    if (!PACKAGE_STATUSES.includes(updateData.status as string)) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
     const { data: currentPkg } = await supabase
       .from("packages")
       .select("status")
-      .eq("id", id)
+      .eq("id", idParsed.data)
       .single();
 
     if (currentPkg) {
-      const validTransitions: Record<string, string[]> = {
-        BEKLENIYOR: ["YOLDA", "IPTAL"],
-        YOLDA: ["DEPODA", "IPTAL"],
-        DEPODA: ["HAZIR", "BIRLESTIRILDI", "IPTAL"],
-        HAZIR: ["TESLIM_EDILDI", "DEPODA"],
-        BIRLESTIRILDI: ["TESLIM_EDILDI", "DEPODA"],
-        IPTAL: ["BEKLENIYOR"],
-        TESLIM_EDILDI: [],
-      };
-      const allowed = validTransitions[currentPkg.status] || [];
+      const allowed = VALID_TRANSITIONS[currentPkg.status] || [];
       if (!allowed.includes(updateData.status as string)) {
         return NextResponse.json(
-          { error: `Cannot transition from ${currentPkg.status} to ${updateData.status}` },
+          { error: "Invalid status transition" },
           { status: 400 }
         );
       }
@@ -152,35 +182,47 @@ export async function PATCH(
   const { data, error: updateErr } = await supabase
     .from("packages")
     .update(updateData)
-    .eq("id", id)
+    .eq("id", idParsed.data)
     .select()
     .single();
 
   if (updateErr) {
-    return NextResponse.json({ error: updateErr.message }, { status: 500 });
+    return NextResponse.json({ error: "Failed to update package" }, { status: 500 });
   }
 
+  auditLog("package.update", user.id, `package:${idParsed.data}`, { updateData });
   return NextResponse.json(data);
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { error } = await requireAdmin("packages");
+  const { user, error } = await requireAdmin("packages");
   if (error) return error;
 
+  const rl = checkRateLimit(request, "ADMIN", "package:admin_delete");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
+
   const { id } = await params;
+
+  // Validate UUID
+  const idParsed = uuidSchema.safeParse(id);
+  if (!idParsed.success) {
+    return NextResponse.json({ error: "Invalid package ID" }, { status: 400 });
+  }
+
   const supabase = getAdminClient();
 
   const { error: deleteErr } = await supabase
     .from("packages")
     .delete()
-    .eq("id", id);
+    .eq("id", idParsed.data);
 
   if (deleteErr) {
-    return NextResponse.json({ error: deleteErr.message }, { status: 500 });
+    return NextResponse.json({ error: "Failed to delete package" }, { status: 500 });
   }
 
+  auditLog("package.delete", user.id, `package:${idParsed.data}`);
   return NextResponse.json({ success: true });
 }

@@ -52,3 +52,25 @@ export function rateLimitResponse(resetAt: number) {
     }
   );
 }
+
+// ── Preset tiers ──
+
+export const RL_TIERS = {
+  /** Auth/register: 5 req/hr per IP */
+  STRICT: { limit: 5, windowMs: 60 * 60 * 1000 },
+  /** Default API: 30 req/min per IP */
+  DEFAULT: { limit: 30, windowMs: 60 * 1000 },
+  /** Admin: 60 req/min per IP */
+  ADMIN: { limit: 60, windowMs: 60 * 1000 },
+} as const;
+
+export function checkRateLimit(
+  request: Request,
+  tier: keyof typeof RL_TIERS = "DEFAULT",
+  key?: string
+) {
+  const ip = getClientIp(request);
+  const identifier = key ? `${key}:${ip}` : `${request.method}:${ip}`;
+  const cfg = RL_TIERS[tier];
+  return rateLimit(identifier, cfg.limit, cfg.windowMs);
+}

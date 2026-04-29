@@ -2,10 +2,14 @@ import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin } from "@/lib/admin-guard";
 import { createHash } from "crypto";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   const { user, error } = await requireAdmin("pickup");
   if (error) return error;
+
+  const rl = checkRateLimit(request, "ADMIN", "pickup:create");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const supabase = getAdminClient();
   const body = await request.json();

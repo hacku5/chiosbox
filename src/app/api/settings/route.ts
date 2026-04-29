@@ -1,19 +1,26 @@
 import { NextResponse } from "next/server";
-import { getAdminClient } from "@/lib/supabase-admin";
+import { createClient } from "@/lib/supabase-server";
 
-/** Public: read-only access to system settings for client components. */
+// Only these keys may be served to unauthenticated clients
+const PUBLIC_SETTING_KEYS = new Set([
+  "free_storage_days",
+  "plan_price_temel",
+  "plan_price_premium",
+]);
+
 export async function GET() {
   try {
-    const supabase = getAdminClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from("system_settings")
-      .select("key, value, category, label, description, unit");
+      .select("key, value");
 
     if (error) throw error;
 
-    // Parse JSONB values to plain numbers/strings
+    // Filter: only return public-safe keys
     const settings: Record<string, number | string> = {};
     for (const row of data ?? []) {
+      if (!PUBLIC_SETTING_KEYS.has(row.key)) continue;
       const parsed =
         typeof row.value === "string" ? JSON.parse(row.value) : row.value;
       settings[row.key] = typeof parsed === "number" ? parsed : String(parsed);
