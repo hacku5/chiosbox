@@ -7,7 +7,7 @@ import { usePackageStore } from "@/stores/package-store";
 import { useTourStore } from "@/stores/tour-store";
 import { StorageCountdown } from "@/components/dashboard/storage-scountdown";
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
-import { FEES } from "@/lib/fees";
+import { useSettings } from "@/hooks/use-settings";
 import { useTranslation } from "@/hooks/use-translation";
 import Link from "next/link";
 
@@ -37,6 +37,7 @@ function AnimatedCounter({ value }: { value: number }) {
 
 export default function DashboardPage() {
   const { t } = useTranslation();
+  const { settings } = useSettings();
   const { user, loading: authLoading } = useAuthGuard();
   const realPackages = usePackageStore((s) => s.packages);
   const fetchPackages = usePackageStore((s) => s.fetchPackages);
@@ -80,7 +81,7 @@ export default function DashboardPage() {
     : 0;
   const overduePackages = depodaPackages.filter((p) => p.free_days_left <= 0);
   const overdueTotal = overduePackages.length > 0
-    ? overduePackages.reduce((sum, p) => sum + Math.abs(p.free_days_left) * FEES.DAILY_DEMURRAGE, 0)
+    ? overduePackages.reduce((sum, p) => sum + Math.abs(p.free_days_left) * settings.fee_daily_demurrage, 0)
     : 0;
 
   const copyAddress = async () => {

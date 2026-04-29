@@ -6,7 +6,7 @@ import { driver, type DriveStep, type Driver } from "driver.js";
 import "driver.js/dist/driver.css";
 import { useTourStore } from "@/stores/tour-store";
 import { useTranslation } from "@/hooks/use-translation";
-import { FEES } from "@/lib/fees";
+import { useSettings } from "@/hooks/use-settings";
 import { OrderFlowModal } from "./order-flow-modal";
 
 const STEP_ROUTES = [
@@ -38,6 +38,7 @@ export function TourDriver() {
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useTranslation();
+  const { settings } = useSettings();
   const {
     isRunning,
     currentStep,
@@ -60,7 +61,7 @@ export function TourDriver() {
 
   const buildAllSteps = useCallback((): DriveStep[] => {
     const fmt = (key: string) =>
-      t(key).replace("{fee}", `€${FEES.DAILY_DEMURRAGE.toFixed(2)}`);
+      t(key).replace("{fee}", `€${settings.fee_daily_demurrage.toFixed(2)}`);
     return [
       // 0-5 Dashboard
       { element: '[data-tour="dashboard-welcome"]', popover: { title: fmt("tour.step.dashboardWelcome.title"), description: fmt("tour.step.dashboardWelcome.content"), side: "bottom", align: "start" } },
@@ -109,7 +110,7 @@ export function TourDriver() {
       { element: '[data-tour="checkout"]', popover: { title: fmt("tour.step.checkout.title"), description: fmt("tour.step.checkout.content"), side: "bottom", align: "start" } },
       { element: '[data-tour="checkout-pay"]', popover: { title: fmt("tour.step.checkoutPayFinal.title"), description: fmt("tour.step.checkoutPayFinal.content"), side: "bottom", align: "start" } },
     ];
-  }, [t]);
+  }, [t, settings.fee_daily_demurrage]);
 
   const startDriver = useCallback(
     (fromGlobalStep: number, attempt = 0) => {

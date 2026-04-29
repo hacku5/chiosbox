@@ -13,6 +13,19 @@ interface SettingRow {
   unit: string;
 }
 
+// jsonb values from Supabase arrive already parsed. Extract display string safely.
+function toDisplay(val: unknown): string {
+  if (val === null || val === undefined) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "number" || typeof val === "boolean") return String(val);
+  return JSON.stringify(val);
+}
+function isNumericVal(val: unknown): boolean {
+  if (typeof val === "number") return true;
+  if (typeof val === "string") return !isNaN(Number(val)) && val.trim() !== "";
+  return false;
+}
+
 const CATEGORY_META: Record<string, { labelKey: string; icon: string }> = {
   fees: { labelKey: "adminSettings.catFees", icon: "€" },
   plans: { labelKey: "adminSettings.catPlans", icon: "★" },
@@ -158,9 +171,9 @@ export default function AdminSettingsPage() {
               const displayValue =
                 setting.key in edited
                   ? edited[setting.key]
-                  : String(JSON.parse(setting.value));
+                  : toDisplay(setting.value);
               const isEdited = setting.key in edited;
-              const isNumeric = !isNaN(Number(JSON.parse(setting.value)));
+              const isNumeric = isNumericVal(setting.value);
 
               return (
                 <motion.div

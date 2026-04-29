@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
-import { FEES } from "@/lib/fees";
+import { getAcceptFee, getConsolidationFee } from "@/lib/fees";
 import { requireAuth } from "@/lib/auth-guard";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { consolidateSchema, validateBody } from "@/lib/validation";
@@ -54,8 +54,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const acceptRate = FEES.ACCEPT;
-  const consolidationFee = FEES.CONSOLIDATION;
+  const acceptRate = await getAcceptFee();
+  const consolidationFee = await getConsolidationFee();
   const acceptTotal = uninvoicedPackages.length * acceptRate;
   const total = acceptTotal + consolidationFee;
 

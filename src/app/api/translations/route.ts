@@ -31,8 +31,8 @@ export async function GET(request: Request) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("translations")
-    .select("key, text")
-    .eq("language", langResult.data);
+    .select("key, value")
+    .eq("language_code", langResult.data);
 
   if (error) {
     return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
 
   const entries: Record<string, string> = {};
   for (const row of data ?? []) {
-    entries[row.key] = row.text;
+    entries[row.key] = row.value;
   }
 
   const response = NextResponse.json({ entries });

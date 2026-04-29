@@ -175,9 +175,9 @@ body {
   border-color: #fff;
 }
 
-/* Driver.js overlay */
+/* Driver.js overlay — no blur so highlighted element stays sharp */
 .driver-overlay {
-  backdrop-filter: blur(2px);
+  /* backdrop-filter removed: blurred the stage cutout area */
 }
 
 /* Mobile: tighter popovers */

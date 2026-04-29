@@ -17,7 +17,7 @@ export async function GET() {
   const supabase = await createClient();
   const { data, error: fetchErr } = await supabase
     .from("invoices")
-    .select("id, total, status, created_at, updated_at, accept_fee, consolidation_fee, demurrage_fee, master_box_id")
+    .select("id, total, status, created_at, accept_fee, consolidation_fee, demurrage_fee")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 

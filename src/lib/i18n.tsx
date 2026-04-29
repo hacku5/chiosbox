@@ -177,36 +177,67 @@ export function TranslationProvider({ children }: { children: React.ReactNode })
       }
     } catch { /* ignore */ }
 
-    fetch("/api/translations?lang=en")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.entries) {
-          setFallbackTranslations(data.entries);
-          try {
-            localStorage.setItem(cacheKey, JSON.stringify({ entries: data.entries, timestamp: Date.now() }));
-          } catch { /* ignore */ }
-        }
+    fetch("/locales/en.json")
+      .then((r) => {
+        if (!r.ok) throw new Error("no static file");
+        return r.json();
       })
-      .catch(() => {});
+      .then((entries) => {
+        // Static file returns entries directly
+        setFallbackTranslations(entries);
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify({ entries, timestamp: Date.now() }));
+        } catch { /* ignore */ }
+      })
+      .catch(() => {
+        // Fall back to API
+        fetch("/api/translations?lang=en")
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.entries) {
+              setFallbackTranslations(data.entries);
+              try {
+                localStorage.setItem(cacheKey, JSON.stringify({ entries: data.entries, timestamp: Date.now() }));
+              } catch { /* ignore */ }
+            }
+          })
+          .catch(() => {});
+      });
   }
 
   function fetchTranslations(languageCode: string, cacheKey: string, isBackground: boolean) {
-    fetch(`/api/translations?lang=${languageCode}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.entries) {
-          setTranslations(data.entries);
-          try {
-            localStorage.setItem(cacheKey, JSON.stringify({ entries: data.entries, timestamp: Date.now() }));
-          } catch { /* ignore */ }
-        }
+    // Try static file first (instant, no API call)
+    fetch(`/locales/${languageCode}.json`)
+      .then((r) => {
+        if (!r.ok) throw new Error("no static file");
+        return r.json();
+      })
+      .then((entries) => {
+        setTranslations(entries);
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify({ entries, timestamp: Date.now() }));
+        } catch { /* ignore */ }
         setLoading(false);
         setReady(true);
       })
       .catch(() => {
-        setLoading(false);
-        // Even on error, mark ready after a timeout so the app isn't stuck forever
-        setTimeout(() => setReady(true), 100);
+        // Fall back to API
+        fetch(`/api/translations?lang=${languageCode}`)
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.entries) {
+              setTranslations(data.entries);
+              try {
+                localStorage.setItem(cacheKey, JSON.stringify({ entries: data.entries, timestamp: Date.now() }));
+              } catch { /* ignore */ }
+            }
+            setLoading(false);
+            setReady(true);
+          })
+          .catch(() => {
+            setLoading(false);
+            setTimeout(() => setReady(true), 100);
+          });
       });
   }
 

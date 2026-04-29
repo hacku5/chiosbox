@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "@/hooks/use-translation";
+import { useSettings } from "@/hooks/use-settings";
 
 interface PlanOption {
   id: string;
@@ -20,27 +20,13 @@ interface PlanSelectorProps {
 
 export function PlanSelector({ selected, onSelect }: PlanSelectorProps) {
   const { t } = useTranslation();
-  const [planPrices, setPlanPrices] = useState({ temel: 9.99, premium: 24.99 });
-
-  useEffect(() => {
-    fetch("/api/settings")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.settings) {
-          setPlanPrices({
-            temel: Number(data.settings.plan_price_temel) || 9.99,
-            premium: Number(data.settings.plan_price_premium) || 24.99,
-          });
-        }
-      })
-      .catch(() => {/* use defaults */});
-  }, []);
+  const { settings } = useSettings();
 
   const plans: PlanOption[] = [
     {
       id: "TEMEL",
       name: t("planSelector.temel.name"),
-      price: `€${planPrices.temel.toFixed(2)}`,
+      price: `€${settings.plan_price_temel.toFixed(2)}`,
       period: t("planSelector.period"),
       features: [
         t("planSelector.temel.f1"),
@@ -52,7 +38,7 @@ export function PlanSelector({ selected, onSelect }: PlanSelectorProps) {
     {
       id: "PREMIUM",
       name: t("planSelector.premium.name"),
-      price: `€${planPrices.premium.toFixed(2)}`,
+      price: `€${settings.plan_price_premium.toFixed(2)}`,
       period: t("planSelector.period"),
       badge: t("planSelector.premium.badge"),
       features: [

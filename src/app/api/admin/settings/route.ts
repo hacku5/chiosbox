@@ -18,7 +18,7 @@ export async function GET() {
     return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json({ settings: data });
 }
 
 export async function PATCH(request: Request) {

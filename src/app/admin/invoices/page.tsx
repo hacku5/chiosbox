@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAdminUser } from "../admin-layout-client";
 import { hasPermission } from "@/lib/permissions";
-import { FEES } from "@/lib/fees";
+import { useSettings } from "@/hooks/use-settings";
 import { useTranslation } from "@/hooks/use-translation";
 
 interface InvoiceItem {
@@ -46,6 +46,7 @@ interface UninvoicedPackage {
 
 export default function AdminInvoicesPage() {
   const { t } = useTranslation();
+  const { settings } = useSettings();
   const adminUser = useAdminUser();
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -240,6 +241,7 @@ export default function AdminInvoicesPage() {
 
 function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
   const { t } = useTranslation();
+  const { settings } = useSettings();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedUserId, setSelectedUserId] = useState("");
   const [packages, setPackages] = useState<UninvoicedPackage[]>([]);
@@ -287,12 +289,12 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
 
   // Calculate totals
   const selectedPkgs = packages.filter((p) => selectedPkgIds.has(p.id));
-  const totalAccept = selectedPkgs.length * FEES.ACCEPT;
+  const totalAccept = selectedPkgs.length * settings.fee_accept;
   const totalDemurrage = selectedPkgs.reduce((sum, p) => {
-    const overdueDays = Math.max(0, p.storage_days_used - FEES.FREE_STORAGE_DAYS);
-    return sum + (overdueDays > 0 ? overdueDays * FEES.DAILY_DEMURRAGE : 0);
+    const overdueDays = Math.max(0, p.storage_days_used - settings.free_storage_days);
+    return sum + (overdueDays > 0 ? overdueDays * settings.fee_daily_demurrage : 0);
   }, 0);
-  const consolidationTotal = addConsolidation ? FEES.CONSOLIDATION : 0;
+  const consolidationTotal = addConsolidation ? settings.fee_consolidation : 0;
   const grandTotal = totalAccept + totalDemurrage + consolidationTotal;
 
   const handleCreate = async () => {
@@ -392,7 +394,7 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {packages.map((pkg) => {
                     const isSelected = selectedPkgIds.has(pkg.id);
-                    const overdueDays = Math.max(0, pkg.storage_days_used - FEES.FREE_STORAGE_DAYS);
+                    const overdueDays = Math.max(0, pkg.storage_days_used - settings.free_storage_days);
                     return (
                       <button
                         key={pkg.id}
@@ -417,10 +419,10 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
                           <div className="text-xs text-deep-sea-teal/40 font-mono">{pkg.tracking_no} · {pkg.carrier}</div>
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <div className="text-xs text-deep-sea-teal/50">{t("invoices.acceptFee", { amount: FEES.ACCEPT.toFixed(2) })}</div>
+                          <div className="text-xs text-deep-sea-teal/50">{t("invoices.acceptFee", { amount: settings.fee_accept.toFixed(2) })}</div>
                           {overdueDays > 0 && (
                             <div className="text-xs text-accent-orange">
-                              {t("invoices.demurrageFee", { amount: (overdueDays * FEES.DAILY_DEMURRAGE).toFixed(2) })}
+                              {t("invoices.demurrageFee", { amount: (overdueDays * settings.fee_daily_demurrage).toFixed(2) })}
                             </div>
                           )}
                         </div>
@@ -452,7 +454,7 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
                     </div>
                     <span className="text-sm text-deep-sea-teal">{t("invoices.createModal.consolidationFee")}</span>
                   </div>
-                  <span className="text-sm font-medium text-deep-sea-teal">€{FEES.CONSOLIDATION.toFixed(2)}</span>
+                  <span className="text-sm font-medium text-deep-sea-teal">€{settings.fee_consolidation.toFixed(2)}</span>
                 </button>
               )}
             </div>
@@ -462,7 +464,7 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
           {selectedPkgs.length > 0 && (
             <div className="p-4 bg-deep-sea-teal/[0.03] rounded-xl space-y-2">
               <div className="flex justify-between text-xs text-deep-sea-teal/50">
-                <span>{t("invoices.createModal.acceptFee", { count: selectedPkgs.length, fee: FEES.ACCEPT.toFixed(2) })}</span>
+                <span>{t("invoices.createModal.acceptFee", { count: selectedPkgs.length, fee: settings.fee_accept.toFixed(2) })}</span>
                 <span>€{totalAccept.toFixed(2)}</span>
               </div>
               {totalDemurrage > 0 && (
@@ -474,7 +476,7 @@ function CreateInvoiceModal({ onClose, onCreated }: { onClose: () => void; onCre
               {addConsolidation && (
                 <div className="flex justify-between text-xs text-deep-sea-teal/50">
                   <span>{t("invoices.createModal.consolidationLine")}</span>
-                  <span>€{FEES.CONSOLIDATION.toFixed(2)}</span>
+                  <span>€{settings.fee_consolidation.toFixed(2)}</span>
                 </div>
               )}
               <div className="border-t border-deep-sea-teal/10 pt-2 flex justify-between">

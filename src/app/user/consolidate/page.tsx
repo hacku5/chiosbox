@@ -5,12 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePackageStore } from "@/stores/package-store";
 import { useTourStore } from "@/stores/tour-store";
 import { useTranslation } from "@/hooks/use-translation";
-import { FEES } from "@/lib/fees";
+import { useSettings } from "@/hooks/use-settings";
 import { useRouter } from "next/navigation";
 import { useAuthGuard } from "@/hooks/use-auth-guard";
 
 export default function ConsolidatePage() {
   const { t } = useTranslation();
+  const { settings } = useSettings();
   const router = useRouter();
   const { loading: authLoading } = useAuthGuard();
   const realPackages = usePackageStore((s) => s.packages);
@@ -32,9 +33,9 @@ export default function ConsolidatePage() {
     (p) => !masterBox.find((m) => m.id === p.id)
   );
 
-  const totalAcceptFee = masterBox.length * FEES.ACCEPT;
-  const totalWithConsolidation = totalAcceptFee + FEES.CONSOLIDATION;
-  const separateTotal = masterBox.length * (FEES.ACCEPT + 2);
+  const totalAcceptFee = masterBox.length * settings.fee_accept;
+  const totalWithConsolidation = totalAcceptFee + settings.fee_consolidation;
+  const separateTotal = masterBox.length * (settings.fee_accept + 2);
   const savings =
     masterBox.length > 1 ? separateTotal - totalWithConsolidation : 0;
 
@@ -289,7 +290,7 @@ export default function ConsolidatePage() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-deep-sea-teal/50">
-                      {t("consolidate.acceptFeeLine", { count: masterBox.length, fee: FEES.ACCEPT.toFixed(2) })}
+                      {t("consolidate.acceptFeeLine", { count: masterBox.length, fee: settings.fee_accept.toFixed(2) })}
                     </span>
                     <span className="font-medium">
                       €{totalAcceptFee.toFixed(2)}
@@ -300,7 +301,7 @@ export default function ConsolidatePage() {
                       {t("consolidate.consolidationFee")}
                     </span>
                     <span className="font-medium">
-                      €{FEES.CONSOLIDATION.toFixed(2)}
+                      €{settings.fee_consolidation.toFixed(2)}
                     </span>
                   </div>
                   <div className="border-t border-deep-sea-teal/5 pt-2 flex justify-between font-semibold">

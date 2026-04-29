@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin, auditLog } from "@/lib/admin-guard";
 import { adminInvoiceSchema, validateBody } from "@/lib/validation";
-import { FEES } from "@/lib/fees";
+import { getAcceptFee, getConsolidationFee, getDailyDemurrage, getFreeStorageDays } from "@/lib/fees";
 import { sendPushToUser } from "@/lib/send-notification";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
@@ -130,6 +130,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Selected packages already invoiced" }, { status: 400 });
     }
 
+    // Fetch live fees from DB
+    const acceptFee = await getAcceptFee();
+    const freeStorageDays = await getFreeStorageDays();
+    const demurrageRate = await getDailyDemurrage();
+    const consolidationRate = await getConsolidationFee();
+
     // Calculate fees per package
     let totalAccept = 0;
     let totalDemurrage = 0;
@@ -137,17 +143,17 @@ export async function POST(request: Request) {
 
     for (const pkg of uninvoicedPackages) {
       // Accept fee
-      totalAccept += FEES.ACCEPT;
+      totalAccept += acceptFee;
       invoiceItemsData.push({
         package_id: pkg.id,
         fee_type: "accept",
-        amount: FEES.ACCEPT,
+        amount: acceptFee,
       });
 
       // Demurrage fee if applicable
-      const overdueDays = Math.max(0, (pkg.storage_days_used || 0) - FEES.FREE_STORAGE_DAYS);
+      const overdueDays = Math.max(0, (pkg.storage_days_used || 0) - freeStorageDays);
       if (overdueDays > 0) {
-        const demurrageAmount = overdueDays * FEES.DAILY_DEMURRAGE;
+        const demurrageAmount = overdueDays * demurrageRate;
         totalDemurrage += demurrageAmount;
         invoiceItemsData.push({
           package_id: pkg.id,
@@ -158,7 +164,7 @@ export async function POST(request: Request) {
     }
 
     // Consolidation fee (optional, one-time per invoice)
-    const consolidationFee = body.consolidation_fee ? FEES.CONSOLIDATION : 0;
+    const consolidationFee = body.consolidation_fee ? consolidationRate : 0;
     const total = totalAccept + totalDemurrage + consolidationFee;
 
     // Create invoice

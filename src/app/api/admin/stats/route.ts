@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin } from "@/lib/admin-guard";
-import { FEES } from "@/lib/fees";
+import { getFreeStorageDays } from "@/lib/fees";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function GET(request: Request) {
@@ -24,10 +24,12 @@ export async function GET(request: Request) {
   let demurrageCount = 0;
   let totalDemurrage = 0;
 
+  const freeStorageDays = await getFreeStorageDays();
+
   for (const pkg of packages || []) {
     totalPackages++;
     statusCounts[pkg.status] = (statusCounts[pkg.status] || 0) + 1;
-    if ((pkg.storage_days_used || 0) > FEES.FREE_STORAGE_DAYS) {
+    if ((pkg.storage_days_used || 0) > freeStorageDays) {
       demurrageCount++;
       totalDemurrage += Number(pkg.demurrage_fee) || 0;
     }

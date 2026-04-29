@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin, auditLog } from "@/lib/admin-guard";
 import { adminIntakeSchema, validateBody } from "@/lib/validation";
-import { FEES } from "@/lib/fees";
+import { getAcceptFee } from "@/lib/fees";
 import { sendPushToUser } from "@/lib/send-notification";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
@@ -20,6 +20,7 @@ export async function POST(request: Request) {
   }
 
   const { trackingNo, shelfLocation } = parsed.data;
+  const acceptFee = await getAcceptFee();
   const supabase = getAdminClient();
 
   // Find the package by tracking number
@@ -61,10 +62,10 @@ export async function POST(request: Request) {
     .from("invoices")
     .insert({
       user_id: pkg.user_id,
-      accept_fee: FEES.ACCEPT,
+      accept_fee: acceptFee,
       consolidation_fee: 0,
       demurrage_fee: 0,
-      total: FEES.ACCEPT,
+      total: acceptFee,
       status: "PENDING",
     })
     .select()
@@ -85,7 +86,7 @@ export async function POST(request: Request) {
       invoice_id: invoice.id,
       package_id: pkg.id,
       fee_type: "accept",
-      amount: FEES.ACCEPT,
+      amount: acceptFee,
     });
   }
 

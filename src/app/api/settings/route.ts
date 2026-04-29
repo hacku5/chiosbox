@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 
-// Only these keys may be served to unauthenticated clients
-const PUBLIC_SETTING_KEYS = new Set([
-  "free_storage_days",
-  "plan_price_temel",
-  "plan_price_premium",
+// Keys excluded from public API (internal/infrastructure only)
+const EXCLUDED_KEYS = new Set([
+  "rate_limit_register",
+  "rate_limit_pickup_code",
+  "rate_limit_message",
 ]);
 
 export async function GET() {
@@ -17,10 +17,9 @@ export async function GET() {
 
     if (error) throw error;
 
-    // Filter: only return public-safe keys
     const settings: Record<string, number | string> = {};
     for (const row of data ?? []) {
-      if (!PUBLIC_SETTING_KEYS.has(row.key)) continue;
+      if (EXCLUDED_KEYS.has(row.key)) continue;
       const parsed =
         typeof row.value === "string" ? JSON.parse(row.value) : row.value;
       settings[row.key] = typeof parsed === "number" ? parsed : String(parsed);
