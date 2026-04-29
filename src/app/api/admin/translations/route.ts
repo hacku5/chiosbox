@@ -3,6 +3,7 @@ import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin, auditLog } from "@/lib/admin-guard";
 import { lang as langSchema } from "@/lib/validation";
 import { z } from "zod";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const translationEntrySchema = z.object({
   key: z.string().min(1).max(200).trim(),
@@ -70,6 +71,9 @@ export async function POST(request: Request) {
   const { user, error } = await requireAdmin();
   if (error) return error;
 
+  const rl = checkRateLimit(request, "ADMIN", "translation:upsert");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
+
   const body = await request.json();
   const parsed = translationsPostSchema.safeParse(body);
   if (!parsed.success) {
@@ -104,6 +108,9 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   const { user, error } = await requireAdmin();
   if (error) return error;
+
+  const rl = checkRateLimit(request, "ADMIN", "translation:delete");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const { searchParams } = new URL(request.url);
   const langRaw = searchParams.get("lang");

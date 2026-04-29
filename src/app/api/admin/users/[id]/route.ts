@@ -3,6 +3,7 @@ import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin, auditLog } from "@/lib/admin-guard";
 import { isSuperAdmin } from "@/lib/permissions";
 import { adminUserUpdateSchema, validateBody, uuid } from "@/lib/validation";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function PATCH(
   request: Request,
@@ -14,6 +15,9 @@ export async function PATCH(
   if (!isSuperAdmin(user.permissions)) {
     return NextResponse.json({ error: "Only super admin can manage users" }, { status: 403 });
   }
+
+  const rl = checkRateLimit(request, "ADMIN", "user:admin_update");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const { id } = await params;
   const idResult = uuid.safeParse(id);

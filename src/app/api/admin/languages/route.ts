@@ -3,6 +3,7 @@ import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin, auditLog } from "@/lib/admin-guard";
 import { validateBody, adminLanguageSchema } from "@/lib/validation";
 import { z } from "zod";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const languageCodeSchema = z.string().min(2).max(10).trim().toLowerCase();
 const languageUpdateSchema = adminLanguageSchema.partial().extend({
@@ -32,6 +33,9 @@ export async function GET() {
 export async function POST(request: Request) {
   const { user, error } = await requireAdmin();
   if (error) return error;
+
+  const rl = checkRateLimit(request, "ADMIN", "language:create");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const body = await request.json();
   const parsed = validateBody(adminLanguageSchema, body);
@@ -63,6 +67,9 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   const { user, error } = await requireAdmin();
   if (error) return error;
+
+  const rl = checkRateLimit(request, "ADMIN", "language:update");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const body = await request.json();
   const parsed = validateBody(languageUpdateSchema, body);
@@ -106,6 +113,9 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
   const { user, error } = await requireAdmin();
   if (error) return error;
+
+  const rl = checkRateLimit(request, "ADMIN", "language:delete");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");

@@ -3,6 +3,7 @@ import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin, auditLog } from "@/lib/admin-guard";
 import { FEES } from "@/lib/fees";
 import { uuid as uuidSchema } from "@/lib/validation";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const PACKAGE_STATUSES = [
   "BEKLENIYOR", "YOLDA", "DEPODA", "HAZIR",
@@ -55,6 +56,9 @@ export async function PATCH(
 ) {
   const { user, error } = await requireAdmin("packages");
   if (error) return error;
+
+  const rl = checkRateLimit(request, "ADMIN", "package:admin_update");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const { id } = await params;
 
@@ -191,11 +195,14 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { user, error } = await requireAdmin("packages");
   if (error) return error;
+
+  const rl = checkRateLimit(request, "ADMIN", "package:admin_delete");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const { id } = await params;
 

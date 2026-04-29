@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { requireAuth } from "@/lib/auth-guard";
 import { uuid } from "@/lib/validation";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function DELETE(
   request: Request,
@@ -9,6 +10,9 @@ export async function DELETE(
 ) {
   const { user, error } = await requireAuth();
   if (error) return error;
+
+  const rl = checkRateLimit(request, "DEFAULT", "package:delete");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const { id } = await params;
   const idResult = uuid.safeParse(id);

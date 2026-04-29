@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase-server";
 import { sanitizeText } from "@/lib/sanitize";
 import { requireAuth } from "@/lib/auth-guard";
 import { updateUserSchema, validateBody } from "@/lib/validation";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 // Fields that are safe to return to the owning user
 const SAFE_USER_FIELDS = [
@@ -31,6 +32,9 @@ export async function GET() {
 export async function PATCH(request: Request) {
   const { user, error } = await requireAuth();
   if (error) return error;
+
+  const rl = checkRateLimit(request, "DEFAULT", "user:update");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const supabase = await createClient();
 

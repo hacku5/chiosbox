@@ -4,6 +4,7 @@ import { requireAdmin, auditLog } from "@/lib/admin-guard";
 import { adminInvoiceSchema, validateBody } from "@/lib/validation";
 import { FEES } from "@/lib/fees";
 import { sendPushToUser } from "@/lib/send-notification";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function GET(request: Request) {
   const { error } = await requireAdmin("invoices");
@@ -79,6 +80,9 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const { user, error } = await requireAdmin("invoices");
   if (error) return error;
+
+  const rl = checkRateLimit(request, "ADMIN", "invoice:create");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const supabase = getAdminClient();
   const body = await request.json();

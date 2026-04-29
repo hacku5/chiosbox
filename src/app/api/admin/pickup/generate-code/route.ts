@@ -3,7 +3,7 @@ import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin, auditLog } from "@/lib/admin-guard";
 import { sendPushToUser } from "@/lib/send-notification";
 import { randomInt, createHash } from "crypto";
-import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { validateBody } from "@/lib/validation";
 import { z } from "zod";
 
@@ -12,9 +12,7 @@ const generateCodeSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  // Rate limit: 30 code generations per admin per minute
-  const ip = getClientIp(request);
-  const rl = rateLimit(`pickup-code:${ip}`, 30, 60 * 1000);
+  const rl = checkRateLimit(request, "ADMIN", "pickup:generate");
   if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const { user, error } = await requireAdmin("pickup");

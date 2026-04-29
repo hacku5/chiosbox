@@ -4,10 +4,14 @@ import { requireAdmin, auditLog } from "@/lib/admin-guard";
 import { adminIntakeSchema, validateBody } from "@/lib/validation";
 import { FEES } from "@/lib/fees";
 import { sendPushToUser } from "@/lib/send-notification";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   const { user, error } = await requireAdmin("intake");
   if (error) return error;
+
+  const rl = checkRateLimit(request, "ADMIN", "intake:create");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const body = await request.json();
   const parsed = validateBody(adminIntakeSchema, body);

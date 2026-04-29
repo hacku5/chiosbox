@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { requireAuth } from "@/lib/auth-guard";
 import { invoiceStatusSchema, validateBody } from "@/lib/validation";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
   PENDING: ["PAID", "CANCELLED"],
@@ -30,6 +31,9 @@ export async function GET() {
 export async function PATCH(request: Request) {
   const { user, error } = await requireAuth();
   if (error) return error;
+
+  const rl = checkRateLimit(request, "DEFAULT", "invoice:update");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   const body = await request.json();
   const parsed = validateBody(invoiceStatusSchema, body);

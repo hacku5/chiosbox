@@ -3,6 +3,7 @@ import { getAdminClient } from "@/lib/supabase-admin";
 import { requireAdmin, auditLog } from "@/lib/admin-guard";
 import { translationSeed } from "@/lib/seed-translations";
 import { z } from "zod";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const seedConfirmSchema = z.object({
   confirm: z.literal(true),
@@ -11,6 +12,9 @@ const seedConfirmSchema = z.object({
 export async function POST(request: Request) {
   const { user, error } = await requireAdmin();
   if (error) return error;
+
+  const rl = checkRateLimit(request, "ADMIN", "translations:seed");
+  if (!rl.success) return rateLimitResponse(rl.resetAt);
 
   // Require explicit confirmation to prevent accidental seeding
   const body = await request.json().catch(() => ({}));
