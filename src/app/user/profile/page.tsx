@@ -349,42 +349,30 @@ export default function ProfilePage() {
             <h3 className="font-display text-lg font-semibold text-deep-sea-teal mb-4">
               {t("profile.addressTitle")}
             </h3>
-            {editing ? (
-              <textarea
-                value={editAddress}
-                onChange={(e) => setEditAddress(e.target.value)}
-                placeholder={t("profile.addressPlaceholder")}
-                rows={4}
-                className="w-full px-4 py-3 rounded-xl border-2 border-chios-purple/30 bg-white text-sm text-deep-sea-teal placeholder:text-deep-sea-teal/20 focus:outline-none focus:border-chios-purple transition-colors resize-none font-mono"
-              />
-            ) : (
-              <div className="p-4 bg-deep-sea-teal/[0.03] rounded-xl font-mono text-sm text-deep-sea-teal/80 whitespace-pre-line leading-relaxed">
-                {user?.address || "—"}
-              </div>
-            )}
-            {!editing && (
-              <button
-                onClick={copyAddress}
-                className="mt-4 w-full py-3 inline-flex items-center justify-center gap-2 bg-chios-purple text-white font-semibold rounded-xl hover:bg-chios-purple-dark transition-colors duration-200 cursor-pointer"
-              >
-                {copied ? (
-                  <>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    {t("profile.addressCopied")}
-                  </>
-                ) : (
-                  <>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="9" y="9" width="13" height="13" rx="2" />
-                      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-                    </svg>
-                    {t("profile.copyAddress")}
-                  </>
-                )}
-              </button>
-            )}
+            <div className="p-4 bg-deep-sea-teal/[0.03] rounded-xl font-mono text-sm text-deep-sea-teal/80 whitespace-pre-line leading-relaxed">
+              {settings.warehouse_address}
+            </div>
+            <button
+              onClick={copyAddress}
+              className="mt-4 w-full py-3 inline-flex items-center justify-center gap-2 bg-chios-purple text-white font-semibold rounded-xl hover:bg-chios-purple-dark transition-colors duration-200 cursor-pointer"
+            >
+              {copied ? (
+                <>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  {t("profile.addressCopied")}
+                </>
+              ) : (
+                <>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" />
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                  </svg>
+                  {t("profile.copyAddress")}
+                </>
+              )}
+            </button>
           </div>
 
           {/* Password change */}
