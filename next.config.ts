@@ -21,6 +21,7 @@ const withSerwist = withSerwistInit({
 });
 
 const nextConfig: NextConfig = {
+  turbopack: {},
   reactStrictMode: true,
 
   async headers() {
