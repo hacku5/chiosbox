@@ -205,17 +205,41 @@ export default function AdminSettingsPage() {
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      <input
-                        type={isNumeric ? "number" : "text"}
-                        value={displayValue}
-                        onChange={(e) => handleChange(setting.key, e.target.value)}
-                        step={isNumeric ? "any" : undefined}
-                        className={`w-32 px-3 py-2 border rounded-xl text-sm text-right focus:outline-none transition-colors ${
-                          isEdited
-                            ? "border-deep-sea-teal/40 bg-deep-sea-teal/[0.03]"
-                            : "border-deep-sea-teal/10"
-                        } focus:border-deep-sea-teal/40`}
-                      />
+                      {isNumeric ? (
+                        <input
+                          type="number"
+                          value={displayValue}
+                          onChange={(e) => handleChange(setting.key, e.target.value)}
+                          step="any"
+                          className={`w-32 px-3 py-2 border rounded-xl text-sm text-right focus:outline-none transition-colors ${
+                            isEdited
+                              ? "border-deep-sea-teal/40 bg-deep-sea-teal/[0.03]"
+                              : "border-deep-sea-teal/10"
+                          } focus:border-deep-sea-teal/40`}
+                        />
+                      ) : displayValue.length > 40 ? (
+                        <textarea
+                          value={displayValue}
+                          onChange={(e) => handleChange(setting.key, e.target.value)}
+                          rows={3}
+                          className={`w-64 px-3 py-2 border rounded-xl text-sm focus:outline-none transition-colors resize-none ${
+                            isEdited
+                              ? "border-deep-sea-teal/40 bg-deep-sea-teal/[0.03]"
+                              : "border-deep-sea-teal/10"
+                          } focus:border-deep-sea-teal/40`}
+                        />
+                      ) : (
+                        <input
+                          type="text"
+                          value={displayValue}
+                          onChange={(e) => handleChange(setting.key, e.target.value)}
+                          className={`w-32 px-3 py-2 border rounded-xl text-sm text-right focus:outline-none transition-colors ${
+                            isEdited
+                              ? "border-deep-sea-teal/40 bg-deep-sea-teal/[0.03]"
+                              : "border-deep-sea-teal/10"
+                          } focus:border-deep-sea-teal/40`}
+                        />
+                      )}
                       {setting.unit && (
                         <span className="text-xs text-deep-sea-teal/40 w-10">
                           {setting.unit}
