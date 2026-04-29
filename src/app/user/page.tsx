@@ -85,8 +85,7 @@ export default function DashboardPage() {
     : 0;
 
   const copyAddress = async () => {
-    if (!user?.address) return;
-    await navigator.clipboard.writeText(user.address);
+    await navigator.clipboard.writeText(settings.warehouse_address);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

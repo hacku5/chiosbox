@@ -5,6 +5,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/use-translation";
+import { useSettings } from "@/hooks/use-settings";
 import { useTourStore } from "@/stores/tour-store";
 
 function urlBase64ToUint8Array(base64String: string) {
@@ -24,6 +25,7 @@ export default function ProfilePage() {
   const logout = useAuthStore((s) => s.logout);
   const router = useRouter();
   const { t } = useTranslation();
+  const { settings } = useSettings();
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
@@ -55,8 +57,7 @@ export default function ProfilePage() {
   };
 
   const copyAddress = async () => {
-    if (!user?.address) return;
-    await navigator.clipboard.writeText(user.address);
+    await navigator.clipboard.writeText(settings.warehouse_address);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
