@@ -79,23 +79,20 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
-          <Link
-            href="/#nasil-calisir"
-            className="text-sm font-medium text-deep-sea-teal/70 hover:text-chios-purple transition-colors duration-200"
-          >
+          <Link href="/nasil-calisir" className="text-sm font-medium text-deep-sea-teal/70 hover:text-chios-purple transition-colors duration-200">
             {t("nav.howItWorks")}
           </Link>
-          <Link
-            href="/#fiyat"
-            className="text-sm font-medium text-deep-sea-teal/70 hover:text-chios-purple transition-colors duration-200"
-          >
+          <Link href="/hakkimizda" className="text-sm font-medium text-deep-sea-teal/70 hover:text-chios-purple transition-colors duration-200">
+            {t("nav.about")}
+          </Link>
+          <Link href="/#fiyat" className="text-sm font-medium text-deep-sea-teal/70 hover:text-chios-purple transition-colors duration-200">
             {t("nav.pricing")}
           </Link>
-          <Link
-            href="/#guven"
-            className="text-sm font-medium text-deep-sea-teal/70 hover:text-chios-purple transition-colors duration-200"
-          >
-            {t("nav.trust")}
+          <Link href="/sss" className="text-sm font-medium text-deep-sea-teal/70 hover:text-chios-purple transition-colors duration-200">
+            {t("nav.faq")}
+          </Link>
+          <Link href="/iletisim" className="text-sm font-medium text-deep-sea-teal/70 hover:text-chios-purple transition-colors duration-200">
+            {t("nav.contact")}
           </Link>
         </nav>
 

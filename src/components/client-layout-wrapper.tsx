@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { TranslationProvider } from "@/lib/i18n";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { CookieConsent } from "@/components/cookie-consent";
 
 export function ClientLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -20,6 +21,7 @@ export function ClientLayoutWrapper({ children }: { children: React.ReactNode })
           <Footer />
         </>
       )}
+      <CookieConsent />
     </TranslationProvider>
   );
 }

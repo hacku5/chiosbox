@@ -70,12 +70,19 @@ export function SidebarMobileDrawer({
 
             {/* Nav items */}
             <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-              {navItems.map((item) => {
-                const active = isActive(item.href);
+              {navItems.map((item, i) => {
+                if (item.type === "separator") {
+                  return (
+                    <div key={`sep-${i}`} className="text-[10px] font-bold uppercase tracking-wider text-deep-sea-teal/30 px-4 pt-5 pb-1 first:pt-0">
+                      {item.label}
+                    </div>
+                  );
+                }
+                const active = isActive(item.href!);
                 return (
                   <Link
                     key={item.href}
-                    href={item.href}
+                    href={item.href!}
                     onClick={() => setOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer ${
                       active

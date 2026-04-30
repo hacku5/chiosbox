@@ -36,8 +36,8 @@ export function SidebarMobileBottom({
 
   useEffect(() => { setMounted(true); }, []);
 
-  const isActive = (href: string) => {
-    if (!pathname) return false;
+  const isActive = (href?: string) => {
+    if (!pathname || !href) return false;
     return href === "/admin" || href === "/user"
       ? pathname === href
       : pathname.startsWith(href);
@@ -53,8 +53,8 @@ export function SidebarMobileBottom({
               const active = isActive(item.href);
               return (
                 <Link
-                  key={item.href}
-                  href={item.href}
+                  key={item.href ?? ""}
+                  href={item.href ?? ""}
                   className="flex flex-col items-center justify-center gap-0.5 py-1.5 px-2 rounded-full transition-colors duration-200 cursor-pointer relative min-w-[44px]"
                 >
                   {/* Active pill background */}

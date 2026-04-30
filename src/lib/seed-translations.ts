@@ -10,6 +10,14 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "nav.logout": "Çıkış",
     "nav.login": "Giriş Yap",
     "nav.getAddress": "Hemen Adresini Al",
+    "nav.about": "Hakkımızda",
+    "nav.contact": "İletişim",
+
+    // Cookie
+    "cookie.title": "Çerez Kullanımı",
+    "cookie.text": "Daha iyi bir deneyim için çerezleri kullanıyoruz. Çerezler, tercihlerinizi hatırlamamıza ve siteyi nasıl kullandığınızı anlamamıza yardımcı olur.",
+    "cookie.acceptAll": "Tümünü Kabul Et",
+    "cookie.essentialOnly": "Sadece Zorunlu",
 
     // Footer
     "footer.description": "Türkiye'den AB'ye e-ticaret alışverişi yapanlar için Sakız Adası merkezli paket konsolidasyon yönetimi.",
@@ -30,17 +38,12 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Hero
     "hero.tag": "Türkiye → AB Kargo Kolaylığı",
-    "hero.badge": "Türkiye → AB Kargo Kolaylığı",
     "hero.title.line1": "Avrupa Teslimat",
     "hero.title.line2": "Adresiniz",
     "hero.title.line3": "Hazır",
-    "hero.title1": "Avrupa Teslimat",
-    "hero.title2": "Adresiniz",
-    "hero.title3": "Hazır",
     "hero.description": "Türkiye'den alışveriş yapın, paketleriniz Sakız Adası'ndaki depomuza gelsin. Birleştirin, tasarruf edin, kapınıza teslim edelim.",
     "hero.cta": "Hemen Adresini Al",
     "hero.ctaSecondary": "Nasıl Çalışır?",
-    "hero.howItWorks": "Nasıl Çalışır?",
     "hero.feature1": "€9.99/ay'dan başlayan fiyatlarla",
     "hero.feature2": "Anında adres",
     "hero.feature3": "Kapıdan kapıya teslimat",
@@ -52,19 +55,15 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "howItWorks.step1.number": "01",
     "howItWorks.step1.title": "Alışveriş Yapın",
     "howItWorks.step1.description": "Türkiye'deki herhangi bir e-ticaret sitesinden alışveriş yapın. ChiosBox adresinizi teslimat adresi olarak kullanın.",
-    "howItWorks.step1.desc": "Türkiye'deki herhangi bir e-ticaret sitesinden alışveriş yapın. ChiosBox adresinizi teslimat adresi olarak kullanın.",
     "howItWorks.step2.number": "02",
     "howItWorks.step2.title": "Depomuza Gelsin",
     "howItWorks.step2.description": "Paketleriniz Sakız Adası'ndaki güvenli depomuza ulaşır. Barkod okutulur ve sistemde kayda girer.",
-    "howItWorks.step2.desc": "Paketleriniz Sakız Adası'ndaki güvenli depomuza ulaşır. Barkod okutulur ve sistemde kayda girer.",
     "howItWorks.step3.number": "03",
     "howItWorks.step3.title": "Fotoğraf Onayı",
     "howItWorks.step3.description": "Depo görevlisi paketinizin fotoğrafını çeker. Panelinizden paketinizi görür, içeriğini doğrularsınız.",
-    "howItWorks.step3.desc": "Depo görevlisi paketinizin fotoğrafını çeker. Panelinizden paketinizi görür, içeriğini doğrularsınız.",
-    "howItWorks.step4.number": "04",
     "howItWorks.step4.title": "Teslim Alın",
-    "howItWorks.step4.description": "Paketlerinizi birleştirin, tasarruf edin. QR kodunuzu gösterin, adanızda teslim alın. Bu kadar basit!",
     "howItWorks.step4.desc": "Paketlerinizi birleştirin, tasarruf edin. QR kodunuzu gösterin, adanızda teslim alın. Bu kadar basit!",
+    "howItWorks.stepLabel": "Adım {step}",
 
     // Pricing
     "pricing.tag": "Şeffaf Fiyatlandırma",
@@ -75,26 +74,18 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "pricing.storageDays": "Depolama Süresi (Gün)",
     "pricing.storage1": "1 gün",
     "pricing.storage30": "30 gün",
-    "pricing.freeStorage": "İlk 14 gün ücretsiz depolama",
-    "pricing.acceptFeeInfo": "Paket başı kabul ücreti €4",
     "pricing.monthlyCost": "Aylık Tahmini Maliyet",
-    "pricing.acceptFee": "Kabul Ücreti",
     "pricing.consolidationFee": "Konsolidasyon Ücreti",
-    "pricing.demurrageFee": "Gecikme Ücreti",
     "pricing.total": "Toplam",
-    "pricing.savings": "Birleştirerek ~€{amount} tasarruf edebilirsiniz!",
     "pricing.planTitle": "Size Uygun Paketi Seçin",
     "pricing.planDesc": "Türkiye'den Avrupa'ya, Avrupa'dan Türkiye'ye kapıdan kapıya kargo ayrıcalığı",
     "pricing.basic.name": "Temel",
-    "pricing.basic.price": "€9.99",
-    "pricing.basic.pricePeriod": "/ay",
     "pricing.basic.subtitle": "Basit adres, basit teslimat",
     "pricing.basic.f1": "ChiosBox EU adresi",
     "pricing.basic.f2": "14 gün ücretsiz depolama",
     "pricing.basic.f3": "Panel erişimi",
     "pricing.basic.f4": "E-posta bildirimleri",
     "pricing.basic.cta": "Temel Paketi Seç",
-    "pricing.premium.badge": "En Popüler",
     "pricing.premium.name": "Premium",
     "pricing.premium.subtitle": "Tam kontrol, maksimum tasarruf",
     "pricing.premium.f1": "Her şey Temel pakette",
@@ -106,10 +97,11 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "pricing.month": "/ay",
     "pricing.mostPopular": "En Popüler",
     "pricing.fee.accept": "Kabul Ücreti",
-    "pricing.fee.storage14": "14 gün ücretsiz depolama",
-    "pricing.fee.acceptInfo": "Paket başı kabul ücreti €4",
-    "pricing.fee.acceptUnit": "× €{fee}",
-    "pricing.demurrageFeeLabel": "{days} gün × €{fee}",
+    "pricing.fee.storage14": "{days} gün ücretsiz depolama",
+    "pricing.fee.acceptInfo": "Paket başı kabul ücreti {fee}€",
+    "pricing.fee.acceptUnit": "paket başı {fee}€",
+    "pricing.demurrageFeeLabel": "Demuraj ({days} gün × {fee}€)",
+    "pricing.savings": "Birleştirmede {amount}€ tasarruf",
 
     // Trust
     "trust.tag": "Güvenilir & Şeffaf",
@@ -133,10 +125,7 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "trust.testimonial3.text": "QR kod ile teslim almak çok pratik. Ofise gittim, kodu gösterdim, 2 dakikada paketimi aldım. Kesinlikle tavsiye ediyorum.",
 
     // Final CTA
-    "finalCta.tag": "Hemen Başlayın",
     "finalCta.title": "Hemen Başlayın",
-    "finalCta.title1": "Avrupa Teslimat Adresinizi",
-    "finalCta.title2": "Hemen Alın",
     "finalCta.description": "€9.99/ay'dan başlayan fiyatlarla, Türkiye'den yaptığınız alışverişleri Sakız Adası üzerinden AB'ye sorunsuz teslim edelim.",
     "finalCta.cta": "Hemen Başla",
     "finalCta.cta2": "7 gün ücretsiz deneme. Kredi kartı gerekmez.",
@@ -189,7 +178,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Dashboard Admin
     "dashboard.title": "Yönetim Paneli",
-    "dashboard.welcome": "Hoş geldin, {name}",
     "dashboard.totalPackages": "Toplam Paket",
     "dashboard.inWarehouse": "Depoda",
     "dashboard.last7Days": "Son 7 Gün",
@@ -199,9 +187,9 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "dashboard.recentActivity": "Son Aktiviteler",
     "dashboard.unknown": "Bilinmeyen",
     "dashboard.demurrageAlert": "Gecikme Uyarısı",
-    "dashboard.demurrageDesc": "{count} paket 14 günü aştı",
     "dashboard.pendingInvoices": "Bekleyen Faturalar",
-    "dashboard.pendingInvoiceDesc": "{count} fatura ödenmeyi bekliyor",
+    "dashboard.pendingInvoiceCount": "{count} fatura",
+    "dashboard.pendingTotal": "Toplam {amount}€",
     "dashboard.shelfUsage": "Raf Kullanımı",
     "dashboard.quickActions": "Hızlı İşlemler",
 
@@ -213,12 +201,9 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "status.teslimEdildi": "Teslim Edildi",
 
     // Admin actions
-    "action.kabul": "Kabul",
     "actions.delivery": "Teslimat",
     "action.delay": "Gecikme",
     "action.packages": "Paketler",
-    "action.faturalar": "Faturalar",
-    "action.musteriler": "Müşteriler",
 
     // Admin Packages
     "packages.title": "Paketler",
@@ -249,44 +234,42 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Admin Customers
     "customers.title": "Müşteriler",
-    "customers.count": "{total} müşteri",
     "customers.searchPlaceholder": "İsim, email veya ChiosBox ID ile ara...",
     "customers.notFound": "Müşteri bulunamadı",
-    "customers.packageCount": "{n} paket",
     "customers.pending": "bekliyor",
     "customers.previous": "Önceki",
     "customers.next": "Sonraki",
 
     // Admin Invoices
     "invoices.title": "Faturalar",
-    "invoices.count": "{total} fatura",
     "invoices.newInvoice": "+ Yeni Fatura",
     "invoices.all": "Tümü",
     "invoices.pending": "Beklemede",
     "invoices.paid": "Ödendi",
     "invoices.cancelled": "İptal",
     "invoices.notFound": "Fatura bulunamadı",
-    "invoices.acceptFee": "Kabul: €{amount}",
-    "invoices.consolidationFee": "Birleştirme: €{amount}",
-    "invoices.demurrageFee": "Gecikme: €{amount}",
-    "invoices.packageCount": "{n} paket",
     "invoices.previous": "Önceki",
     "invoices.next": "Sonraki",
+    "invoices.count": "{total} fatura",
+    "invoices.acceptFee": "Kabul {amount}€",
+    "invoices.consolidationFee": "Birleştirme {amount}€",
+    "invoices.demurrageFee": "Gecikme {amount}€",
+    "invoices.packageCount": "{n} paket",
     "invoices.createModal.title": "Yeni Fatura",
     "invoices.createModal.customer": "Müşteri",
     "invoices.createModal.selectCustomer": "Müşteri seçin",
     "invoices.createModal.packetsToBill": "Faturalanacak Paketler",
     "invoices.createModal.noUnbilled": "Faturalanmamış paket bulunamadı",
     "invoices.createModal.consolidationFee": "Birleştirme Ücreti",
-    "invoices.createModal.acceptFee": "Kabul Ücreti ({count} paket × €{fee})",
     "invoices.createModal.demurrageFee": "Gecikme Ücreti",
     "invoices.createModal.consolidationLine": "Birleştirme Ücreti",
     "invoices.createModal.total": "Toplam",
     "invoices.createModal.creating": "Oluşturuluyor...",
-    "invoices.createModal.createButton": "Fatura Oluştur (€{amount})",
     "invoices.createModal.selectCustomerError": "Müşteri seçin",
     "invoices.createModal.selectPackageError": "En az bir paket seçin",
     "invoices.createModal.createError": "Fatura oluşturulamadı",
+    "invoices.createModal.acceptFee": "Kabul ({count} paket × {fee}€)",
+    "invoices.createModal.createButton": "{amount}€ Fatura Oluştur",
     "invoices.detail.customer": "Müşteri",
     "invoices.detail.date": "Tarih",
     "invoices.detail.paymentDate": "Ödeme Tarihi",
@@ -294,7 +277,7 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "invoices.detail.consolidationFee": "Birleştirme Ücreti",
     "invoices.detail.demurrageFee": "Gecikme Ücreti",
     "invoices.detail.total": "Toplam",
-    "invoices.detail.packets": "Paketler ({count})",
+    "invoices.detail.packets": "{count} paket",
     "invoices.detail.markPaid": "Ödendi İşaretle",
     "invoices.detail.cancel": "İptal Et",
     "invoices.detail.undoCancel": "İptali Geri Al",
@@ -313,12 +296,10 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "intake.notFound": "Bu takip numarasına ait paket bulunamadı",
     "intake.customer": "Müşteri",
     "intake.content": "İçerik",
-    "intake.notes": "Not: {text}",
     "intake.shelfAssignment": "Raf Atama",
     "intake.saving": "Kaydediliyor...",
     "intake.save": "KAYDET",
     "intake.saved": "Kaydedildi!",
-    "intake.shelfPrefix": "Raf: {shelf}",
     "intake.unknown": "Bilinmeyen",
 
     // Admin Pickup
@@ -443,6 +424,7 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "register.emailVerifyDescription": "adresine gönderilen 6 haneli kodu girin.",
     "register.verifying": "Doğrulanıyor...",
     "register.resendCode": "Kodu Tekrar Gönder",
+    "register.emailNotReceived": "Kod gelmedi mi? {countdown}s sonra tekrar gönderin",
     "register.smsNotReceived": "SMS gelmedi mi? {countdown}s sonra tekrar gönderin",
     "register.backToInfo": "Bilgilere Dön",
     "register.phoneVerifyTitle": "Telefonunuzu Doğrulayın",
@@ -466,12 +448,10 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "register.redirecting": "Yönlendiriliyorsunuz...",
     "register.planTemel": "Temel",
     "register.planPremium": "Premium",
-    "register.emailNotReceived": "Kod gelmedi mi? {countdown}s sonra tekrar gönderin",
     "register.backToEmail": "← E-posta Adımına Dön",
     "register.monthSuffix": "/ay",
 
     // Dashboard Home
-    "dashboard.greeting": "Merhaba {name}",
     "dashboard.defaultPlan": "Temel Plan",
     "dashboard.planActive": "Aktif",
     "dashboard.chiosBoxId": "ChiosBox ID:",
@@ -490,8 +470,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "dashboard.reportPackage": "Paket Bildir",
     "dashboard.consolidateAction": "Birleştir",
     "dashboard.settings": "Ayarlar",
-    "dashboard.pendingInvoiceCount": "{count} bekleyen fatura",
-    "dashboard.pendingTotal": "Toplam: €{amount}",
     "dashboard.status.depoda": "Depoda",
     "dashboard.status.yolda": "Yolda",
     "dashboard.status.bekleniyor": "Ödeme Bekleniyor",
@@ -499,10 +477,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Dashboard Packages
     "packages.status.depoda": "Depoda",
-    "packages.status.yolda": "Yolda",
-    "packages.status.bekleniyor": "Ödeme Bekleniyor",
-    "packages.status.birlestirildi": "Birleştirildi",
-    "packages.status.teslim_edildi": "Teslim Edildi",
     "packages.stepper.reported": "Bildirildi",
     "packages.stepper.inWarehouse": "Depoda",
     "packages.stepper.consolidated": "Birleştirildi",
@@ -531,10 +505,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "checkout.empty.title": "Bekleyen Fatura Yok",
     "checkout.empty.description": "Şu anda ödemeniz gereken fatura bulunmuyor. Paketleriniz depoya ulaştığında fatura oluşturulacaktır.",
     "checkout.summary.title": "Ödeme Özeti",
-    "checkout.summary.pendingCount": "{count} bekleyen fatura",
-    "checkout.summary.selectedCount": "{count} fatura seçildi",
-    "checkout.payAll": "Tümünü öde — €{amount}",
-    "checkout.paySelected": "Seçilenleri öde — €{amount}",
     "checkout.secureNote": "Stripe güvenli ödeme altyapısı ile korunmaktadır",
     "checkout.processing.title": "Ödeme İşleniyor...",
     "checkout.processing.subtitle": "Lütfen bekleyin",
@@ -552,16 +522,13 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "consolidate.error.consolidationFailed": "Konsolidasyon başarısız",
     "consolidate.error.generic": "Bir hata oluştu",
     "consolidate.availablePackages": "Birleştirilebilir Paketler",
-    "consolidate.packageCount": "{count} paket",
     "consolidate.add": "Ekle",
     "consolidate.noAvailable": "Tüm paketler eklendi veya depoda paket yok",
     "consolidate.masterBox": "Master Box",
     "consolidate.addFromLeft": "Soldan paket ekleyin",
     "consolidate.costSummary": "Maliyet Özeti",
-    "consolidate.acceptFeeLine": "Kabul ücreti ({count} × €{fee})",
     "consolidate.consolidationFee": "Konsolidasyon ücreti",
     "consolidate.total": "Toplam",
-    "consolidate.savings": "Tahmini Tasarruf: +€{amount}",
     "consolidate.submitting": "Birleştiriliyor...",
     "consolidate.submit": "Birleştir",
 
@@ -604,8 +571,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "profile.passwordMinLength": "Şifre en az 6 karakter olmalıdır.",
     "profile.passwordMismatch": "Şifreler eşleşmiyor.",
     "profile.passwordChangeFailed": "Şifre değiştirme başarısız oldu.",
-    "profile.addressLabel": "Adres",
-    "profile.addressPlaceholder": "Adresinizi girin",
 
     // Tour Guide — common
     "tour.start": "Tur Rehberini Başlat",
@@ -784,8 +749,9 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "sidebar.packages": "Paketlerim",
     "sidebar.consolidate": "Birleştir",
     "sidebar.actions": "İşlemler",
-    "sidebar.payment": "Ödeme",
-    "sidebar.profile": "Profil",
+    "sidebar.payment": "Ödemeler",
+    "sidebar.profile": "Profilim",
+    "sidebar.invoices": "Faturalar",
     "sidebar.logout": "Çıkış Yap",
 
     // Admin sidebar
@@ -794,6 +760,12 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "admin.languages": "Diller",
     "admin.translations": "Çeviriler",
     "admin.logout": "Çıkış",
+
+    // Admin groups
+    "admin.group.operations": "Operasyonlar",
+    "admin.group.users": "Kullanıcılar",
+    "admin.group.content": "İçerik Yönetimi",
+    "admin.group.system": "Sistem",
 
     // Admin Login
     "adminLogin.title": "Admin Girişi",
@@ -806,41 +778,19 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Plan Selector
     "planSelector.period": "/ay",
-    "planSelector.temel.name": "Temel",
-    "planSelector.temel.f1": "ChiosBox EU adresi",
-    "planSelector.temel.f2": "14 gün ücretsiz depolama",
-    "planSelector.temel.f3": "Panel erişimi",
-    "planSelector.temel.f4": "E-posta bildirimleri",
-    "planSelector.premium.name": "Premium",
     "planSelector.premium.badge": "En Popüler",
-    "planSelector.premium.f1": "Her şey Temel pakette",
-    "planSelector.premium.f2": "21 gün ücretsiz depolama",
-    "planSelector.premium.f3": "Ücretsiz konsolidasyon",
-    "planSelector.premium.f4": "Türkiye teslimat takibi",
-    "planSelector.premium.f5": "Özel destek hattı",
 
     // Register Page
     "register.pageTitle": "ChiosBox'a Katılın",
     "register.pageSubtitle": "Avrupa teslimat adresinizi hemen alın, kapıdan kapıya kargo ayrıcalığını yaşayın",
 
     // Store errors
-    "store.error.packagesLoadFailed": "Paketler yüklenemedi",
-    "store.error.generic": "Bir hata oluştu",
-    "store.error.deleteFailed": "Silme başarısız",
-    "store.error.intakeFailed": "Kabul başarısız",
-    "store.error.deliveryFailed": "Teslimat başarısız",
-    "store.error.discardFailed": "Tasfiye başarısız",
-    "store.error.registerFailed": "Kayıt başarısız",
 
     // API/Proxy errors
-    "api.error.loginRequired": "Oturum açmanız gerekiyor",
-    "api.error.unauthorized": "Yetkisiz erişim",
-    "api.error.authCheckFailed": "Yetki doğrulama hatası",
-    "api.error.rateLimited": "Çok fazla istek. Lütfen daha sonra tekrar deneyin.",
 
     // Auth Layout
     "authLayout.heading": "ChiosBox ile Avrupa Kapınızda",
-    "authLayout.description": "Türkiye&apos;den Avrupa&apos;ya, Avrupa&apos;dan Türkiye&apos;ye kapıdan kapıya kargo hizmeti",
+    "authLayout.description": "Türkiye'den Avrupa'ya, Avrupa'dan Türkiye'ye kapıdan kapıya kargo hizmeti",
 
     // Login Page
     "login.pageTitle": "Tekrar Hoş Geldiniz",
@@ -852,7 +802,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "packages.noMessagesYet": "Henüz mesaj yok",
     "packages.chatHint": "Paketinizle ilgili sorularınızı buradan sorabilirsiniz",
     "packages.giveUp": "Vazgeç",
-    "packages.daysFree": "{days} ücretsiz",
     "packages.carrier": "Kargo",
     "packages.trackingNo": "Takip No",
     "packages.notification": "Bildirim",
@@ -869,15 +818,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "common.days": "gün",
 
     // Island Scene
-    "islandScene.departed.badge": "Türkiye'den Yola Çıktı",
-    "islandScene.departed.title": "Paketleriniz Yolda",
-    "islandScene.departed.description": "Türkiye'deki satıcılardan alınan paketler, Sakız Adası'na doğru yola çıkıyor.",
-    "islandScene.crossing.badge": "Ege'yi Aşıyor",
-    "islandScene.crossing.title": "Güvenle Taşınıyor",
-    "islandScene.crossing.description": "Tekneler ve kargo yollarıyla, her paket sigortalı ve takip edilebilir.",
-    "islandScene.arrived.badge": "Hedefe Ulaştı",
-    "islandScene.arrived.title": "Sakız Adası Depomuzda",
-    "islandScene.arrived.description": "Konsolide edin, tasarruf edin, kapınıza teslim edelim.",
 
     // Bento Grid (Hero Animation)
     "bento.route.title": "Kesintisiz Lojistik",
@@ -927,6 +867,27 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "adminTranslations.noResults": "Aramaya uygun çeviri bulunamadı",
     "adminTranslations.empty": "Bu dil için henüz çeviri eklenmemiş",
     "adminTranslations.delete": "Sil",
+    "adminTranslations.categoryAll": "Tümü",
+    "adminTranslations.categoryAdmin": "Admin",
+    "adminTranslations.categoryFrontend": "Kullanıcı Arayüzü",
+    "adminTranslations.addKey": "Anahtar Ekle",
+    "adminTranslations.addKeyTitle": "Yeni Çeviri Anahtarı Ekle",
+    "adminTranslations.keyLabel": "Anahtar",
+    "adminTranslations.valueLabel": "Değer",
+    "adminTranslations.valuePlaceholder": "Çeviri metni...",
+    "adminTranslations.addToAll": "Tüm dillere ekle",
+    "adminTranslations.addedToAll": "\"{key}\" anahtarı tüm dillere eklendi",
+    "adminTranslations.addedSingle": "\"{key}\" anahtarı bu dile eklendi",
+    "adminTranslations.addFailed": "Ekleme başarısız",
+    "adminTranslations.addBtn": "Ekle",
+    "adminTranslations.adding": "Ekleniyor...",
+    "adminTranslations.cancel": "İptal",
+    "adminTranslations.deleteFromLang": "Bu dilden sil",
+    "adminTranslations.deleteFromAll": "Tüm dillerden sil",
+    "adminTranslations.deleteAllConfirm": "\"{key}\" anahtarı tüm dillerden silinecek. Emin misiniz?",
+    "adminTranslations.page": "Sayfa",
+    "adminTranslations.prev": "Önceki",
+    "adminTranslations.next": "Sonraki",
 
     // Admin Languages Page
     "adminLanguages.title": "Diller",
@@ -968,6 +929,9 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "adminSettings.catRateLimits": "Rate Limitler",
     "adminSettings.warningTitle": "Dikkat",
     "adminSettings.warningText": "Ücret ve plan değişiklikleri yeni işlemleri etkiler. Mevcut faturalar kendi tutarlarıyla korunur. Değişiklik yapmadan önce emin olun.",
+
+    // Settings labels (from system_settings table)
+
     "adminPolicies.titleLabel": "Başlık",
     "adminPolicies.titlePlaceholder": "Politika başlığı",
     "adminPolicies.contentLabel": "İçerik",
@@ -980,6 +944,153 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "adminPolicies.published": "Yayında",
     "adminPolicies.draft": "Taslak",
     "footer.kvkk": "KVKK Aydınlatma Metni",
+
+    // Admin sidebar
+    "admin.faq": "SSS",
+    "admin.sliders": "Slider'lar",
+    "admin.shoppingSites": "Alışveriş Siteleri",
+    "admin.plans": "Planlar",
+    "admin.contentBlocks": "İçerik Blokları",
+
+    // Nav additions
+    "nav.shoppingSites": "Avrupa Alışveriş Siteleri",
+    "nav.faq": "Sıkça Sorulan Sorular",
+
+    // Admin Common (shared across all admin pages)
+    "adminCommon.add": "Ekle",
+    "adminCommon.edit": "Düzenle",
+    "adminCommon.delete": "Sil",
+    "adminCommon.save": "Kaydet",
+    "adminCommon.update": "Güncelle",
+    "adminCommon.cancel": "İptal",
+    "adminCommon.created": "Eklendi.",
+    "adminCommon.updated": "Güncellendi.",
+    "adminCommon.published": "Yayında",
+    "adminCommon.draft": "Taslak",
+    "adminCommon.empty": "Henüz öğe eklenmemiş.",
+    "adminCommon.name": "Ad",
+    "adminCommon.title": "Başlık",
+    "adminCommon.subtitle": "Alt Başlık",
+    "adminCommon.imageUrl": "Görsel URL",
+    "adminCommon.linkUrl": "Link URL",
+    "adminCommon.url": "URL",
+    "adminCommon.logoUrl": "Logo URL",
+    "adminCommon.category": "Kategori",
+    "adminCommon.sortOrder": "Sıralama",
+    "adminCommon.body": "Metin",
+    "adminCommon.allCategories": "Tüm Kategoriler",
+    "adminCommon.allCountries": "Tüm Ülkeler",
+    "adminCommon.saved": "Kaydedildi.",
+    "adminCommon.unsaved": "Kaydedilmemiş değişiklikler",
+    "adminCommon.untitled": "Başlıksız",
+    "adminCommon.price": "Fiyat",
+    "adminCommon.question": "Soru",
+    "adminCommon.answer": "Cevap",
+    "adminCommon.featuresHelp": "Her satıra bir özellik yazın",
+    "adminCommon.imported": "{count} öğe içe aktarıldı.",
+
+    // Admin FAQ
+    "adminFaq.description": "Sık sorulan soruları kategorilere göre düzenleyin ve yönetin.",
+
+    // Admin Sliders
+    "adminSliders.description": "Ana sayfa slider görsellerini ve metinlerini yönetin.",
+
+    // Admin Shopping Sites
+    "adminShoppingSites.description": "Avrupa alışveriş sitelerini ekleyin, düzenleyin, CSV ile içe/dışa aktarın.",
+
+    // Admin Plans
+    "adminPlans.description": "Üyelik planlarını ekleyin, düzenleyin ve yönetin.",
+
+    // Admin Content Blocks
+    "adminContentBlocks.description": "Hero, nasıl çalışır, fiyatlandırma gibi bölümlerin içeriklerini yönetin.",
+
+    // Contact page
+    "contact.title": "İletişim",
+    "contact.description": "Bize ulaşın, sorularınızı yanıtlayalım.",
+    "contact.name": "Adınız Soyadınız",
+    "contact.email": "E-posta Adresiniz",
+    "contact.subject": "Konu",
+    "contact.message": "Mesajınız",
+    "contact.send": "Gönder",
+    "contact.sending": "Gönderiliyor...",
+    "contact.address": "Depo Adresi",
+
+    // FAQ public
+    "faq.title": "Sıkça Sorulan Sorular",
+    "faq.description": "ChiosBox hakkında en çok sorulan soruların cevaplarını burada bulabilirsiniz.",
+    "faq.searchPlaceholder": "Sorularda ara...",
+    "faq.allCategories": "Tümü",
+    "faq.noResults": "Aramanızla eşleşen soru bulunamadı.",
+
+    // Shopping sites public
+    "shoppingSites.title": "Avrupa Alışveriş Siteleri",
+    "shoppingSites.description": "Türkiye'den alışveriş yapabileceğiniz popüler Avrupa e-ticaret siteleri.",
+    "shoppingSites.searchPlaceholder": "Site ara...",
+    "shoppingSites.allCountries": "Tüm Ülkeler",
+    "shoppingSites.noResults": "Aramanızla eşleşen site bulunamadı.",
+
+    // How it works extra
+
+    // Dashboard widgets
+    "dashboard.overdue": "süre aşımı",
+    "dashboard.payNow": "Hemen Öde",
+    "dashboard.storageAllClear": "Depolama süreniz temiz, hiçbir paket gecikmemiş.",
+
+    // How It Works CTA
+    "howItWorks.ctaTitle": "Hemen Başlayın",
+    "howItWorks.ctaText": "Ücretsiz ChiosBox adresinizi alın, Avrupa'dan alışverişe başlayın.",
+    "howItWorks.ctaButton": "Ücretsiz Kayıt Ol",
+
+    // Contact form result
+    "contact.sentTitle": "Mesajınız Gönderildi!",
+    "contact.sentText": "Mesajınız başarıyla alındı. En kısa sürede size dönüş yapacağız.",
+    "contact.sendError": "Mesaj gönderilemedi. Lütfen daha sonra tekrar deneyin.",
+
+    // Common singular
+    "common.package": "paket",
+
+    // Rich Text Editor
+    "editor.heading1": "Başlık 1",
+    "editor.heading2": "Başlık 2",
+    "editor.heading3": "Başlık 3",
+    "editor.bold": "Kalın",
+    "editor.italic": "İtalik",
+    "editor.underline": "Alt Çizgi",
+    "editor.strike": "Üstü Çizili",
+    "editor.bulletList": "Madde İşaretli Liste",
+    "editor.orderedList": "Numaralı Liste",
+    "editor.blockquote": "Alıntı",
+    "editor.horizontalRule": "Yatay Çizgi",
+    "editor.link": "Bağlantı Ekle",
+    "editor.enterUrl": "URL'yi girin",
+
+    // Admin actions
+    "action.invoices": "Faturalar",
+    "action.customers": "Müşteriler",
+
+    // Tour (legacy key — profile help card)
+    "tour.step1.content": "ChiosBox'u adım adım keşfedin. Tur rehberi size tüm özellikleri sırayla gösterir.",
+
+    // Editor toolbar (new)
+    "editor.redo": "Yinele",
+    "editor.undo": "Geri Al",
+    "editor.heading": "Başlık",
+    "editor.paragraph": "Paragraf",
+    "editor.unlink": "Bağlantıyı Kaldır",
+    "editor.code": "Kod",
+    "editor.strikethrough": "Üstü Çizili",
+
+    "action.intake": "Teslim Al",
+
+    // About page
+    "about.title": "Hakkımızda",
+    "about.subtitle": "ChiosBox, Türkiye ile Avrupa arasında güvenilir paket taşımacılığı yapar. Sakız Adası merkezli operasyonumuzla e-ticaret lojistiğini kolaylaştırıyoruz.",
+    "about.missionTitle": "Misyonumuz",
+    "about.missionBody": "Türkiye'deki alışveriş tutkunlarının Avrupa'daki ürünlere zahmetsizce ulaşmasını sağlamak. Süreci basitleştiriyor, maliyetleri düşürüyor ve paketlerinizi güvende tutuyoruz.",
+    "about.storyTitle": "Hikayemiz",
+    "about.storyBody": "ChiosBox, Sakız Adası'nın stratejik konumundan ilham alarak doğdu. Avrupa'dan Türkiye'ye kişisel paket taşımacılığının ne kadar zor olduğunu gördük ve bunu değiştirmeye karar verdik.",
+    "about.teamTitle": "Bize Katılın",
+    "about.teamSubtitle": "Binlerce müşteri Avrupa alışverişlerinde ChiosBox'u tercih ediyor. Siz de Avrupa teslimat adresinizi hemen alın.",
   },
 
   en: {
@@ -990,6 +1101,14 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "nav.logout": "Logout",
     "nav.login": "Log In",
     "nav.getAddress": "Get Your Address Now",
+    "nav.about": "About Us",
+    "nav.contact": "Contact",
+
+    // Cookie
+    "cookie.title": "Cookie Usage",
+    "cookie.text": "We use cookies to provide a better experience. Cookies help us remember your preferences and understand how you use the site.",
+    "cookie.acceptAll": "Accept All",
+    "cookie.essentialOnly": "Essential Only",
 
     // Footer
     "footer.description": "Package consolidation management based on Chios for those shopping e-commerce from Turkey to the EU.",
@@ -1010,17 +1129,12 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Hero
     "hero.tag": "Turkey → EU Shipping Made Easy",
-    "hero.badge": "Turkey → EU Shipping Made Easy",
     "hero.title.line1": "European Delivery",
     "hero.title.line2": "Your Address",
     "hero.title.line3": "Ready",
-    "hero.title1": "European Delivery",
-    "hero.title2": "Your Address",
-    "hero.title3": "Ready",
     "hero.description": "Shop from Turkey, let your packages arrive at our warehouse on Chios. Consolidate, save, and we deliver to your door.",
     "hero.cta": "Get Your Address Now",
     "hero.ctaSecondary": "How It Works?",
-    "hero.howItWorks": "How It Works?",
     "hero.feature1": "Starting from €9.99/month",
     "hero.feature2": "Instant address",
     "hero.feature3": "Door-to-door delivery",
@@ -1032,19 +1146,15 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "howItWorks.step1.number": "01",
     "howItWorks.step1.title": "Shop",
     "howItWorks.step1.description": "Shop from any e-commerce site in Turkey. Use your ChiosBox address as the delivery address.",
-    "howItWorks.step1.desc": "Shop from any e-commerce site in Turkey. Use your ChiosBox address as the delivery address.",
     "howItWorks.step2.number": "02",
     "howItWorks.step2.title": "Arrive at Our Warehouse",
     "howItWorks.step2.description": "Your packages arrive at our secure warehouse on Chios. The barcode is scanned and logged into the system.",
-    "howItWorks.step2.desc": "Your packages arrive at our secure warehouse on Chios. The barcode is scanned and logged into the system.",
     "howItWorks.step3.number": "03",
     "howItWorks.step3.title": "Photo Approval",
     "howItWorks.step3.description": "Warehouse staff takes a photo of your package. You view it from your panel and verify the contents.",
-    "howItWorks.step3.desc": "Warehouse staff takes a photo of your package. You view it from your panel and verify the contents.",
-    "howItWorks.step4.number": "04",
     "howItWorks.step4.title": "Pick Up",
-    "howItWorks.step4.description": "Consolidate your packages, save money. Show your QR code, pick up on your island. It's that simple!",
     "howItWorks.step4.desc": "Consolidate your packages, save money. Show your QR code, pick up on your island. It's that simple!",
+    "howItWorks.stepLabel": "Step {step}",
 
     // Pricing
     "pricing.tag": "Transparent Pricing",
@@ -1055,26 +1165,18 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "pricing.storageDays": "Storage Duration (Days)",
     "pricing.storage1": "1 day",
     "pricing.storage30": "30 days",
-    "pricing.freeStorage": "First 14 days free storage",
-    "pricing.acceptFeeInfo": "Accept fee per package €4",
     "pricing.monthlyCost": "Estimated Monthly Cost",
-    "pricing.acceptFee": "Accept Fee",
     "pricing.consolidationFee": "Consolidation Fee",
-    "pricing.demurrageFee": "Late Fee",
     "pricing.total": "Total",
-    "pricing.savings": "You can save ~€{amount} by consolidating!",
     "pricing.planTitle": "Choose the Plan That Suits You",
     "pricing.planDesc": "Door-to-door shipping privilege from Turkey to Europe, Europe to Turkey",
     "pricing.basic.name": "Basic",
-    "pricing.basic.price": "€9.99",
-    "pricing.basic.pricePeriod": "/month",
     "pricing.basic.subtitle": "Simple address, simple delivery",
     "pricing.basic.f1": "ChiosBox EU address",
     "pricing.basic.f2": "14 days free storage",
     "pricing.basic.f3": "Panel access",
     "pricing.basic.f4": "Email notifications",
     "pricing.basic.cta": "Choose Basic Plan",
-    "pricing.premium.badge": "Most Popular",
     "pricing.premium.name": "Premium",
     "pricing.premium.subtitle": "Full control, maximum savings",
     "pricing.premium.f1": "Everything in Basic plan",
@@ -1086,10 +1188,11 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "pricing.month": "/month",
     "pricing.mostPopular": "Most Popular",
     "pricing.fee.accept": "Accept Fee",
-    "pricing.fee.storage14": "14 days free storage",
-    "pricing.fee.acceptInfo": "Accept fee per package €4",
-    "pricing.fee.acceptUnit": "× €{fee}",
-    "pricing.demurrageFeeLabel": "{days} days × €{fee}",
+    "pricing.fee.storage14": "{days} days free storage",
+    "pricing.fee.acceptInfo": "Accept fee per package {fee}€",
+    "pricing.fee.acceptUnit": "{fee}€ per package",
+    "pricing.demurrageFeeLabel": "Demurrage ({days} days × {fee}€)",
+    "pricing.savings": "Save {amount}€ on consolidation",
 
     // Trust
     "trust.tag": "Trustworthy & Transparent",
@@ -1113,10 +1216,7 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "trust.testimonial3.text": "Picking up with QR code is so practical. I went to the office, showed the code, got my package in 2 minutes. Highly recommend!",
 
     // Final CTA
-    "finalCta.tag": "Get Started Now",
     "finalCta.title": "Get Started Now",
-    "finalCta.title1": "Your European Delivery Address",
-    "finalCta.title2": "Get Now",
     "finalCta.description": "Starting from €9.99/month, let us deliver your purchases from Turkey to the EU seamlessly via Chios.",
     "finalCta.cta": "Start Now",
     "finalCta.cta2": "7-day free trial. No credit card required.",
@@ -1169,7 +1269,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Dashboard Admin
     "dashboard.title": "Admin Dashboard",
-    "dashboard.welcome": "Welcome, {name}",
     "dashboard.totalPackages": "Total Packages",
     "dashboard.inWarehouse": "In Warehouse",
     "dashboard.last7Days": "Last 7 Days",
@@ -1179,9 +1278,9 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "dashboard.recentActivity": "Recent Activity",
     "dashboard.unknown": "Unknown",
     "dashboard.demurrageAlert": "Delay Alert",
-    "dashboard.demurrageDesc": "{count} packages exceeded 14 days",
     "dashboard.pendingInvoices": "Pending Invoices",
-    "dashboard.pendingInvoiceDesc": "{count} invoices awaiting payment",
+    "dashboard.pendingInvoiceCount": "{count} invoices",
+    "dashboard.pendingTotal": "Total {amount}€",
     "dashboard.shelfUsage": "Shelf Usage",
     "dashboard.quickActions": "Quick Actions",
 
@@ -1193,12 +1292,9 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "status.teslimEdildi": "Delivered",
 
     // Admin actions
-    "action.kabul": "Intake",
     "actions.delivery": "Delivery",
     "action.delay": "Delay",
     "action.packages": "Packages",
-    "action.faturalar": "Invoices",
-    "action.musteriler": "Customers",
 
     // Admin Packages
     "packages.title": "Packages",
@@ -1229,44 +1325,42 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Admin Customers
     "customers.title": "Customers",
-    "customers.count": "{total} customers",
     "customers.searchPlaceholder": "Search by name, email or ChiosBox ID...",
     "customers.notFound": "Customer not found",
-    "customers.packageCount": "{n} packages",
     "customers.pending": "pending",
     "customers.previous": "Previous",
     "customers.next": "Next",
 
     // Admin Invoices
     "invoices.title": "Invoices",
-    "invoices.count": "{total} invoices",
     "invoices.newInvoice": "+ New Invoice",
     "invoices.all": "All",
     "invoices.pending": "Pending",
     "invoices.paid": "Paid",
     "invoices.cancelled": "Cancelled",
     "invoices.notFound": "Invoice not found",
-    "invoices.acceptFee": "Accept: €{amount}",
-    "invoices.consolidationFee": "Consolidation: €{amount}",
-    "invoices.demurrageFee": "Delay: €{amount}",
-    "invoices.packageCount": "{n} packages",
     "invoices.previous": "Previous",
     "invoices.next": "Next",
+    "invoices.count": "{total} invoices",
+    "invoices.acceptFee": "Accept {amount}€",
+    "invoices.consolidationFee": "Consolidation {amount}€",
+    "invoices.demurrageFee": "Demurrage {amount}€",
+    "invoices.packageCount": "{n} packages",
     "invoices.createModal.title": "New Invoice",
     "invoices.createModal.customer": "Customer",
     "invoices.createModal.selectCustomer": "Select a customer",
     "invoices.createModal.packetsToBill": "Packets to Bill",
     "invoices.createModal.noUnbilled": "No unbilled packages found",
     "invoices.createModal.consolidationFee": "Consolidation Fee",
-    "invoices.createModal.acceptFee": "Accept Fee ({count} packages × €{fee})",
     "invoices.createModal.demurrageFee": "Delay Fee",
     "invoices.createModal.consolidationLine": "Consolidation Fee",
     "invoices.createModal.total": "Total",
     "invoices.createModal.creating": "Creating...",
-    "invoices.createModal.createButton": "Create Invoice (€{amount})",
     "invoices.createModal.selectCustomerError": "Select a customer",
     "invoices.createModal.selectPackageError": "Select at least one package",
     "invoices.createModal.createError": "Invoice could not be created",
+    "invoices.createModal.acceptFee": "Accept ({count} pkgs × {fee}€)",
+    "invoices.createModal.createButton": "Create Invoice {amount}€",
     "invoices.detail.customer": "Customer",
     "invoices.detail.date": "Date",
     "invoices.detail.paymentDate": "Payment Date",
@@ -1274,7 +1368,7 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "invoices.detail.consolidationFee": "Consolidation Fee",
     "invoices.detail.demurrageFee": "Delay Fee",
     "invoices.detail.total": "Total",
-    "invoices.detail.packets": "Packages ({count})",
+    "invoices.detail.packets": "{count} packages",
     "invoices.detail.markPaid": "Mark as Paid",
     "invoices.detail.cancel": "Cancel",
     "invoices.detail.undoCancel": "Undo Cancel",
@@ -1293,12 +1387,10 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "intake.notFound": "No package found for this tracking number",
     "intake.customer": "Customer",
     "intake.content": "Content",
-    "intake.notes": "Note: {text}",
     "intake.shelfAssignment": "Shelf Assignment",
     "intake.saving": "Saving...",
     "intake.save": "SAVE",
     "intake.saved": "Saved!",
-    "intake.shelfPrefix": "Shelf: {shelf}",
     "intake.unknown": "Unknown",
 
     // Admin Pickup
@@ -1423,6 +1515,7 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "register.emailVerifyDescription": "Enter the 6-digit code sent to your email.",
     "register.verifying": "Verifying...",
     "register.resendCode": "Resend Code",
+    "register.emailNotReceived": "Didn't receive code? Resend in {countdown}s",
     "register.smsNotReceived": "Didn't receive SMS? Resend in {countdown}s",
     "register.backToInfo": "Back to Details",
     "register.phoneVerifyTitle": "Verify Your Phone",
@@ -1446,12 +1539,10 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "register.redirecting": "Redirecting...",
     "register.planTemel": "Basic",
     "register.planPremium": "Premium",
-    "register.emailNotReceived": "Didn't receive code? Resend in {countdown}s",
     "register.backToEmail": "← Back to Email Step",
     "register.monthSuffix": "/mo",
 
     // Dashboard Home
-    "dashboard.greeting": "Hello {name}",
     "dashboard.defaultPlan": "Basic Plan",
     "dashboard.planActive": "Active",
     "dashboard.chiosBoxId": "ChiosBox ID:",
@@ -1470,8 +1561,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "dashboard.reportPackage": "Report Package",
     "dashboard.consolidateAction": "Consolidate",
     "dashboard.settings": "Settings",
-    "dashboard.pendingInvoiceCount": "{count} pending invoice(s)",
-    "dashboard.pendingTotal": "Total: €{amount}",
     "dashboard.status.depoda": "In Warehouse",
     "dashboard.status.yolda": "In Transit",
     "dashboard.status.bekleniyor": "Awaiting Payment",
@@ -1479,10 +1568,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Dashboard Packages
     "packages.status.depoda": "In Warehouse",
-    "packages.status.yolda": "In Transit",
-    "packages.status.bekleniyor": "Awaiting Payment",
-    "packages.status.birlestirildi": "Consolidated",
-    "packages.status.teslim_edildi": "Delivered",
     "packages.stepper.reported": "Reported",
     "packages.stepper.inWarehouse": "In Warehouse",
     "packages.stepper.consolidated": "Consolidated",
@@ -1511,10 +1596,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "checkout.empty.title": "No Pending Invoices",
     "checkout.empty.description": "You have no invoices to pay right now. An invoice will be created when your packages arrive at the warehouse.",
     "checkout.summary.title": "Payment Summary",
-    "checkout.summary.pendingCount": "{count} pending invoice(s)",
-    "checkout.summary.selectedCount": "{count} invoice(s) selected",
-    "checkout.payAll": "Pay All — €{amount}",
-    "checkout.paySelected": "Pay Selected — €{amount}",
     "checkout.secureNote": "Secured by Stripe secure payment infrastructure",
     "checkout.processing.title": "Payment Processing...",
     "checkout.processing.subtitle": "Please wait",
@@ -1532,16 +1613,13 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "consolidate.error.consolidationFailed": "Consolidation failed",
     "consolidate.error.generic": "An error occurred",
     "consolidate.availablePackages": "Packages Available for Consolidation",
-    "consolidate.packageCount": "{count} package(s)",
     "consolidate.add": "Add",
     "consolidate.noAvailable": "All packages added or no packages in warehouse",
     "consolidate.masterBox": "Master Box",
     "consolidate.addFromLeft": "Add packages from the left",
     "consolidate.costSummary": "Cost Summary",
-    "consolidate.acceptFeeLine": "Accept Fee ({count} × €{fee})",
     "consolidate.consolidationFee": "Consolidation Fee",
     "consolidate.total": "Total",
-    "consolidate.savings": "Estimated Savings: +€{amount}",
     "consolidate.submitting": "Consolidating...",
     "consolidate.submit": "Consolidate",
 
@@ -1584,8 +1662,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "profile.passwordMinLength": "Password must be at least 6 characters.",
     "profile.passwordMismatch": "Passwords do not match.",
     "profile.passwordChangeFailed": "Password change failed.",
-    "profile.addressLabel": "Address",
-    "profile.addressPlaceholder": "Enter your address",
 
     // Tour Guide — common
     "tour.start": "Start Tour Guide",
@@ -1764,9 +1840,10 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "sidebar.packages": "My Packages",
     "sidebar.consolidate": "Consolidate",
     "sidebar.actions": "Actions",
-    "sidebar.payment": "Payment",
-    "sidebar.profile": "Profile",
-    "sidebar.logout": "Log Out",
+    "sidebar.payment": "Payments",
+    "sidebar.profile": "My Profile",
+    "sidebar.invoices": "Invoices",
+    "sidebar.logout": "Logout",
 
     // Admin sidebar
     "admin.panel": "Panel",
@@ -1774,6 +1851,12 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "admin.languages": "Languages",
     "admin.translations": "Translations",
     "admin.logout": "Logout",
+
+    // Admin groups
+    "admin.group.operations": "Operations",
+    "admin.group.users": "Users",
+    "admin.group.content": "Content",
+    "admin.group.system": "System",
 
     // Admin Login
     "adminLogin.title": "Admin Login",
@@ -1786,37 +1869,15 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Plan Selector
     "planSelector.period": "/mo",
-    "planSelector.temel.name": "Basic",
-    "planSelector.temel.f1": "ChiosBox EU address",
-    "planSelector.temel.f2": "14 days free storage",
-    "planSelector.temel.f3": "Panel access",
-    "planSelector.temel.f4": "Email notifications",
-    "planSelector.premium.name": "Premium",
     "planSelector.premium.badge": "Most Popular",
-    "planSelector.premium.f1": "Everything in Basic plan",
-    "planSelector.premium.f2": "21 days free storage",
-    "planSelector.premium.f3": "Free consolidation",
-    "planSelector.premium.f4": "Turkey delivery tracking",
-    "planSelector.premium.f5": "Dedicated support line",
 
     // Register Page
     "register.pageTitle": "Join ChiosBox",
     "register.pageSubtitle": "Get your European delivery address now and enjoy door-to-door shipping.",
 
     // Store errors
-    "store.error.packagesLoadFailed": "Failed to load packages",
-    "store.error.generic": "An error occurred",
-    "store.error.deleteFailed": "Delete failed",
-    "store.error.intakeFailed": "Intake failed",
-    "store.error.deliveryFailed": "Delivery failed",
-    "store.error.discardFailed": "Discard failed",
-    "store.error.registerFailed": "Registration failed",
 
     // API/Proxy errors
-    "api.error.loginRequired": "You need to log in",
-    "api.error.unauthorized": "Unauthorized access",
-    "api.error.authCheckFailed": "Authorization check failed",
-    "api.error.rateLimited": "Too many requests. Please try again later.",
 
     // Auth Layout
     "authLayout.heading": "Europe at Your Doorstep with ChiosBox",
@@ -1832,7 +1893,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "packages.noMessagesYet": "No messages yet",
     "packages.chatHint": "You can ask your package-related questions here",
     "packages.giveUp": "Cancel",
-    "packages.daysFree": "{days} days free",
     "packages.carrier": "Carrier",
     "packages.trackingNo": "Tracking No",
     "packages.notification": "Notification",
@@ -1849,15 +1909,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "common.days": "days",
 
     // Island Scene
-    "islandScene.departed.badge": "Departed from Turkey",
-    "islandScene.departed.title": "Your Packages Are On the Way",
-    "islandScene.departed.description": "Packages purchased from Turkish sellers are heading to our Chios warehouse.",
-    "islandScene.crossing.badge": "Crossing the Aegean",
-    "islandScene.crossing.title": "Transported Safely",
-    "islandScene.crossing.description": "Via boats and cargo routes, every package is insured and trackable.",
-    "islandScene.arrived.badge": "Arrived at Destination",
-    "islandScene.arrived.title": "At Our Chios Warehouse",
-    "islandScene.arrived.description": "Consolidate, save, and we'll deliver to your door.",
 
     // Bento Grid (Hero Animation)
     "bento.route.title": "Seamless Logistics",
@@ -1907,6 +1958,27 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "adminTranslations.noResults": "No translations found for this search",
     "adminTranslations.empty": "No translations added for this language yet",
     "adminTranslations.delete": "Delete",
+    "adminTranslations.categoryAll": "All",
+    "adminTranslations.categoryAdmin": "Admin",
+    "adminTranslations.categoryFrontend": "Frontend",
+    "adminTranslations.addKey": "Add Key",
+    "adminTranslations.addKeyTitle": "Add New Translation Key",
+    "adminTranslations.keyLabel": "Key",
+    "adminTranslations.valueLabel": "Value",
+    "adminTranslations.valuePlaceholder": "Translation text...",
+    "adminTranslations.addToAll": "Add to all languages",
+    "adminTranslations.addedToAll": "\"{key}\" key added to all languages",
+    "adminTranslations.addedSingle": "\"{key}\" key added to this language",
+    "adminTranslations.addFailed": "Failed to add",
+    "adminTranslations.addBtn": "Add",
+    "adminTranslations.adding": "Adding...",
+    "adminTranslations.cancel": "Cancel",
+    "adminTranslations.deleteFromLang": "Delete from this language",
+    "adminTranslations.deleteFromAll": "Delete from all languages",
+    "adminTranslations.deleteAllConfirm": "Delete \"{key}\" from all languages. Are you sure?",
+    "adminTranslations.page": "Page",
+    "adminTranslations.prev": "Previous",
+    "adminTranslations.next": "Next",
 
     // Admin Languages Page
     "adminLanguages.title": "Languages",
@@ -1948,6 +2020,9 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "adminSettings.catRateLimits": "Rate Limits",
     "adminSettings.warningTitle": "Warning",
     "adminSettings.warningText": "Fee and plan changes affect new transactions only. Existing invoices keep their amounts. Make sure before changing.",
+
+    // Settings labels (from system_settings table)
+
     "adminPolicies.titleLabel": "Title",
     "adminPolicies.titlePlaceholder": "Policy title",
     "adminPolicies.contentLabel": "Content",
@@ -1960,6 +2035,153 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "adminPolicies.published": "Published",
     "adminPolicies.draft": "Draft",
     "footer.kvkk": "KVKK Disclosure",
+
+    // Admin sidebar
+    "admin.faq": "FAQ",
+    "admin.sliders": "Sliders",
+    "admin.shoppingSites": "Shopping Sites",
+    "admin.plans": "Plans",
+    "admin.contentBlocks": "Content Blocks",
+
+    // Nav additions
+    "nav.shoppingSites": "EU Shopping Sites",
+    "nav.faq": "FAQ",
+
+    // Admin Common (shared across all admin pages)
+    "adminCommon.add": "Add",
+    "adminCommon.edit": "Edit",
+    "adminCommon.delete": "Delete",
+    "adminCommon.save": "Save",
+    "adminCommon.update": "Update",
+    "adminCommon.cancel": "Cancel",
+    "adminCommon.created": "Added.",
+    "adminCommon.updated": "Updated.",
+    "adminCommon.published": "Published",
+    "adminCommon.draft": "Draft",
+    "adminCommon.empty": "No items yet.",
+    "adminCommon.name": "Name",
+    "adminCommon.title": "Title",
+    "adminCommon.subtitle": "Subtitle",
+    "adminCommon.imageUrl": "Image URL",
+    "adminCommon.linkUrl": "Link URL",
+    "adminCommon.url": "URL",
+    "adminCommon.logoUrl": "Logo URL",
+    "adminCommon.category": "Category",
+    "adminCommon.sortOrder": "Sort Order",
+    "adminCommon.body": "Body",
+    "adminCommon.allCategories": "All Categories",
+    "adminCommon.allCountries": "All Countries",
+    "adminCommon.saved": "Saved.",
+    "adminCommon.unsaved": "Unsaved changes",
+    "adminCommon.untitled": "Untitled",
+    "adminCommon.price": "Price",
+    "adminCommon.question": "Question",
+    "adminCommon.answer": "Answer",
+    "adminCommon.featuresHelp": "Write one feature per line",
+    "adminCommon.imported": "{count} items imported.",
+
+    // Admin FAQ
+    "adminFaq.description": "Organize and manage frequently asked questions by category.",
+
+    // Admin Sliders
+    "adminSliders.description": "Manage homepage slider images and texts.",
+
+    // Admin Shopping Sites
+    "adminShoppingSites.description": "Add, edit, import/export European shopping sites via CSV.",
+
+    // Admin Plans
+    "adminPlans.description": "Add, edit and manage membership plans.",
+
+    // Admin Content Blocks
+    "adminContentBlocks.description": "Manage content for hero, how it works, pricing and other sections.",
+
+    // Contact page
+    "contact.title": "Contact",
+    "contact.description": "Get in touch, let us answer your questions.",
+    "contact.name": "Your Name",
+    "contact.email": "Your Email",
+    "contact.subject": "Subject",
+    "contact.message": "Your Message",
+    "contact.send": "Send",
+    "contact.sending": "Sending...",
+    "contact.address": "Warehouse Address",
+
+    // FAQ public
+    "faq.title": "Frequently Asked Questions",
+    "faq.description": "Find answers to the most common questions about ChiosBox here.",
+    "faq.searchPlaceholder": "Search questions...",
+    "faq.allCategories": "All",
+    "faq.noResults": "No questions match your search.",
+
+    // Shopping sites public
+    "shoppingSites.title": "European Shopping Sites",
+    "shoppingSites.description": "Popular European e-commerce sites you can shop from Turkey.",
+    "shoppingSites.searchPlaceholder": "Search sites...",
+    "shoppingSites.allCountries": "All Countries",
+    "shoppingSites.noResults": "No sites match your search.",
+
+    // How it works extra
+
+    // Dashboard widgets
+    "dashboard.overdue": "overdue",
+    "dashboard.payNow": "Pay Now",
+    "dashboard.storageAllClear": "Your storage is clear, no packages are overdue.",
+
+    // How It Works CTA
+    "howItWorks.ctaTitle": "Get Started Now",
+    "howItWorks.ctaText": "Get your free ChiosBox address and start shopping from Europe.",
+    "howItWorks.ctaButton": "Sign Up Free",
+
+    // Contact form result
+    "contact.sentTitle": "Message Sent!",
+    "contact.sentText": "Your message has been received. We'll get back to you shortly.",
+    "contact.sendError": "Message could not be sent. Please try again later.",
+
+    // Common singular
+    "common.package": "package",
+
+    // Rich Text Editor
+    "editor.heading1": "Heading 1",
+    "editor.heading2": "Heading 2",
+    "editor.heading3": "Heading 3",
+    "editor.underline": "Underline",
+    "editor.strike": "Strikethrough",
+    "editor.horizontalRule": "Horizontal Rule",
+    "editor.enterUrl": "Enter URL",
+
+    // Admin actions
+    "action.invoices": "Invoices",
+    "action.customers": "Customers",
+
+    // Tour (legacy key — profile help card)
+    "tour.step1.content": "Explore ChiosBox step by step. The tour guide shows you all features in order.",
+
+    // Editor toolbar
+    "editor.redo": "Redo",
+    "editor.undo": "Undo",
+    "editor.bold": "Bold",
+    "editor.italic": "Italic",
+    "editor.heading": "Heading",
+    "editor.paragraph": "Paragraph",
+    "editor.link": "Add Link",
+    "editor.unlink": "Remove Link",
+    "editor.bulletList": "Bullet List",
+    "editor.orderedList": "Numbered List",
+    "editor.blockquote": "Blockquote",
+    "editor.code": "Code",
+    "editor.strikethrough": "Strikethrough",
+
+    "action.intake": "Intake",
+
+    // About page
+    "about.title": "About Us",
+    "about.subtitle": "ChiosBox provides reliable package transportation between Turkey and Europe. Based on Chios Island, we simplify e-commerce logistics.",
+    "about.missionTitle": "Our Mission",
+    "about.missionBody": "To give Turkish shoppers effortless access to European products. We simplify the process, reduce costs, and keep your packages safe.",
+    "about.storyTitle": "Our Story",
+    "about.storyBody": "ChiosBox was inspired by the strategic location of Chios Island. We saw how difficult personal package shipping from Europe to Turkey was and decided to change it.",
+    "about.teamTitle": "Join Us",
+    "about.teamSubtitle": "Thousands of customers choose ChiosBox for their European shopping. Get your European delivery address now.",
   },
   de: {
     // Nav
@@ -1969,6 +2191,14 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "nav.logout": "Abmelden",
     "nav.login": "Anmelden",
     "nav.getAddress": "Jetzt Adresse holen",
+    "nav.about": "Über uns",
+    "nav.contact": "Kontakt",
+
+    // Cookie
+    "cookie.title": "Cookie-Nutzung",
+    "cookie.text": "Wir verwenden Cookies für eine bessere Erfahrung. Cookies helfen uns, Ihre Einstellungen zu speichern und zu verstehen, wie Sie die Seite nutzen.",
+    "cookie.acceptAll": "Alle akzeptieren",
+    "cookie.essentialOnly": "Nur Notwendige",
 
     // Footer
     "footer.description": "Paketkonsolidierungsverwaltung mit Sitz auf Chios für E-Commerce-Käufer von der Türkei in die EU.",
@@ -1989,17 +2219,12 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Hero
     "hero.tag": "Türkei → EU Versand leicht gemacht",
-    "hero.badge": "Türkei → EU Versand leicht gemacht",
     "hero.title.line1": "Europäische Lieferung",
     "hero.title.line2": "Ihre Adresse",
     "hero.title.line3": "Bereit",
-    "hero.title1": "Europäische Lieferung",
-    "hero.title2": "Ihre Adresse",
-    "hero.title3": "Bereit",
     "hero.description": "Kaufen Sie in der Türkei, lassen Sie Ihre Pakete an unserem Lager auf Chios ankommen. Konsolidieren, sparen, und wir liefern an Ihre Tür.",
     "hero.cta": "Jetzt Adresse holen",
     "hero.ctaSecondary": "Wie funktioniert es?",
-    "hero.howItWorks": "Wie funktioniert es?",
     "hero.feature1": "Ab €9.99/Monat",
     "hero.feature2": "Sofortige Adresse",
     "hero.feature3": "Tür-zu-Tür-Lieferung",
@@ -2011,19 +2236,15 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "howItWorks.step1.number": "01",
     "howItWorks.step1.title": "Einkaufen",
     "howItWorks.step1.description": "Kaufen Sie in jedem Online-Shop in der Türkei. Verwenden Sie Ihre ChiosBox-Adresse als Lieferadresse.",
-    "howItWorks.step1.desc": "Kaufen Sie in jedem Online-Shop in der Türkei. Verwenden Sie Ihre ChiosBox-Adresse als Lieferadresse.",
     "howItWorks.step2.number": "02",
     "howItWorks.step2.title": "Ankommen in unserem Lager",
     "howItWorks.step2.description": "Ihre Pakete kommen in unserem sicheren Lager auf Chios an. Der Barcode wird gescannt und im System erfasst.",
-    "howItWorks.step2.desc": "Ihre Pakete kommen in unserem sicheren Lager auf Chios an. Der Barcode wird gescannt und im System erfasst.",
     "howItWorks.step3.number": "03",
     "howItWorks.step3.title": "Foto-Genehmigung",
     "howItWorks.step3.description": "Das Lagerpersonal macht ein Foto Ihres Pakets. Sie sehen es in Ihrem Panel und überprüfen den Inhalt.",
-    "howItWorks.step3.desc": "Das Lagerpersonal macht ein Foto Ihres Pakets. Sie sehen es in Ihrem Panel und überprüfen den Inhalt.",
-    "howItWorks.step4.number": "04",
     "howItWorks.step4.title": "Abholen",
-    "howItWorks.step4.description": "Konsolidieren Sie Ihre Pakete, sparen Sie Geld. Zeigen Sie Ihren QR-Code, holen Sie auf Ihrer Insel ab. So einfach ist das!",
     "howItWorks.step4.desc": "Konsolidieren Sie Ihre Pakete, sparen Sie Geld. Zeigen Sie Ihren QR-Code, holen Sie auf Ihrer Insel ab. So einfach ist das!",
+    "howItWorks.stepLabel": "Schritt {step}",
 
     // Pricing
     "pricing.tag": "Transparente Preisgestaltung",
@@ -2034,26 +2255,18 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "pricing.storageDays": "Lagerdauer (Tage)",
     "pricing.storage1": "1 Tag",
     "pricing.storage30": "30 Tage",
-    "pricing.freeStorage": "Erste 14 Tage kostenlose Lagerung",
-    "pricing.acceptFeeInfo": "Annahmegebühr pro Paket €4",
     "pricing.monthlyCost": "Geschätzte monatliche Kosten",
-    "pricing.acceptFee": "Annahmegebühr",
     "pricing.consolidationFee": "Konsolidierungsgebühr",
-    "pricing.demurrageFee": "Verzugsgebühr",
     "pricing.total": "Gesamt",
-    "pricing.savings": "Sie können ~€{amount} durch Konsolidierung sparen!",
     "pricing.planTitle": "Wählen Sie den Plan, der zu Ihnen passt",
     "pricing.planDesc": "Tür-zu-Tür-Versand-Privileg von der Türkei nach Europa, Europa in die Türkei",
     "pricing.basic.name": "Basis",
-    "pricing.basic.price": "€9.99",
-    "pricing.basic.pricePeriod": "/Monat",
     "pricing.basic.subtitle": "Einfache Adresse, einfache Lieferung",
     "pricing.basic.f1": "ChiosBox EU-Adresse",
     "pricing.basic.f2": "14 Tage kostenlose Lagerung",
     "pricing.basic.f3": "Panelzugang",
     "pricing.basic.f4": "E-Mail-Benachrichtigungen",
     "pricing.basic.cta": "Basis-Paket wählen",
-    "pricing.premium.badge": "Am beliebtesten",
     "pricing.premium.name": "Premium",
     "pricing.premium.subtitle": "Volle Kontrolle, maximale Ersparnis",
     "pricing.premium.f1": "Alles im Basis-Paket",
@@ -2065,10 +2278,11 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "pricing.month": "/Monat",
     "pricing.mostPopular": "Am beliebtesten",
     "pricing.fee.accept": "Annahmegebühr",
-    "pricing.fee.storage14": "14 Tage kostenlose Lagerung",
-    "pricing.fee.acceptInfo": "Annahmegebühr pro Paket €4",
-    "pricing.fee.acceptUnit": "× €{fee}",
-    "pricing.demurrageFeeLabel": "{days} Tage × €{fee}",
+    "pricing.fee.storage14": "{days} Tage kostenlose Lagerung",
+    "pricing.fee.acceptInfo": "Annahmegebühr pro Paket {fee}€",
+    "pricing.fee.acceptUnit": "{fee}€ pro Paket",
+    "pricing.demurrageFeeLabel": "Standgeld ({days} Tage × {fee}€)",
+    "pricing.savings": "Sparen Sie {amount}€ bei Konsolidierung",
 
     // Trust
     "trust.tag": "Vertrauenswürdig & Transparent",
@@ -2092,10 +2306,7 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "trust.testimonial3.text": "Die Abholung per QR-Code ist sehr praktisch. Ich bin zum Büro gegangen, habe den Code gezeigt und mein Paket in 2 Minuten bekommen. Sehr empfehlenswert!",
 
     // Final CTA
-    "finalCta.tag": "Jetzt starten",
     "finalCta.title": "Jetzt starten",
-    "finalCta.title1": "Ihre europäische Lieferadresse",
-    "finalCta.title2": "Jetzt holen",
     "finalCta.description": "Ab €9,99/Monat liefern wir Ihre Einkäufe aus der Türkei nahtlos über Chios in die EU.",
     "finalCta.cta": "Jetzt starten",
     "finalCta.cta2": "7 Tage kostenlos testen. Keine Kreditkarte erforderlich.",
@@ -2148,7 +2359,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Dashboard Admin
     "dashboard.title": "Admin-Dashboard",
-    "dashboard.welcome": "Willkommen, {name}",
     "dashboard.totalPackages": "Gesamtpakete",
     "dashboard.inWarehouse": "Im Lager",
     "dashboard.last7Days": "Letzte 7 Tage",
@@ -2158,9 +2368,9 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "dashboard.recentActivity": "Letzte Aktivitäten",
     "dashboard.unknown": "Unbekannt",
     "dashboard.demurrageAlert": "Verzugswarnung",
-    "dashboard.demurrageDesc": "{count} Pakete über 14 Tage",
     "dashboard.pendingInvoices": "Ausstehende Rechnungen",
-    "dashboard.pendingInvoiceDesc": "{count} Rechnungen warten auf Zahlung",
+    "dashboard.pendingInvoiceCount": "{count} Rechnungen",
+    "dashboard.pendingTotal": "Gesamt {amount}€",
     "dashboard.shelfUsage": "Regalnutzung",
     "dashboard.quickActions": "Schnellaktionen",
 
@@ -2172,12 +2382,9 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "status.teslimEdildi": "Zugestellt",
 
     // Admin actions
-    "action.kabul": "Annahme",
     "actions.delivery": "Zustellung",
     "action.delay": "Verzug",
     "action.packages": "Pakete",
-    "action.faturalar": "Rechnungen",
-    "action.musteriler": "Kunden",
 
     // Admin Packages
     "packages.title": "Pakete",
@@ -2208,44 +2415,42 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Admin Customers
     "customers.title": "Kunden",
-    "customers.count": "{total} Kunden",
     "customers.searchPlaceholder": "Nach Name, E-Mail oder ChiosBox ID suchen...",
     "customers.notFound": "Kunde nicht gefunden",
-    "customers.packageCount": "{n} Pakete",
     "customers.pending": "ausstehend",
     "customers.previous": "Vorherige",
     "customers.next": "Nächste",
 
     // Admin Invoices
     "invoices.title": "Rechnungen",
-    "invoices.count": "{total} Rechnungen",
     "invoices.newInvoice": "+ Neue Rechnung",
     "invoices.all": "Alle",
     "invoices.pending": "Ausstehend",
     "invoices.paid": "Bezahlt",
     "invoices.cancelled": "Storniert",
     "invoices.notFound": "Rechnung nicht gefunden",
-    "invoices.acceptFee": "Annahme: €{amount}",
-    "invoices.consolidationFee": "Zusammenführung: €{amount}",
-    "invoices.demurrageFee": "Verzug: €{amount}",
-    "invoices.packageCount": "{n} Pakete",
     "invoices.previous": "Vorherige",
     "invoices.next": "Nächste",
+    "invoices.count": "{total} Rechnungen",
+    "invoices.acceptFee": "Annahme {amount}€",
+    "invoices.consolidationFee": "Konsolidierung {amount}€",
+    "invoices.demurrageFee": "Standgeld {amount}€",
+    "invoices.packageCount": "{n} Pakete",
     "invoices.createModal.title": "Neue Rechnung",
     "invoices.createModal.customer": "Kunde",
     "invoices.createModal.selectCustomer": "Kunden auswählen",
     "invoices.createModal.packetsToBill": "Zu berechnende Pakete",
     "invoices.createModal.noUnbilled": "Keine unberechneten Pakete gefunden",
     "invoices.createModal.consolidationFee": "Zusammenführungsgebühr",
-    "invoices.createModal.acceptFee": "Annahmegebühr ({count} Pakete × €{fee})",
     "invoices.createModal.demurrageFee": "Verzugsgebühr",
     "invoices.createModal.consolidationLine": "Zusammenführungsgebühr",
     "invoices.createModal.total": "Gesamt",
     "invoices.createModal.creating": "Wird erstellt...",
-    "invoices.createModal.createButton": "Rechnung erstellen (€{amount})",
     "invoices.createModal.selectCustomerError": "Kunden auswählen",
     "invoices.createModal.selectPackageError": "Wählen Sie mindestens ein Paket",
     "invoices.createModal.createError": "Rechnung konnte nicht erstellt werden",
+    "invoices.createModal.acceptFee": "Annahme ({count} Pkg. × {fee}€)",
+    "invoices.createModal.createButton": "Rechnung {amount}€ erstellen",
     "invoices.detail.customer": "Kunde",
     "invoices.detail.date": "Datum",
     "invoices.detail.paymentDate": "Zahlungsdatum",
@@ -2253,7 +2458,7 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "invoices.detail.consolidationFee": "Zusammenführungsgebühr",
     "invoices.detail.demurrageFee": "Verzugsgebühr",
     "invoices.detail.total": "Gesamt",
-    "invoices.detail.packets": "Pakete ({count})",
+    "invoices.detail.packets": "{count} Pakete",
     "invoices.detail.markPaid": "Als bezahlt markieren",
     "invoices.detail.cancel": "Stornieren",
     "invoices.detail.undoCancel": "Storno rückgängig machen",
@@ -2272,12 +2477,10 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "intake.notFound": "Kein Paket für diese Sendungsnummer gefunden",
     "intake.customer": "Kunde",
     "intake.content": "Inhalt",
-    "intake.notes": "Notiz: {text}",
     "intake.shelfAssignment": "Regalzuweisung",
     "intake.saving": "Wird gespeichert...",
     "intake.save": "SPEICHERN",
     "intake.saved": "Gespeichert!",
-    "intake.shelfPrefix": "Regal: {shelf}",
     "intake.unknown": "Unbekannt",
 
     // Admin Pickup
@@ -2402,6 +2605,7 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "register.emailVerifyDescription": "Geben Sie den 6-stelligen Code ein, der an Ihre E-Mail gesendet wurde.",
     "register.verifying": "Wird überprüft...",
     "register.resendCode": "Code erneut senden",
+    "register.emailNotReceived": "Code nicht erhalten? Erneut senden in {countdown}s",
     "register.smsNotReceived": "SMS nicht erhalten? Erneut senden in {countdown}s",
     "register.backToInfo": "Zurück zu Angaben",
     "register.phoneVerifyTitle": "Telefon verifizieren",
@@ -2425,12 +2629,10 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "register.redirecting": "Sie werden weitergeleitet...",
     "register.planTemel": "Basis",
     "register.planPremium": "Premium",
-    "register.emailNotReceived": "Code nicht erhalten? Erneut senden in {countdown}s",
     "register.backToEmail": "← Zurück zum E-Mail-Schritt",
     "register.monthSuffix": "/Mon.",
 
     // Dashboard Home
-    "dashboard.greeting": "Hallo {name}",
     "dashboard.defaultPlan": "Basisplan",
     "dashboard.planActive": "Aktiv",
     "dashboard.chiosBoxId": "ChiosBox ID:",
@@ -2449,8 +2651,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "dashboard.reportPackage": "Paket melden",
     "dashboard.consolidateAction": "Zusammenführen",
     "dashboard.settings": "Einstellungen",
-    "dashboard.pendingInvoiceCount": "{count} ausstehende Rechnung(en)",
-    "dashboard.pendingTotal": "Gesamt: €{amount}",
     "dashboard.status.depoda": "Im Lager",
     "dashboard.status.yolda": "Unterwegs",
     "dashboard.status.bekleniyor": "Zahlung ausstehend",
@@ -2458,10 +2658,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Dashboard Packages
     "packages.status.depoda": "Im Lager",
-    "packages.status.yolda": "Unterwegs",
-    "packages.status.bekleniyor": "Zahlung ausstehend",
-    "packages.status.birlestirildi": "Zusammengefasst",
-    "packages.status.teslim_edildi": "Zugestellt",
     "packages.stepper.reported": "Gemeldet",
     "packages.stepper.inWarehouse": "Im Lager",
     "packages.stepper.consolidated": "Zusammengefasst",
@@ -2490,10 +2686,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "checkout.empty.title": "Keine ausstehenden Rechnungen",
     "checkout.empty.description": "Sie haben derzeit keine Rechnungen zu bezahlen. Eine Rechnung wird erstellt, sobald Ihre Pakete im Lager eintreffen.",
     "checkout.summary.title": "Zahlungsübersicht",
-    "checkout.summary.pendingCount": "{count} ausstehende Rechnung(en)",
-    "checkout.summary.selectedCount": "{count} Rechnung(en) ausgewählt",
-    "checkout.payAll": "Alle bezahlen — €{amount}",
-    "checkout.paySelected": "Ausgewählte bezahlen — €{amount}",
     "checkout.secureNote": "Gesichert durch Stripe-Zahlungsinfrastruktur",
     "checkout.processing.title": "Zahlung wird verarbeitet...",
     "checkout.processing.subtitle": "Bitte warten",
@@ -2511,16 +2703,13 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "consolidate.error.consolidationFailed": "Konsolidierung fehlgeschlagen",
     "consolidate.error.generic": "Ein Fehler ist aufgetreten",
     "consolidate.availablePackages": "Für Konsolidierung verfügbare Pakete",
-    "consolidate.packageCount": "{count} Paket(e)",
     "consolidate.add": "Hinzufügen",
     "consolidate.noAvailable": "Alle Pakete hinzugefügt oder keine Pakete im Lager",
     "consolidate.masterBox": "Masterkarton",
     "consolidate.addFromLeft": "Fügen Sie links Pakete hinzu",
     "consolidate.costSummary": "Kostenübersicht",
-    "consolidate.acceptFeeLine": "Annahmegebühr ({count} × €{fee})",
     "consolidate.consolidationFee": "Konsolidierungsgebühr",
     "consolidate.total": "Gesamt",
-    "consolidate.savings": "Geschätzte Ersparnis: +€{amount}",
     "consolidate.submitting": "Wird konsolidiert...",
     "consolidate.submit": "Zusammenführen",
 
@@ -2606,13 +2795,12 @@ export const translationSeed: Record<string, Record<string, string>> = {
     // Sidebar
     "sidebar.home": "Startseite",
     "sidebar.packages": "Meine Pakete",
-    "sidebar.consolidate": "Zusammenführen",
+    "sidebar.consolidate": "Konsolidieren",
     "sidebar.actions": "Aktionen",
-    "sidebar.payment": "Zahlung",
-    "sidebar.profile": "Profil",
+    "sidebar.payment": "Zahlungen",
+    "sidebar.profile": "Mein Profil",
+    "sidebar.invoices": "Rechnungen",
     "sidebar.logout": "Abmelden",
-    "profile.addressLabel": "Adresse",
-    "profile.addressPlaceholder": "Adresse eingeben",
 
     // Tour Guide — common
     "tour.start": "Tour starten",
@@ -2754,6 +2942,12 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "admin.translations": "Übersetzungen",
     "admin.logout": "Abmelden",
 
+    // Admin groups
+    "admin.group.operations": "Betrieb",
+    "admin.group.users": "Benutzer",
+    "admin.group.content": "Inhalt",
+    "admin.group.system": "System",
+
     // Admin Login
     "adminLogin.title": "Admin-Anmeldung",
     "adminLogin.email": "E-Mail",
@@ -2765,37 +2959,15 @@ export const translationSeed: Record<string, Record<string, string>> = {
 
     // Plan Selector
     "planSelector.period": "/Mon.",
-    "planSelector.temel.name": "Basis",
-    "planSelector.temel.f1": "ChiosBox EU-Adresse",
-    "planSelector.temel.f2": "14 Tage kostenlose Lagerung",
-    "planSelector.temel.f3": "Panelzugang",
-    "planSelector.temel.f4": "E-Mail-Benachrichtigungen",
-    "planSelector.premium.name": "Premium",
     "planSelector.premium.badge": "Am beliebtesten",
-    "planSelector.premium.f1": "Alles im Basis-Paket",
-    "planSelector.premium.f2": "21 Tage kostenlose Lagerung",
-    "planSelector.premium.f3": "Kostenlose Konsolidierung",
-    "planSelector.premium.f4": "Türkei Lieferverfolgung",
-    "planSelector.premium.f5": "Dedizierte Support-Hotline",
 
     // Register Page
     "register.pageTitle": "ChiosBox beitreten",
     "register.pageSubtitle": "Holen Sie sich jetzt Ihre europäische Lieferadresse und genießen Sie den Tür-zu-Tür-Versand.",
 
     // Store errors
-    "store.error.packagesLoadFailed": "Pakete konnten nicht geladen werden",
-    "store.error.generic": "Ein Fehler ist aufgetreten",
-    "store.error.deleteFailed": "Löschen fehlgeschlagen",
-    "store.error.intakeFailed": "Annahme fehlgeschlagen",
-    "store.error.deliveryFailed": "Zustellung fehlgeschlagen",
-    "store.error.discardFailed": "Entsorgung fehlgeschlagen",
-    "store.error.registerFailed": "Registrierung fehlgeschlagen",
 
     // API/Proxy errors
-    "api.error.loginRequired": "Sie müssen sich anmelden",
-    "api.error.unauthorized": "Nicht autorisierter Zugriff",
-    "api.error.authCheckFailed": "Autorisierungsprüfung fehlgeschlagen",
-    "api.error.rateLimited": "Zu viele Anfragen. Bitte versuchen Sie es später erneut.",
 
     // Auth Layout
     "authLayout.heading": "Europa vor Ihrer Tür mit ChiosBox",
@@ -2811,7 +2983,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "packages.noMessagesYet": "Noch keine Nachrichten",
     "packages.chatHint": "Hier können Sie Ihre Fragen zum Paket stellen",
     "packages.giveUp": "Abbrechen",
-    "packages.daysFree": "{days} Tage kostenlos",
     "packages.carrier": "Spediteur",
     "packages.trackingNo": "Sendungsnummer",
     "packages.notification": "Benachrichtigung",
@@ -2828,15 +2999,6 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "common.days": "Tage",
 
     // Island Scene
-    "islandScene.departed.badge": "Aus der Türkei abgeschickt",
-    "islandScene.departed.title": "Ihre Pakete sind unterwegs",
-    "islandScene.departed.description": "Paketkäufe von türkischen Verkäufern sind auf dem Weg zu unserem Lager auf Chios.",
-    "islandScene.crossing.badge": "Überquert die Ägäis",
-    "islandScene.crossing.title": "Sicher transportiert",
-    "islandScene.crossing.description": "Über Schiffe und Frachtrouten ist jedes Paket versichert und verfolgbar.",
-    "islandScene.arrived.badge": "Am Ziel angekommen",
-    "islandScene.arrived.title": "In unserem Lager auf Chios",
-    "islandScene.arrived.description": "Konsolidieren Sie, sparen Sie, wir liefern an Ihre Tür.",
 
     // Bento Grid (Hero Animation)
     "bento.route.title": "Nahtlose Logistik",
@@ -2886,6 +3048,27 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "adminTranslations.noResults": "Keine Übersetzungen für diese Suche gefunden",
     "adminTranslations.empty": "Noch keine Übersetzungen für diese Sprache hinzugefügt",
     "adminTranslations.delete": "Löschen",
+    "adminTranslations.categoryAll": "Alle",
+    "adminTranslations.categoryAdmin": "Admin",
+    "adminTranslations.categoryFrontend": "Frontend",
+    "adminTranslations.addKey": "Schlüssel hinzufügen",
+    "adminTranslations.addKeyTitle": "Neuen Übersetzungsschlüssel hinzufügen",
+    "adminTranslations.keyLabel": "Schlüssel",
+    "adminTranslations.valueLabel": "Wert",
+    "adminTranslations.valuePlaceholder": "Übersetzungstext...",
+    "adminTranslations.addToAll": "Zu allen Sprachen hinzufügen",
+    "adminTranslations.addedToAll": "\"{key}\" Schlüssel zu allen Sprachen hinzugefügt",
+    "adminTranslations.addedSingle": "\"{key}\" Schlüssel zu dieser Sprache hinzugefügt",
+    "adminTranslations.addFailed": "Hinzufügen fehlgeschlagen",
+    "adminTranslations.addBtn": "Hinzufügen",
+    "adminTranslations.adding": "Wird hinzugefügt...",
+    "adminTranslations.cancel": "Abbrechen",
+    "adminTranslations.deleteFromLang": "Aus dieser Sprache löschen",
+    "adminTranslations.deleteFromAll": "Aus allen Sprachen löschen",
+    "adminTranslations.deleteAllConfirm": "\"{key}\" aus allen Sprachen löschen. Sind Sie sicher?",
+    "adminTranslations.page": "Seite",
+    "adminTranslations.prev": "Zurück",
+    "adminTranslations.next": "Weiter",
 
     // Admin Languages Page
     "adminLanguages.title": "Sprachen",
@@ -2927,6 +3110,9 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "adminSettings.catRateLimits": "Rate Limits",
     "adminSettings.warningTitle": "Achtung",
     "adminSettings.warningText": "Gebühren- und Planänderungen betreffen nur neue Transaktionen. Bestehende Rechnungen behalten ihre Beträge. Bitte sorgfältig prüfen.",
+
+    // Settings labels (from system_settings table)
+
     "adminPolicies.titleLabel": "Titel",
     "adminPolicies.titlePlaceholder": "Richtlinientitel",
     "adminPolicies.contentLabel": "Inhalt",
@@ -2939,5 +3125,152 @@ export const translationSeed: Record<string, Record<string, string>> = {
     "adminPolicies.published": "Veröffentlicht",
     "adminPolicies.draft": "Entwurf",
     "footer.kvkk": "KVKK Belehrung",
+
+    // Admin sidebar
+    "admin.faq": "FAQ",
+    "admin.sliders": "Slider",
+    "admin.shoppingSites": "Shopping-Seiten",
+    "admin.plans": "Pläne",
+    "admin.contentBlocks": "Inhaltsblöcke",
+
+    // Nav additions
+    "nav.shoppingSites": "EU Shopping-Seiten",
+    "nav.faq": "FAQ",
+
+    // Admin Common (shared across all admin pages)
+    "adminCommon.add": "Hinzufügen",
+    "adminCommon.edit": "Bearbeiten",
+    "adminCommon.delete": "Löschen",
+    "adminCommon.save": "Speichern",
+    "adminCommon.update": "Aktualisieren",
+    "adminCommon.cancel": "Abbrechen",
+    "adminCommon.created": "Hinzugefügt.",
+    "adminCommon.updated": "Aktualisiert.",
+    "adminCommon.published": "Veröffentlicht",
+    "adminCommon.draft": "Entwurf",
+    "adminCommon.empty": "Noch keine Einträge.",
+    "adminCommon.name": "Name",
+    "adminCommon.title": "Titel",
+    "adminCommon.subtitle": "Untertitel",
+    "adminCommon.imageUrl": "Bild-URL",
+    "adminCommon.linkUrl": "Link-URL",
+    "adminCommon.url": "URL",
+    "adminCommon.logoUrl": "Logo-URL",
+    "adminCommon.category": "Kategorie",
+    "adminCommon.sortOrder": "Sortierung",
+    "adminCommon.body": "Text",
+    "adminCommon.allCategories": "Alle Kategorien",
+    "adminCommon.allCountries": "Alle Länder",
+    "adminCommon.saved": "Gespeichert.",
+    "adminCommon.unsaved": "Ungespeicherte Änderungen",
+    "adminCommon.untitled": "Ohne Titel",
+    "adminCommon.price": "Preis",
+    "adminCommon.question": "Frage",
+    "adminCommon.answer": "Antwort",
+    "adminCommon.featuresHelp": "Ein Feature pro Zeile",
+    "adminCommon.imported": "{count} Einträge importiert.",
+
+    // Admin FAQ
+    "adminFaq.description": "Organisieren und verwalten Sie häufig gestellte Fragen nach Kategorie.",
+
+    // Admin Sliders
+    "adminSliders.description": "Verwalten Sie Startseiten-Slider-Bilder und -Texte.",
+
+    // Admin Shopping Sites
+    "adminShoppingSites.description": "Fügen Sie europäische Shopping-Seiten hinzu, bearbeiten und importieren/exportieren Sie per CSV.",
+
+    // Admin Plans
+    "adminPlans.description": "Fügen Sie Mitgliedschaftspläne hinzu, bearbeiten und verwalten Sie sie.",
+
+    // Admin Content Blocks
+    "adminContentBlocks.description": "Verwalten Sie Inhalte für Hero, Anleitung, Preise und andere Bereiche.",
+
+    // Contact page
+    "contact.title": "Kontakt",
+    "contact.description": "Kontaktieren Sie uns, wir beantworten Ihre Fragen.",
+    "contact.name": "Ihr Name",
+    "contact.email": "Ihre E-Mail",
+    "contact.subject": "Betreff",
+    "contact.message": "Ihre Nachricht",
+    "contact.send": "Senden",
+    "contact.sending": "Wird gesendet...",
+    "contact.address": "Lageradresse",
+
+    // FAQ public
+    "faq.title": "Häufig gestellte Fragen",
+    "faq.description": "Finden Sie hier Antworten auf die häufigsten Fragen zu ChiosBox.",
+    "faq.searchPlaceholder": "Fragen durchsuchen...",
+    "faq.allCategories": "Alle",
+    "faq.noResults": "Keine Fragen entsprechen Ihrer Suche.",
+
+    // Shopping sites public
+    "shoppingSites.title": "Europäische Shopping-Seiten",
+    "shoppingSites.description": "Beliebte europäische E-Commerce-Seiten, von denen Sie aus der Türkei einkaufen können.",
+    "shoppingSites.searchPlaceholder": "Seiten durchsuchen...",
+    "shoppingSites.allCountries": "Alle Länder",
+    "shoppingSites.noResults": "Keine Seiten entsprechen Ihrer Suche.",
+
+    // How it works extra
+
+    // Dashboard widgets
+    "dashboard.overdue": "überfällig",
+    "dashboard.payNow": "Jetzt bezahlen",
+    "dashboard.storageAllClear": "Ihre Lagerzeit ist in Ordnung, keine Pakete sind überfällig.",
+
+    // How It Works CTA
+    "howItWorks.ctaTitle": "Jetzt starten",
+    "howItWorks.ctaText": "Holen Sie sich Ihre kostenlose ChiosBox-Adresse und beginnen Sie mit dem Einkauf aus Europa.",
+    "howItWorks.ctaButton": "Kostenlos anmelden",
+
+    // Contact form result
+    "contact.sentTitle": "Nachricht gesendet!",
+    "contact.sentText": "Ihre Nachricht wurde empfangen. Wir werden uns in Kürze bei Ihnen melden.",
+    "contact.sendError": "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es später erneut.",
+
+    // Common singular
+    "common.package": "Paket",
+
+    // Rich Text Editor
+    "editor.heading1": "Überschrift 1",
+    "editor.heading2": "Überschrift 2",
+    "editor.heading3": "Überschrift 3",
+    "editor.bold": "Fett",
+    "editor.italic": "Kursiv",
+    "editor.underline": "Unterstrichen",
+    "editor.strike": "Durchgestrichen",
+    "editor.bulletList": "Aufzählung",
+    "editor.orderedList": "Nummerierte Liste",
+    "editor.blockquote": "Zitat",
+    "editor.horizontalRule": "Horizontale Linie",
+    "editor.link": "Link hinzufügen",
+    "editor.enterUrl": "URL eingeben",
+
+    // Admin actions
+    "action.invoices": "Rechnungen",
+    "action.customers": "Kunden",
+
+    // Tour (legacy key — profile help card)
+    "tour.step1.content": "Entdecken Sie ChiosBox Schritt für Schritt. Der Tour-Guide zeigt Ihnen alle Funktionen in der richtigen Reihenfolge.",
+
+    // Editor toolbar
+    "editor.redo": "Wiederholen",
+    "editor.undo": "Rückgängig",
+    "editor.heading": "Überschrift",
+    "editor.paragraph": "Absatz",
+    "editor.unlink": "Link entfernen",
+    "editor.code": "Code",
+    "editor.strikethrough": "Durchgestrichen",
+
+    "action.intake": "Annahme",
+
+    // About page
+    "about.title": "Über Uns",
+    "about.subtitle": "ChiosBox bietet zuverlässigen Pakettransport zwischen der Türkei und Europa. Von Chios aus vereinfachen wir die E-Commerce-Logistik.",
+    "about.missionTitle": "Unsere Mission",
+    "about.missionBody": "Türkischen Käufern mühelosen Zugang zu europäischen Produkten zu ermöglichen. Wir vereinfachen den Prozess, senken die Kosten und halten Ihre Pakete sicher.",
+    "about.storyTitle": "Unsere Geschichte",
+    "about.storyBody": "ChiosBox entstand inspiriert von der strategischen Lage der Insel Chios. Wir sahen, wie schwierig der persönliche Paketversand von Europa in die Türkei war und beschlossen, dies zu ändern.",
+    "about.teamTitle": "Machen Sie mit",
+    "about.teamSubtitle": "Tausende Kunden vertrauen bei ihren europäischen Einkäufen auf ChiosBox. Holen Sie sich jetzt Ihre europäische Lieferadresse.",
   },
 };

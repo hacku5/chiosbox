@@ -191,7 +191,7 @@ export default function AdminSettingsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold text-deep-sea-teal">
-                          {setting.label}
+                          {t(`settings.${setting.key}`) || setting.label}
                         </span>
                         <span className="text-[10px] font-mono text-deep-sea-teal/30 bg-deep-sea-teal/5 px-1.5 py-0.5 rounded">
                           {setting.key}
@@ -199,7 +199,7 @@ export default function AdminSettingsPage() {
                       </div>
                       {setting.description && (
                         <p className="text-xs text-deep-sea-teal/40 mt-0.5">
-                          {setting.description}
+                          {t(`settings.${setting.key}Desc`) || setting.description}
                         </p>
                       )}
                     </div>

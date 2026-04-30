@@ -134,103 +134,22 @@ export function TranslationProvider({ children }: { children: React.ReactNode })
     setLang(cookieLang);
     setLoading(true);
 
-    const cacheKey = `i18n_${cookieLang}`;
-    const fallbackCacheKey = "i18n_en";
-
-    // Try localStorage cache first
-    try {
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        const { entries, timestamp } = JSON.parse(cached);
-        // Cache valid for 5 minutes
-        if (Date.now() - timestamp < 5 * 60 * 1000) {
-          setTranslations(entries);
-          setLoading(false);
-          setReady(true);
-          // Still fetch in background to update cache
-          fetchTranslations(cookieLang, cacheKey, true);
-          if (cookieLang !== "en") {
-            loadFallback(fallbackCacheKey);
-          }
-          return;
-        }
-      }
-    } catch {
-      // localStorage not available
-    }
-
-    fetchTranslations(cookieLang, cacheKey, false);
-    if (cookieLang !== "en") {
-      loadFallback(fallbackCacheKey);
-    }
-  }, [lang]);
-
-  function loadFallback(cacheKey: string) {
-    try {
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        const { entries, timestamp } = JSON.parse(cached);
-        if (Date.now() - timestamp < 5 * 60 * 1000) {
-          setFallbackTranslations(entries);
-          return;
-        }
-      }
-    } catch { /* ignore */ }
-
-    fetch("/locales/en.json")
-      .then((r) => {
-        if (!r.ok) throw new Error("no static file");
-        return r.json();
-      })
-      .then((entries) => {
-        // Static file returns entries directly
-        setFallbackTranslations(entries);
-        try {
-          localStorage.setItem(cacheKey, JSON.stringify({ entries, timestamp: Date.now() }));
-        } catch { /* ignore */ }
-      })
-      .catch(() => {
-        // Fall back to API
-        fetch("/api/translations?lang=en")
-          .then((r) => r.json())
-          .then((data) => {
-            if (data.entries) {
-              setFallbackTranslations(data.entries);
-              try {
-                localStorage.setItem(cacheKey, JSON.stringify({ entries: data.entries, timestamp: Date.now() }));
-              } catch { /* ignore */ }
-            }
-          })
-          .catch(() => {});
-      });
-  }
-
-  function fetchTranslations(languageCode: string, cacheKey: string, isBackground: boolean) {
-    // Try static file first (instant, no API call)
-    fetch(`/locales/${languageCode}.json`)
+    // Static file first (built at deploy time from DB), API fallback
+    fetch(`/locales/${cookieLang}.json`)
       .then((r) => {
         if (!r.ok) throw new Error("no static file");
         return r.json();
       })
       .then((entries) => {
         setTranslations(entries);
-        try {
-          localStorage.setItem(cacheKey, JSON.stringify({ entries, timestamp: Date.now() }));
-        } catch { /* ignore */ }
         setLoading(false);
         setReady(true);
       })
       .catch(() => {
-        // Fall back to API
-        fetch(`/api/translations?lang=${languageCode}`)
+        fetch(`/api/translations?lang=${cookieLang}`)
           .then((r) => r.json())
           .then((data) => {
-            if (data.entries) {
-              setTranslations(data.entries);
-              try {
-                localStorage.setItem(cacheKey, JSON.stringify({ entries: data.entries, timestamp: Date.now() }));
-              } catch { /* ignore */ }
-            }
+            if (data.entries) setTranslations(data.entries);
             setLoading(false);
             setReady(true);
           })
@@ -239,7 +158,25 @@ export function TranslationProvider({ children }: { children: React.ReactNode })
             setTimeout(() => setReady(true), 100);
           });
       });
-  }
+
+    // Load English fallback
+    if (cookieLang !== "en") {
+      fetch("/locales/en.json")
+        .then((r) => {
+          if (!r.ok) throw new Error("no static file");
+          return r.json();
+        })
+        .then((entries) => setFallbackTranslations(entries))
+        .catch(() => {
+          fetch("/api/translations?lang=en")
+            .then((r) => r.json())
+            .then((data) => {
+              if (data.entries) setFallbackTranslations(data.entries);
+            })
+            .catch(() => {});
+        });
+    }
+  }, [lang]);
 
   const t = useCallback(
     (key: string, params?: Record<string, string | number>): string => {

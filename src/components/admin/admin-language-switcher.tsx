@@ -6,7 +6,9 @@ import { useTranslation } from "@/hooks/use-translation";
 export function AdminLanguageSwitcher() {
   const { lang, languages, changeLang } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [up, setUp] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
 
   const enabledLanguages = languages.filter((l) => l.is_enabled);
   const current = enabledLanguages.find((l) => l.code === lang);
@@ -21,19 +23,28 @@ export function AdminLanguageSwitcher() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  function toggle() {
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setUp(rect.bottom + 220 > window.innerHeight);
+    }
+    setOpen(!open);
+  }
+
   if (enabledLanguages.length <= 1) return null;
 
   return (
     <div ref={ref} className="relative">
       <button
-        onClick={() => setOpen(!open)}
+        ref={btnRef}
+        onClick={toggle}
         className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
       >
         <span className="text-lg leading-none">{current?.flag || "🌐"}</span>
       </button>
 
       {open && (
-        <div className="absolute left-0 bottom-full mb-1 bg-white rounded-xl shadow-lg border border-gray-200 py-1 min-w-[140px] z-50">
+        <div className={`absolute left-0 bg-white rounded-xl shadow-lg border border-gray-200 py-1 min-w-[140px] z-50 ${up ? "bottom-full mb-1" : "top-full mt-1"}`}>
           {enabledLanguages.map((language) => (
             <button
               key={language.code}

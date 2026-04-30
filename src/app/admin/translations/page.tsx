@@ -32,6 +32,9 @@ export default function AdminTranslationsPage() {
   const [newValue, setNewValue] = useState("");
   const [addToAll, setAddToAll] = useState(false);
   const [category, setCategory] = useState<"all" | "admin" | "frontend">("all");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     fetch("/api/admin/languages")
@@ -46,20 +49,23 @@ export default function AdminTranslationsPage() {
       });
   }, []);
 
+  const PAGE_SIZE = 50;
   const fetchTranslations = useCallback(async () => {
     if (!selectedLang) return;
     setLoading(true);
-    const params = new URLSearchParams({ lang: selectedLang });
+    const params = new URLSearchParams({ lang: selectedLang, limit: String(PAGE_SIZE), page: String(page) });
     if (search) params.set("search", search);
 
     const res = await fetch(`/api/admin/translations?${params}`);
     if (res.ok) {
       const data = await res.json();
       setTranslations(data.translations || []);
+      setTotalCount(data.total || 0);
+      setTotalPages(Math.ceil((data.total || 0) / PAGE_SIZE));
     }
     setLoading(false);
     setEditedValues({});
-  }, [selectedLang, search]);
+  }, [selectedLang, search, page]);
 
   useEffect(() => {
     fetchTranslations();
@@ -201,7 +207,7 @@ export default function AdminTranslationsPage() {
           {languages.map((lang) => (
             <button
               key={lang.code}
-              onClick={() => setSelectedLang(lang.code)}
+              onClick={() => { setSelectedLang(lang.code); setPage(1); }}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                 selectedLang === lang.code
                   ? "bg-deep-sea-teal text-white"
@@ -383,6 +389,31 @@ export default function AdminTranslationsPage() {
           {filteredTranslations.length === 0 && (
             <div className="text-center py-12 text-deep-sea-teal/40">
               {search ? t("adminTranslations.noResults") : t("adminTranslations.empty")}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-3 border-t border-deep-sea-teal/5">
+              <span className="text-xs text-deep-sea-teal/40">
+                {totalCount} keys · {t("adminTranslations.page")} {page} / {totalPages}
+              </span>
+              <div className="flex gap-1">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-deep-sea-teal/60 hover:bg-deep-sea-teal/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  ← {t("adminTranslations.prev")}
+                </button>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-deep-sea-teal/60 hover:bg-deep-sea-teal/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  {t("adminTranslations.next")} →
+                </button>
+              </div>
             </div>
           )}
         </div>

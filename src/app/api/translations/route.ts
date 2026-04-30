@@ -29,17 +29,31 @@ export async function GET(request: Request) {
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("translations")
-    .select("key, value")
-    .eq("language_code", langResult.data);
 
-  if (error) {
-    return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
+  let allRows: { key: string; value: string }[] = [];
+  const PAGE_SIZE = 1000;
+  let from = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("translations")
+      .select("key, value")
+      .eq("language_code", langResult.data)
+      .range(from, from + PAGE_SIZE - 1)
+      .order("key", { ascending: true });
+
+    if (error) {
+      return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
+    }
+
+    if (!data || data.length === 0) break;
+    allRows = allRows.concat(data);
+    if (data.length < PAGE_SIZE) break;
+    from += PAGE_SIZE;
   }
 
   const entries: Record<string, string> = {};
-  for (const row of data ?? []) {
+  for (const row of allRows) {
     entries[row.key] = row.value;
   }
 

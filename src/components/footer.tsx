@@ -43,7 +43,7 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="#nasil-calisir"
+                  href="/nasil-calisir"
                   className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
                 >
                   {t("footer.howItWorks")}
@@ -51,7 +51,15 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="#fiyat"
+                  href="/avrupa-alisveris-siteleri"
+                  className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
+                >
+                  {t("nav.shoppingSites")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/#fiyat"
                   className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
                 >
                   {t("footer.pricing")}
@@ -87,6 +95,14 @@ export function Footer() {
                   className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
                 >
                   {t("footer.contact")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/hakkimizda"
+                  className="text-sm text-deep-sea-teal/60 hover:text-chios-purple transition-colors duration-200"
+                >
+                  {t("footer.about")}
                 </Link>
               </li>
               <li>

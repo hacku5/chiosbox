@@ -1,8 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "@/hooks/use-translation";
-import { useSettings } from "@/hooks/use-settings";
 
 interface PlanOption {
   id: string;
@@ -20,36 +20,26 @@ interface PlanSelectorProps {
 
 export function PlanSelector({ selected, onSelect }: PlanSelectorProps) {
   const { t } = useTranslation();
-  const { settings } = useSettings();
+  const [plans, setPlans] = useState<PlanOption[]>([]);
 
-  const plans: PlanOption[] = [
-    {
-      id: "TEMEL",
-      name: t("planSelector.temel.name"),
-      price: `€${settings.plan_price_temel.toFixed(2)}`,
-      period: t("planSelector.period"),
-      features: [
-        t("planSelector.temel.f1"),
-        t("planSelector.temel.f2"),
-        t("planSelector.temel.f3"),
-        t("planSelector.temel.f4"),
-      ],
-    },
-    {
-      id: "PREMIUM",
-      name: t("planSelector.premium.name"),
-      price: `€${settings.plan_price_premium.toFixed(2)}`,
-      period: t("planSelector.period"),
-      badge: t("planSelector.premium.badge"),
-      features: [
-        t("planSelector.premium.f1"),
-        t("planSelector.premium.f2"),
-        t("planSelector.premium.f3"),
-        t("planSelector.premium.f4"),
-        t("planSelector.premium.f5"),
-      ],
-    },
-  ];
+  useEffect(() => {
+    fetch("/api/plans")
+      .then((r) => r.json())
+      .then((data) => {
+        const items = (data.plans || []).map((p: { id: string; name: string; price: number; features: string[] }) => ({
+          id: p.name.toUpperCase(),
+          name: p.name,
+          price: `€${Number(p.price).toFixed(2)}`,
+          period: t("planSelector.period"),
+          features: Array.isArray(p.features) ? p.features : [],
+        }));
+        items.forEach((p: PlanOption) => {
+          if (p.id === "PREMIUM") p.badge = t("planSelector.premium.badge");
+        });
+        setPlans(items);
+      })
+      .catch(() => {});
+  }, [t]);
 
   return (
     <div className="grid grid-cols-2 gap-3">

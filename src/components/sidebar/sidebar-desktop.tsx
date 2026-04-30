@@ -64,12 +64,20 @@ export function SidebarDesktop({ navItems, bottomContent }: SidebarDesktopProps)
 
       {/* Nav items */}
       <nav className="flex-1 px-2 py-4 flex flex-col gap-1 overflow-y-auto">
-        {navItems.map((item) => {
-          const active = isActive(item.href);
+        {navItems.map((item, i) => {
+          if (item.type === "separator") {
+            if (collapsed) return null;
+            return (
+              <div key={`sep-${i}`} className="text-[10px] font-bold uppercase tracking-wider text-deep-sea-teal/30 px-4 pt-4 pb-1 first:pt-0">
+                {item.label}
+              </div>
+            );
+          }
+          const active = isActive(item.href!);
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={item.href!}
               className={`flex items-center gap-3 rounded-xl transition-all duration-200 cursor-pointer relative ${
                 collapsed ? "flex-col gap-1 px-0 py-3 justify-center" : "px-4 py-3"
               } ${

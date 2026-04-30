@@ -66,7 +66,7 @@ export function UserLayoutClient({ children }: { children: React.ReactNode }) {
     label: t(cfg.key),
     href: cfg.href,
     icon: cfg.icon,
-    badge: cfg.badgeKey === "payment" ? pendingCount : undefined,
+    badge: cfg.badgeKey === "payment" && pendingCount > 0 ? pendingCount : undefined,
   }));
 
   const bottomBarItems = navItems.filter((item) =>
